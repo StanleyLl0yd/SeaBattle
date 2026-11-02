@@ -35,9 +35,12 @@
     .statusdot.waiting { background:var(--accent); box-shadow:0 0 0 5px #f3bd7219; }
     .statusdot.ended { background:var(--red); box-shadow:0 0 0 5px #ff777e19; }
     .status-text { font-weight:650; line-height:1.5; }
-    .daily-panel,.tactical-panel,.trainer-panel { background:#10283a; border:1px solid #315468; border-radius:15px; padding:15px 18px; margin:0 0 20px; line-height:1.6; color:var(--ink); }
+    .stats-panel,.daily-panel,.tactical-panel,.trainer-panel { background:#10283a; border:1px solid #315468; border-radius:15px; padding:15px 18px; margin:0 0 20px; line-height:1.6; color:var(--ink); }
     .daily-panel[hidden],.tactical-panel[hidden],.trainer-panel[hidden],#trainer-advice[hidden] { display:none; }
-    .daily-panel p,.tactical-panel p { margin:8px 0; color:#b8d5e2; }
+    .stats-panel summary { cursor:pointer; font-weight:700; color:var(--cyan); }
+     .stats-panel p { margin:8px 0; color:#b8d5e2; }
+     .stats-list { padding-left:24px; margin:8px 0; color:#b8d5e2; font-size:.87rem; line-height:1.7; }
+     .daily-panel p,.tactical-panel p { margin:8px 0; color:#b8d5e2; }
     .tactical-panel #tactical-details { white-space:pre-line; }
     .tactical-panel small { color:#93aec1; }
     .daily-panel button { margin-top:7px; }
@@ -164,7 +167,13 @@
       </div>
       <details id="ranks-detail"><summary data-i18n="ranksHeading">All 19 naval ranks</summary><ol id="rank-list"></ol></details>
     </section>
-    <div class="statusbar" role="status" aria-live="polite" aria-atomic="true">
+    <details class="stats-panel" id="stats-panel">
+       <summary data-i18n="statsHeading">📊 Personal statistics</summary>
+       <p data-i18n="statsNote">Completed battles on this device since v0.9.1; earlier games are not included.</p>
+       <p id="stats-summary"></p>
+       <ul class="stats-list" id="stats-list"></ul>
+     </details>
+     <div class="statusbar" role="status" aria-live="polite" aria-atomic="true">
       <span class="statusdot" id="status-dot" aria-hidden="true"></span>
       <span class="status-text" id="status-text">Your fleet is ready. Start the battle or choose another layout.</span>
     </div>
@@ -237,6 +246,7 @@
   </main>
     <script defer src="js/config.js"></script>
   <script defer src="js/career.js"></script>
+   <script defer src="js/stats.js"></script>
   <script defer src="js/ui-state.js"></script>
   <script defer src="js/engine.js"></script>
   <script defer src="js/ai.js"></script>

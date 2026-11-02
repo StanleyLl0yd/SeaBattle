@@ -1,3 +1,13 @@
+## [0.9.1] - 2026-11-03
+
+- Added bilingual, device-local personal statistics for completed battles, split across six mode buckets including independent RU/US campaigns.
+- Aggregate games, wins/losses, shooting accuracy and fewest winning shots are stored in the validated `seabattle.stats.v1` key. Past matches are not backfilled, and existing career/daily storage remains unchanged.
+- No saved grids, shot traces, telemetry, accounts, backend or dependencies; updated the offline shell and tests.
+
+- Добавлена двуязычная локальная личная статистика завершённых боёв, отдельно по режимам и кампаниям двух флотов.
+- Счётчики партий, побед, поражений, точности и лучшего результата в выстрелах сохраняются как проверенные агрегаты в `seabattle.stats.v1`. Прошлые бои задним числом не учитываются, карьерные и дневные записи не меняются.
+- Без хранения расстановок, истории выстрелов, телеметрии, аккаунтов, сервера и зависимостей; обновлены офлайн-кеш и тесты.
+
 ## [0.9.0] - 2026-11-02
 
 - Added an opt-in Quick Battle tactical trainer with up to three unshot cells scored from public shot evidence and remaining ship sizes; scores are relative placement weights, not probabilities.

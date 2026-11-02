@@ -1,10 +1,10 @@
 "use strict";
 const CACHE_PREFIX = "seabattle-shell-";
-const CACHE_NAME = CACHE_PREFIX + "v0.9.0";
+const CACHE_NAME = CACHE_PREFIX + "v0.9.1";
 const SHELL = [
   "./", "./index.html", "./manifest.webmanifest", "./favicon.ico",
   "./assets/seabattle-icon.svg", "./assets/icon-192.png", "./assets/icon-512.png",
-  "./js/config.js", "./js/career.js", "./js/ui-state.js",
+  "./js/config.js", "./js/career.js", "./js/stats.js", "./js/ui-state.js",
   "./js/engine.js", "./js/ai.js", "./js/daily.js", "./js/tactics.js", "./js/ui.js"
 ];
 self.addEventListener("install", event => {

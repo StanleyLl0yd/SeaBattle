@@ -57,6 +57,24 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
       }
       target.innerHTML = html;
     }
+    function renderPersonalStats() {
+      const rows=STATS_MODES.map(mode=>({mode,...personalStats[mode]}));
+      const total=rows.reduce((acc,row)=>({
+        games:acc.games+row.games,wins:acc.wins+row.wins,
+        shots:acc.shots+row.shots,hits:acc.hits+row.hits
+      }),{games:0,wins:0,shots:0,hits:0});
+      const details=row=>t("statsGames")+": "+row.games+
+        " · "+t("statsWins")+": "+row.wins+
+        " · "+t("statsLosses")+": "+(row.games-row.wins)+
+        " · "+t("statsAccuracy")+": "+(row.shots ? Math.round(100*row.hits/row.shots)+"%" : "—");
+      ui.statsSummary.textContent=details(total);
+      ui.statsList.replaceChildren(...rows.map(row=>{
+        const item=document.createElement("li");
+        item.textContent=t("statsMode"+row.mode.charAt(0).toUpperCase()+row.mode.slice(1))+
+          " — "+details(row)+(row.best===null ? "" : " · "+t("statsBest")+": "+row.best);
+        return item;
+      }));
+    }
     function render() {
       renderBoard(game.player, false, ui.player);
       renderBoard(game.enemy, true, ui.enemy);
@@ -127,6 +145,7 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
       ui.undo.disabled = !game.manual || game.phase !== "setup" || !game.player.ships.length;
       ui.start.disabled = game.phase !== "setup" || game.player.ships.length !== FLEET.length;
       renderCareer();
+      renderPersonalStats();
       paintPreview();
     }
     function startBattle() {
@@ -155,6 +174,7 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
       } else if (game.mode === "warrant" || game.mode === "fleet") {
         game.specialPromotion = recordSpecialResult(winner);
       }
+      recordPersonalResult(winner,game.mode,game.navy,shotCount(game.enemy),hitCount(game.enemy));
       const keys = game.mode === "daily" ? ["dailyWin","careerLoss"] :
         game.mode === "campaign" ? ["campaignWin","careerLoss"] :
         game.mode === "warrant" ? ["warrantWin","warrantLoss"] :
