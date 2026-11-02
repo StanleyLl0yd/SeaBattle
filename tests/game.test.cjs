@@ -8,7 +8,7 @@ const vm = require('node:vm');
 const html = readFileSync(join(__dirname, '..', 'index.html'), 'utf8');
 const {script} = require('./source.cjs');
 assert.ok(script, 'Game modules must be available');
-const marker = script.indexOf('    function updateStatus(');
+const marker = script.indexOf('function updateStatus(');
 assert.ok(marker > 0, 'Game engine functions were not found');
 const context = vm.createContext({document: {getElementById: () => ({})}});
 vm.runInContext(script.slice(0, marker) +
@@ -23,7 +23,8 @@ test('HTML loads local game modules, is localized and has working controls', () 
   for (const id of ['player-board','enemy-board','auto','manual','rotate','undo','start','new-game','language']) {
     assert.ok(html.includes('id="' + id + '"'), id);
   }
-  assert.doesNotMatch(html, /<link\s+[^>]*href="https?:/i);\n  for (const path of require('./source.cjs').paths) assert.ok(html.includes('src="'+path+'"'));
+  assert.doesNotMatch(html, /<link\s+[^>]*href="https?:/i);
+  for (const path of require('./source.cjs').paths) assert.ok(html.includes('src="'+path+'"'));
 });
 
 test('200 generated fleets have legal sizes and do not touch', () => {
