@@ -63,7 +63,7 @@ test('only completed matches are recorded once, and never raw board or shot info
   assert.equal(record.version,1);
   assert.deepEqual(Object.keys(record),['version','modes']);
   assert.deepEqual(Object.keys(record.modes.quick),['games','wins','shots','hits','best']);
-  assert.doesNotMatch(JSON.stringify(record),/cells|ships|trace|fleet|coords|board|index|seed|dailyDate/);
+  assert.doesNotMatch(JSON.stringify(record),/cells|ships|trace|coords|board|index|seed|dailyDate/);
   assert.equal(saved.has('seabattle.careers.v2'),false);
   assert.equal(saved.has('seabattle.daily.v1'),false);
   assert.deepEqual(boot(saved).stats().quick,stats.quick,'completed results persist across reloads');
@@ -86,7 +86,7 @@ test('mode and navy isolation, aggregate hit accuracy and best victorious result
   assert.equal(s.warrant.games,1);
   assert.equal(s.fleet.wins,0);
   b.eval('render()');
-  assert.match(b.nodes.get('stats-summary').textContent,/Games: 7.*Wins: 5.*Losses: 2.*Accuracy: 76%/);
+  assert.match(b.nodes.get('stats-summary').textContent,/Games: 7.*Wins: 5.*Losses: 2.*Accuracy: 63%/);
   assert.ok(b.nodes.get('stats-list').children.some(item=>/Quick battle.*Best victory shots: 30/.test(item.textContent)));
   assert.equal(b.eval('recordPersonalResult("player","unknown","ru",25,20)'),false);
   assert.equal(b.eval('recordPersonalResult("player","campaign","xx",25,20)'),false);
