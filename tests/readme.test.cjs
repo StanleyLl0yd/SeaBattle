@@ -91,5 +91,5 @@ test('player documentation links to the hosted browser game, not local HTML dist
     assert.doesNotMatch(content, /(?:open|download|save|открой|скачать|сохрани).{0,40}`index\.html`/i, name);
     assert.doesNotMatch(content, /(?:offline-first|автономная игра в одном HTML-файле|скачай.{0,40}HTML|download.{0,40}HTML)/i, name);
   }
-  assert.match(read('AGENTS.md'), /single-file architecture is \*\*not mandatory\*\*/);
+  assert.match(read('AGENTS.md'), /authoritative browser implementation is now split into \*\*ordered local classic scripts\*\*/);
 });
