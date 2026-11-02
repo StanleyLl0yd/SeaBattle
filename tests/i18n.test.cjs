@@ -6,8 +6,8 @@ const test = require('node:test');
 const vm = require('node:vm');
 
 const html = readFileSync(join(__dirname, '..', 'index.html'), 'utf8');
-const script = html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
-assert.ok(script, 'Expected one inline game script');
+const {script} = require('./source.cjs');
+assert.ok(script, 'Game modules must be available');
 
 function boot(languages, fallback = 'en-US') {
   const nodes = new Map();
@@ -183,7 +183,7 @@ test('offline English default markup, no remote code, and keyboard controls rema
   assert.match(html, /<option value="en"/);
   assert.match(html, /<option value="ru"/);
   assert.match(html, /aria-live="polite"/);
-  assert.doesNotMatch(html, /<script\s+src=|<link\s+[^>]*href="https?:/i);
+  assert.doesNotMatch(html, /<link\s+[^>]*href="https?:/i);\n  for(const path of require('./source.cjs').paths) assert.ok(html.includes('src="'+path+'"'));
   assert.ok(html.includes('event.code === "KeyR"'));
-  assert.doesNotMatch(html.slice(0, html.indexOf('<script>')), /[А-ЯЁа-яё]/);
+  assert.doesNotMatch(html.slice(0, html.indexOf('<script defer')), /[А-ЯЁа-яё]/);
 });
