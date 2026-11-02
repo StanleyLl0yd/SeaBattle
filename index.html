@@ -125,8 +125,8 @@
           <select id="game-mode" aria-label="Mode" data-i18n-aria-label="modeLabel">
             <option value="campaign" data-i18n="modeCampaign">Campaign</option>
             <option value="quick" data-i18n="modeQuick">Quick battle</option>
-            <option value="warrant" data-i18n="modeWarrant">Warrant Officer trials</option>
-            <option value="fleet" data-i18n="modeFleet">Fleet Admiral challenge</option>
+            <option id="mode-warrant" value="warrant" data-i18n="modeWarrant">Warrant Officer trials</option>
+            <option id="mode-fleet" value="fleet" data-i18n="modeFleet">Fleet Admiral challenge</option>
           </select>
           <span id="quick-controls" hidden>
             <label for="quick-level" data-i18n="difficultyLabel">Difficulty</label>
@@ -685,7 +685,7 @@
       setup: $("setup"), hint: $("setup-hint"), progress: $("setup-progress"),
       auto: $("auto"), manual: $("manual"), rotate: $("rotate"), undo: $("undo"), start: $("start"), again: $("new-game"), language: $("language"),
       navy: $("navy-select"), mode: $("game-mode"), quickLevel: $("quick-level"), quickBox: $("quick-controls"),
-      warrantOption: null, fleetOption: null, careerSpecial: $("career-special"),
+      warrantOption: $("mode-warrant"), fleetOption: $("mode-fleet"), careerSpecial: $("career-special"),
       careerRank: $("career-rank"), careerProgress: $("career-progress"), careerProgressText: $("career-progress-text"),
       careerStats: $("career-stats"), careerAchievements: $("career-achievements"),
       careerReset: $("career-reset"), rankList: $("rank-list"), promotion: $("promotion")
