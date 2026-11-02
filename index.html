@@ -932,13 +932,15 @@
         }));
       });
       ui.language.value = language;
+      ui.navy.value = navy;
       fillRankOptions();
       if (game) render();
     }
     function setUpGame() {
       epoch++;
+      ui.mode.value = availableMode(ui.mode.value);
       game = { player: randomFleet(), enemy: randomFleet(), manual: false, horizontal: true, hover: -1,
-        phase: "setup", turn: "player", mode: ui.mode.value, level: selectedLevel(), promotion:0,
+        phase: "setup", turn: "player", navy, mode: ui.mode.value, level: selectedLevel(), promotion:0, specialPromotion:0,
         message: { key: "ready", args: {} } };
       render();
     }
@@ -995,8 +997,10 @@
       if (game.phase !== "setup" || game.player.ships.length !== 10) return;
       game.phase = "playing";
       game.turn = "player";
+      ui.mode.value = availableMode(ui.mode.value);
       game.level = selectedLevel();
       game.mode = ui.mode.value;
+      game.navy = navy;
       updateStatus("turn");
       render();
     }
@@ -1007,9 +1011,13 @@
       if (game.mode === "campaign") {
         const misses = shotCount(game.enemy) - hitCount(game.enemy);
         game.promotion = recordCareerResult(winner, misses);
+      } else if (game.mode === "warrant" || game.mode === "fleet") {
+        game.specialPromotion = recordSpecialResult(winner);
       }
-      updateStatus(winner === "player" ? (game.mode === "campaign" ? "campaignWin" : "quickWin") :
-        (game.mode === "campaign" ? "careerLoss" : "lose"));
+      const keys = game.mode === "campaign" ? ["campaignWin","careerLoss"] :
+        game.mode === "warrant" ? ["warrantWin","warrantLoss"] :
+        game.mode === "fleet" ? ["fleetWin","fleetLoss"] : ["quickWin","lose"];
+      updateStatus(keys[winner === "player" ? 0 : 1]);
     }
     function playerFire(i) {
       if (game.phase !== "playing" || game.turn !== "player") return;
@@ -1064,8 +1072,20 @@
       if (cell) playerFire(Number(cell.dataset.i));
     });
     ui.again.addEventListener("click", setUpGame);
+    ui.navy.addEventListener("change", () => {
+      if (game.phase !== "setup") { ui.navy.value = navy; return; }
+      const choice = ui.navy.value;
+      if (choice !== "ru" && choice !== "us") { ui.navy.value = navy; return; }
+      navy = choice;
+      career = careers[navy];
+      saveSelectedNavy();
+      ui.mode.value = "campaign";
+      fillRankOptions();
+      setUpGame();
+    });
     ui.mode.addEventListener("change", () => {
       if (game.phase !== "setup") return;
+      ui.mode.value = availableMode(ui.mode.value);
       game.mode = ui.mode.value;
       game.level = selectedLevel();
       render();
@@ -1077,9 +1097,13 @@
     });
     ui.careerReset.addEventListener("click", () => {
       if (game.phase === "playing") return;
-      if (typeof confirm !== "function" || !confirm(t("resetConfirm"))) return;
-      career = freshCareer();
-      saveCareer();
+      if (typeof confirm !== "function" ||
+          !confirm(t("resetConfirm") + " " + t(navy === "ru" ? "navyRussia" : "navyUS") +
+            ". " + t("navyResetScope"))) return;
+      careers[navy] = freshCareer(navy);
+      career = careers[navy];
+      saveCareers();
+      ui.mode.value = "campaign";
       setUpGame();
     });
     ui.auto.addEventListener("click", () => {
@@ -1123,6 +1147,7 @@
       }
     });
     ui.language.addEventListener("change", () => setLanguage(ui.language.value));
+    ui.navy.value = navy;
     ui.mode.value = "campaign";
     ui.quickLevel.value = "1";
     setLanguage(language);
