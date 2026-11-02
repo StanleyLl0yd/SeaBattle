@@ -22,8 +22,8 @@ test('English and Russian have identical structure and functional language navig
     assert.ok(content.startsWith('<p align="center">'), name);
     assert.match(content, /<img src="assets\/readme-banner\.svg"/);
     assert.equal((content.match(/<img src="assets\/readme-banner\.svg"/g) ?? []).length, 1);
-    assert.equal((content.match(/EN English/g) ?? []).length, 2, name + ' must show EN English in both language switches');
-    assert.doesNotMatch(content, /🇬🇧 English/);
+    assert.equal((content.match(/🇺🇸 English/g) ?? []).length, 2, name + ' must show 🇺🇸 English in both language switches');
+    assert.doesNotMatch(content, /🇬🇧 English|\bEN English\b/);
     for (const path of ['README.md', 'README.ru.md']) {
       assert.equal((content.match(new RegExp('href="' + path.replace('.', '\\.') + '"', 'g')) ?? []).length, 2,
         name + ' must provide top and bottom language switches to ' + path);
