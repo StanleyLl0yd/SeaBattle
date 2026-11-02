@@ -4,12 +4,14 @@ These instructions apply to all automated contributors and repository maintenanc
 
 ## Product invariants
 
-- SeaBattle is a Russian-language, single-player classic Battleship game against a computer. The deployed site and a locally opened `index.html` must both work without a server, network access, user account, installation, or runtime package dependencies.
+- SeaBattle is an English-first, English/Russian bilingual single-player classic Battleship game against a computer. The deployed site and a locally opened `index.html` must both work without a server, network access, user account, installation, or runtime package dependencies.
 - Preserve two 10×10 grids, the fleet [4, 3, 3, 2, 2, 2, 1, 1, 1, 1] (10 ships; 20 occupied cells per side), straight horizontal/vertical ships, and the no-touch rule including diagonals.
 - Preserve automatic and manual placement, rotate, undo, first turn by the player, repeated turn after a hit/sink, transfer on a miss, sinking and adjacent-cell blocking, win detection, and restarting a fresh match.
 - The computer must base targeting only on publicly revealed shots, hits, sunk ships, remaining legal ship lengths, and derived public information; it must not inspect hidden player ship positions to pick a shot. Use the same authoritative shot resolution and game rules for both players.
 - Treat `index.html` as the authoritative browser implementation. `tests/game.test.cjs` must continue exercising the current engine; if the internal layout changes, update the test harness without weakening coverage.
-- Preserve responsive layout, keyboard input, readable contrast, touch controls, accessibility semantics, and game-state feedback. Do not change gameplay or appearance merely for refactoring.
+- Preserve responsive layout, keyboard input, readable contrast, touch controls, accessibility semantics, and game-state feedback.
+- English is the default language. Select Russian automatically only when the primary browser language is Russian (`ru`, `ru-*`, or `ru_*`); unknown and other locales fall back to English. Allow instant manual EN/RU switching without resetting a game. All visible text, statuses, coordinates, document title and accessibility labels must follow the active language.
+- Keep user-facing README and gameplay instructions available in both English and Russian. The code-facing `AGENTS.md` remains in English for unambiguous agent instructions. Avoid external translation services, runtime localization dependencies and persistent language tracking. Do not change gameplay or appearance merely for refactoring.
 - Keep runtime state in the browser tab, unless the owner explicitly approves persistence. Do not add analytics, tracking, ads, external API calls, telemetry, social features, user accounts, or online multiplayer without approval.
 - Prefer built-in browser APIs, JavaScript, HTML and CSS. Avoid framework rewrites, bundlers, runtime libraries, backend infrastructure or extra layers without a concrete necessity approved by the owner.
 

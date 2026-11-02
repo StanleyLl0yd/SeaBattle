@@ -1,47 +1,63 @@
-# Морской бой / Sea Battle
+# Sea Battle / Морской бой
 
 [![CI](https://github.com/StanleyLl0yd/SeaBattle/actions/workflows/ci.yml/badge.svg)](https://github.com/StanleyLl0yd/SeaBattle/actions/workflows/ci.yml)
 
-Классический **«Морской бой»** против компьютера. Полностью работает в браузере, в том числе без интернета, не требует учётной записи, сервера и сторонних библиотек.
+**[Play Sea Battle online](https://stanleyll0yd.github.io/SeaBattle/)** · No install, account, internet connection or server required.
 
-**Играть:** https://stanleyll0yd.github.io/SeaBattle/
+A classic single-player Battleship game against the computer. The whole game, styling and AI run directly in your browser from one offline-capable `index.html` file.
 
-## Правила
+## Language / Язык
 
-- Два поля **10 × 10**.
-- Флот у каждого игрока: **1 × 4**, **2 × 3**, **3 × 2**, **4 × 1** (всего 10 кораблей и 20 палуб).
-- Корабли располагаются по горизонтали или вертикали и не касаются друг друга даже по диагонали.
-- Игрок начинает первым. При попадании ход продолжается, при промахе переходит сопернику.
-- После потопления корабля соседние клетки автоматически помечаются как недоступные для стрельбы.
-- Побеждает тот, кто первым уничтожит все корабли противника.
+**English is the default.** If your browser's primary language is Russian (`ru`, `ru-RU`), the game starts in Russian automatically. All other languages use English. Use the **EN/RU** selector at the top to switch instantly, even in the middle of a game. Switching changes board letters, status messages, headings, controls and accessible labels without resetting the match. The selected language lasts for the current page only; a reload detects your browser language again. Language selection does not require network requests.
 
-## Как играть
+## How to play
 
-1. Откройте сайт или локальный `index.html` в современном браузере.
-2. Используйте готовую случайную расстановку или выберите **«Вручную»**: поставьте корабли на своё поле, кнопкой **«Повернуть»** (или клавишей **R**) меняйте ориентацию, **«Отменить»** удаляет последний корабль.
-3. Нажмите **«Начать бой»** и стреляйте по полю компьютера.
-4. **«Новая партия»** начинает игру заново.
+- Both sides have a **10 × 10** grid and 10 ships: **1 × 4, 2 × 3, 3 × 2, 4 × 1** (20 occupied cells).
+- Ships can be horizontal or vertical and may not touch one another, even diagonally.
+- Choose a random fleet or place your ships manually. Use **Rotate (R)** and **Undo** while placing.
+- Select **Start battle**, then choose cells on the computer's grid to fire.
+- A hit lets you fire again; a miss passes the turn. You fire first.
+- Sinking a ship marks neighboring cells. Sink the entire enemy fleet to win.
+- Select **New game** to start over.
 
-Игра адаптирована для мобильных устройств. Все данные партии хранятся только в памяти вкладки — после обновления страницы партия начинается заново.
+The layout supports mobile screens and keyboard navigation. Game state is held only in the browser tab; reloading starts a new game.
 
-## Разработка
+## Development
 
-Проект намеренно одностраничный: весь игровой интерфейс, стили и логика находятся в `index.html`.
+The project intentionally has **no runtime dependencies or build step**. Open `index.html` locally or serve it statically. Automated tests require Node.js 22+:
 
-Правила для автоматизированных разработчиков, полного аудита, рефакторинга и иконок: [AGENTS.md](AGENTS.md).
-
-Тесты не требуют сторонних npm-зависимостей (только **Node.js 22+**):
-
-```shell
+```sh
 npm test
 ```
 
-CI запускает проверку игрового движка на pull request и при обновлениях `main`. Публикация в GitHub Pages автоматическая после успешных проверок в `main`.
+CI runs game-engine and localization regression tests for pull requests and changes to `main`. GitHub Pages publishes `index.html` automatically only after successful `main` tests. See [AGENTS.md](AGENTS.md) for engineering, repository-wide audit/refactoring, and canonical artwork policies.
 
-## Статус и лицензия
-
-Версия: **v0.1.0**. См. [CHANGELOG.md](CHANGELOG.md). Отдельная лицензия пока не выбрана; отсутствие файла лицензии **не** означает передачу исходного кода в общественное достояние.
+**Version:** 0.2.0. See [CHANGELOG.md](CHANGELOG.md). No open-source license has been selected; source availability does not grant reuse rights.
 
 ---
 
-**English:** Classic single-player Battleship browser game. No accounts, server, internet connection or runtime dependencies required. Play online or open `index.html` locally.
+## Русский
+
+**[Играть в «Морской бой»](https://stanleyll0yd.github.io/SeaBattle/)** — классическая браузерная игра против компьютера. Не нужны установка, регистрация, интернет или сервер.
+
+### Выбор языка
+
+**По умолчанию используется английский язык.** Если основной язык браузера русский (`ru`, `ru-RU`), игра автоматически открывается на русском. Для остальных локалей используется английский. Переключатель **EN/RU** вверху страницы позволяет мгновенно поменять язык, даже во время партии: переводятся кнопки, сообщения, подсказки, координаты поля и подписи доступности. Текущая партия не сбрасывается. После обновления страницы язык снова определяется по настройкам браузера; выбор не сохраняется и не отправляется в сеть.
+
+### Правила
+
+- Два поля **10 × 10**, флот из 10 кораблей: **1 × 4, 2 × 3, 3 × 2, 4 × 1** (20 палуб).
+- Корабли располагаются горизонтально или вертикально, не касаясь друг друга даже углами.
+- Выбери случайную расстановку либо поставь корабли вручную. **Повернуть (R)** меняет ориентацию, **Отменить** удаляет последний корабль.
+- Нажми **«Начать бой»** и стреляй по правому полю. Первым ходит игрок.
+- Попадание даёт повторный выстрел, промах передаёт ход компьютеру.
+- Когда корабль потоплен, соседние клетки помечаются. Победит тот, кто первым потопит весь флот противника.
+- **«Новая партия»** сбрасывает игру.
+
+Игра адаптирована под телефон. Состояние партии хранится только в памяти вкладки — после перезагрузки страницы начнётся новая партия.
+
+### Разработка
+
+Игра, интерфейс и искусственный интеллект находятся в одном `index.html`, без сторонних библиотек и сборки. Тесты запускаются с Node.js 22+ командой `npm test`. Защищённая ветка `main`, CI и GitHub Pages обеспечивают проверку и публикацию изменений. Правила для агентов, полного аудита, рефакторинга и иконок: [AGENTS.md](AGENTS.md).
+
+**Версия:** 0.2.0; история — [CHANGELOG.md](CHANGELOG.md). Лицензия на повторное использование исходного кода пока не выбрана.
