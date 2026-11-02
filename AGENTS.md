@@ -11,10 +11,19 @@ These instructions apply to all automated contributors and repository maintenanc
 - Treat `index.html` as the authoritative browser implementation. `tests/game.test.cjs` must continue exercising the current engine; if the internal layout changes, update the test harness without weakening coverage.
 - Preserve responsive layout, keyboard input, readable contrast, touch controls, accessibility semantics, and game-state feedback.
 - English is the default language. Select Russian automatically only when the primary browser language is Russian (`ru`, `ru-*`, or `ru_*`); unknown and other locales fall back to English. Allow instant manual EN/RU switching without resetting a game. All visible text, statuses, coordinates, document title and accessibility labels must follow the active language.
-- Keep user-facing README and gameplay instructions available in both English and Russian. The code-facing `AGENTS.md` remains in English for unambiguous agent instructions. Avoid external translation services, runtime localization dependencies and persistent language tracking. Do not change gameplay or appearance merely for refactoring.
+- Keep user-facing README and gameplay instructions available in both English and Russian, using `README.md` and `README.ru.md` respectively. The code-facing `AGENTS.md` remains in English for unambiguous agent instructions. Avoid external translation services, runtime localization dependencies and persistent language tracking. Do not change gameplay or appearance merely for refactoring.
 - Keep runtime state in the browser tab, unless the owner explicitly approves persistence. Do not add analytics, tracking, ads, external API calls, telemetry, social features, user accounts, or online multiplayer without approval.
 - Prefer built-in browser APIs, JavaScript, HTML and CSS. Avoid framework rewrites, bundlers, runtime libraries, backend infrastructure or extra layers without a concrete necessity approved by the owner.
 
+## README language and visual identity (mandatory)
+
+- Keep **two independent, complete README documents**: root `README.md` in English (GitHub's default repository landing page) and `README.ru.md` in Russian. Do not combine both languages into one long README or replace either document with a stub.
+- Both README files must use the **same maritime visual system** as the actual game: shared `assets/readme-banner.svg`, dark navy `#081522` / `#102338`, cyan `#58d9e8`, ship blue `#49768e`, coral `#ff777e` and warm accent `#f3bd72`. This banner is README artwork, **not** a canonical app icon.
+- Maintain the established matching layout: centered common banner, centered clickable `English | Русский` links in both documents at **top and bottom**, centered play/CI/changelog links, divider, five numbered maritime-themed sections (`01`–`05`), matching fleet tables, project links, and compact centered footer. Adapt visible prose naturally to each language while preserving corresponding structure and facts.
+- GitHub README Markdown does not support custom page CSS or browser-locale scripts. The language switch is **a pair of standard relative Markdown/HTML links** to the two files, not JavaScript, and must work within GitHub's file viewer.
+- When game behavior, setup instructions, supported locales, version, links or project policies change, **update both READMEs in the same PR**. Keep translated rules, steps, version, URLs, fleet numbers and commands consistent. Do not silently introduce an English-only or Russian-only update.
+- Preserve the brand colors, layout, shared banner and clickable language navigation unless the owner explicitly requests redesign. Do not substitute arbitrary badges, screenshots, stock imagery or an app icon in place of the README hero.
+- Keep `tests/readme.test.cjs` passing as the automated structure/translation-parity guard. If a deliberate owner-approved redesign changes the structure, update both READMEs, this specification and the test together.
 ## Normal change workflow
 
 1. Inspect the relevant files, current tests, README and actual CI before changing code.
