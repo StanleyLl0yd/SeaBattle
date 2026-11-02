@@ -6,7 +6,7 @@ const test = require('node:test');
 const vm = require('node:vm');
 
 const html = readFileSync(join(__dirname, '..', 'index.html'), 'utf8');
-const script = html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
+const {script} = require('./source.cjs');
 assert.ok(script);
 
 function boot(saved = new Map(), confirmReset = true, languages = ['en-US']) {

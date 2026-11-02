@@ -6,9 +6,9 @@ const test = require('node:test');
 const vm = require('node:vm');
 
 const html = readFileSync(join(__dirname, '..', 'index.html'), 'utf8');
-const script = html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
-assert.ok(script, 'Game script must be embedded');
-const marker = script.indexOf('    function updateStatus(');
+const {script} = require('./source.cjs');
+assert.ok(script, 'Game modules must be available');
+const marker = script.indexOf('function updateStatus(');
 assert.ok(marker > 0, 'Game engine functions were not found');
 const context = vm.createContext({document: {getElementById: () => ({})}});
 vm.runInContext(script.slice(0, marker) +
@@ -16,14 +16,15 @@ vm.runInContext(script.slice(0, marker) +
   context, {filename: 'index.html'});
 const {SIZE,FLEET,createBoard,candidate,placeShip,randomFleet,fireAt,remaining,shotCount,hitCount,neighbors,aiChooseShot} = context.api;
 
-test('HTML is self-contained, localized and has working controls', () => {
+test('HTML loads local game modules, is localized and has working controls', () => {
   assert.match(html, /^<!doctype html>/i);
   assert.match(html, /<html lang="en">/);
   assert.match(html, /<meta name="viewport"/);
   for (const id of ['player-board','enemy-board','auto','manual','rotate','undo','start','new-game','language']) {
     assert.ok(html.includes('id="' + id + '"'), id);
   }
-  assert.doesNotMatch(html, /<script\s+src=|<link\s+[^>]*href="https?:/i);
+  assert.doesNotMatch(html, /<link\s+[^>]*href="https?:/i);
+  for (const path of require('./source.cjs').paths) assert.ok(html.includes('src="'+path+'"'));
 });
 
 test('200 generated fleets have legal sizes and do not touch', () => {

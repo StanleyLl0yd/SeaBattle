@@ -1,3 +1,17 @@
+## [0.7.0] - 2026-11-02
+
+- Split browser logic into ordered local scripts: localization/config, independent naval careers, UI state, game engine, fair AI, daily challenges, tactical assessment and UI handlers; no frameworks or bundler.
+- Added a deterministic UTC daily solo puzzle with identical fleet per date and release, shot-count best scores, privacy-safe result sharing and no career impact.
+- Added postgame, public-evidence-only tactical review (search/target, hits, misses and approximate placement heatmap opportunities), avoiding claims of proven optimality.
+- Added an installable offline PWA (scoped service worker, cache versioning, project-relative manifest and PNG 192/512 icons), with complete GitHub Pages asset packaging.
+- Extended unit, campaign and offline asset verification. Existing career saves and both national ladders are preserved.
+
+- Логика разделена на локальные JS-файлы без фреймворка и сборщика; существующие кампании и их сохранения не меняются.
+- Ежедневное испытание с общим флотом на дату UTC, личным рекордом по количеству выстрелов и безопасным текстовым результатом.
+- Послематчевый разбор поиска, добивания и приблизительных оценок решений только по открытой информации.
+- Устанавливаемое PWA с локальным офлайн-кешем и иконками PNG 192/512; опубликованы все необходимые ресурсы.
+- Расширены проверки игровой логики, локализации и состава GitHub Pages.
+
 ## [0.6.2] - 2026-11-02
 
 - Installed the approved high-contrast ship-and-hit favicon as a local SVG and a compact ICO fallback, including 16×16 and 32×32 sizes.

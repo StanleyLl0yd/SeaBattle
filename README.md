@@ -99,6 +99,16 @@ Ahoy, Captain! **⚓ Sea Battle** is a classic single-player Battleship game aga
 
 </details>
 
+### ⚓ Daily sea challenge and tactical review (0.7.0)
+
+Choose **Daily challenge** in the mode selector. Every UTC calendar date has one reproducibly generated opponent fleet shared by all players running the same game release. In this solo puzzle you shoot until all ships are sunk; the computer never takes a turn. Minimize your **total shots** (hits and misses). The browser saves only your best shot count for recent dates, never the hidden fleet or shot coordinates. After completion, **Copy result** shares the date, shot count and personal best without revealing the fleet.
+
+Every finished battle also includes a **tactical review** showing how many shots were fired while searching versus finishing a damaged ship, plus counts of high-scored choices and potentially more promising alternatives. These are **approximate, public-information-only assessments**, not retrospective proof of the best possible move.
+
+### 📱 Install and play offline
+
+SeaBattle is now a small **progressive web app**: open the hosted game once while connected, then use your browser's **Install app / Add to Home Screen** command (where supported). Its local service worker caches the complete game shell and 192/512-pixel icons under the GitHub Pages project path. After a successful first load, the same game can launch without a connection. Updates are downloaded when a new service worker installs; your in-progress match is not automatically reloaded. Clearing site data or uninstalling can erase local progress; this is not cloud synchronization.
+
 ## 🌐 03 · Language & accessibility
 
 - **English is the default language.** If the browser's primary language is Russian (`ru`, `ru-RU`, `ru_*`), the game starts in Russian; all other locales use English.
@@ -125,7 +135,7 @@ GitHub Actions verifies engine and localization tests on pull requests. The prot
 
 | | |
 | :-- | :-- |
-| **Current version** | `0.6.2` |
+| **Current version** | `0.7.0` |
 | **Play online** | [SeaBattle on GitHub Pages](https://stanleyll0yd.github.io/SeaBattle/) |
 | **Source code** | [StanleyLl0yd/SeaBattle](https://github.com/StanleyLl0yd/SeaBattle) |
 | **Release history** | [CHANGELOG.md](CHANGELOG.md) |
