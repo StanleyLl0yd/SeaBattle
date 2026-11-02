@@ -21,6 +21,8 @@ const LETTERS = { en: ["A","B","C","D","E","F","G","H","I","J"], ru: ["А","Б",
       careerRank: $("career-rank"), careerProgress: $("career-progress"), careerProgressText: $("career-progress-text"),
       careerStats: $("career-stats"), careerAchievements: $("career-achievements"),
       statsSummary: $("stats-summary"), statsList: $("stats-list"),
+      backupExport: $("backup-export"), backupRestore: $("backup-restore"),
+      backupText: $("backup-text"), backupStatus: $("backup-status"),
       careerReset: $("career-reset"), rankList: $("rank-list"), promotion: $("promotion")
     };
     let epoch = 0;
@@ -30,3 +32,4 @@ const LETTERS = { en: ["A","B","C","D","E","F","G","H","I","J"], ru: ["А","Б",
     let career = careers[navy];
     let game;
     let offlineStatus = "offlinePreparing";
+    let backupStatusKey = "";

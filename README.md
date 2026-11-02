@@ -111,6 +111,8 @@ The expandable **Recent 7 UTC days** history lists each day's personal best or u
 
 **Personal statistics (0.9.1).** Open the collapsible **Personal statistics** panel to see completed games, wins, losses, shooting accuracy (hits / shots) and fewest shots for a victory, with separate mode summaries for the Russian and US Navy campaigns, Quick Battle, Daily, Warrant Officer trials and Fleet Admiral challenge. Counting begins only with battles completed after updating to v0.9.1; earlier matches are not estimated from existing careers or daily scores. Records contain only aggregate numbers on this device — no layouts, shot histories, accounts, cloud sync or telemetry. Clearing site data or uninstalling the PWA may erase these numbers.
 
+**Manual backup / restore (0.9.2).** In the Personal statistics panel, expand **Local backup / restore**, choose **Show backup text**, and copy the JSON to a safe place. To restore on this or another device, paste the saved text and confirm **Restore from text**. The backup carries validated aggregate RU/US career progress, chosen navy, recent Daily best scores and v0.9.1+ statistics; it never includes fleets, live games or shot traces. Restoring **replaces** the current local records, so keep a copy first. This works offline, without an account or server. Restoration is disabled during an active battle; if browser storage is blocked, check progress before retrying.
+
 ### 📱 Install and play offline
 
 SeaBattle is now a small **progressive web app**: open the hosted game once while connected, then use your browser's **Install app / Add to Home Screen** command (where supported). Its local service worker caches the complete game shell and 192/512-pixel icons under the GitHub Pages project path. Wait for the **Ready for offline play** message before disconnecting; it appears once the service worker is active after the game shell has been cached. On macOS Safari, installed web apps have separate site data from Safari tabs: open the **installed app itself** with internet at least once, wait for readiness, then fully quit and cold-launch offline. After that, the game can launch without a connection. Updates are downloaded when a new service worker installs; your in-progress match is not automatically reloaded. Clearing site data or uninstalling can erase local progress; this is not cloud synchronization.
@@ -141,7 +143,7 @@ GitHub Actions verifies engine and localization tests on pull requests. The prot
 
 | | |
 | :-- | :-- |
-| **Current version** | `0.9.1` |
+| **Current version** | `0.9.2` |
 | **Play online** | [SeaBattle on GitHub Pages](https://stanleyll0yd.github.io/SeaBattle/) |
 | **Source code** | [StanleyLl0yd/SeaBattle](https://github.com/StanleyLl0yd/SeaBattle) |
 | **Release history** | [CHANGELOG.md](CHANGELOG.md) |

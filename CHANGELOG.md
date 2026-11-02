@@ -1,3 +1,10 @@
+## [0.9.2] - Unreleased
+
+- Added optional, text-only offline backup and restore of validated local RU/US careers, navy selection, Daily best scores and aggregate statistics.
+- Strictly bounded import, explicit overwrite confirmation, active-game guard, storage rollback attempt and bilingual UI. No hidden ship data, account, sync or new persistent keys.
+- Добавлены необязательные локальные резервные копии прогресса в виде текста и восстановление двух карьер, выбранного флота, результатов Daily и статистики.
+- Проверка границ и формата, подтверждение замены, запрет восстановления во время боя, попытка отката при ошибках и двуязычный интерфейс. Без координат кораблей, аккаунтов, синхронизации или новых ключей хранения.
+
 ## [0.9.1] - 2026-11-03
 
 - Added bilingual, device-local personal statistics for completed battles, split across six mode buckets including independent RU/US campaigns.
