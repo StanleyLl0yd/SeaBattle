@@ -8,7 +8,7 @@ const vm = require('node:vm');
 const html = readFileSync(join(__dirname, '..', 'index.html'), 'utf8');
 const {script} = require('./source.cjs');
 assert.ok(script);
-const boundary = script.indexOf('    function updateStatus(');
+const boundary = script.indexOf('function updateStatus(');
 assert.ok(boundary > 0);
 
 function engine() {
