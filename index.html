@@ -622,7 +622,8 @@
       ui.warrantOption.disabled = navy !== "us" || rank < 7;
       ui.fleetOption.disabled = navy !== "us" || rank < 19;
       ui.careerReset.disabled = game.phase === "playing";
-      ui.careerRank.textContent = t("careerRank") + " " + rank + " / 19 · " + rankLabel(navy,rank-1);
+      ui.careerRank.textContent = t(navy === "ru" ? "navyRussia" : "navyUS") + " · " +
+        t("careerRank") + " " + rank + " / 19 · " + rankLabel(navy,rank-1);
       if (rank < 19) {
         const previous = rank === 1 ? 0 : PROMOTION_WINS[rank-2];
         const required = PROMOTION_WINS[rank-1] - previous;
@@ -1080,7 +1081,12 @@
       saveSelectedNavy();
       ui.mode.value = "campaign";
       fillRankOptions();
-      setUpGame();
+      game.navy = navy;
+      game.mode = "campaign";
+      game.level = selectedLevel();
+      game.promotion = 0;
+      game.specialPromotion = 0;
+      render();
     });
     ui.mode.addEventListener("change", () => {
       if (game.phase !== "setup") return;
