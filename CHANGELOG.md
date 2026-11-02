@@ -1,3 +1,13 @@
+## [0.6.2] - 2026-11-02
+
+- Installed the approved high-contrast ship-and-hit favicon as a local SVG and a compact ICO fallback, including 16×16 and 32×32 sizes.
+- Published favicon assets in the GitHub Pages artifact without adding scripts or services; all other icon studies and PNG exports remain archived separately.
+- Added tests that verify HTML references, icon sizes and self-contained SVG assets.
+
+- Добавлена фирменная иконка SeaBattle: SVG для современных браузеров и ICO с размерами 16×16 и 32×32 для совместимости.
+- GitHub Pages публикует необходимые файлы, без внешних зависимостей; остальные рисунки и варианты PNG сохранены отдельно.
+- Тесты проверяют ссылки, размеры и отсутствие внешних ресурсов в SVG.
+
 ## [0.6.1] - 2026-11-02
 
 - Fixed Russian victory-count inflection for rank milestones and Warrant Officer trial targets (including 11–14 and 21–24), and English singular/plural win counts.
