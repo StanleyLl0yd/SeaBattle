@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#081522">
+  <title>Морской бой — игра против компьютера</title>
+  <style>
+    :root { color-scheme: dark; --bg:#081522; --panel:#102338; --line:#28445a; --ink:#ecf6fd; --muted:#93aec1; --cyan:#58d9e8; --accent:#f3bd72; --red:#ff777e; --sea:#16354c; --ship:#49768e; }
+    * { box-sizing:border-box; }
+    html { min-height:100%; }
+    body { margin:0; min-height:100vh; color:var(--ink); font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:radial-gradient(ellipse at 12% 3%,#1a4861 0,transparent 36%),radial-gradient(ellipse at 94% 89%,#102b48 0,transparent 41%),var(--bg); }
+    button { font:inherit; }
+    .shell { max-width:1160px; margin:auto; padding:28px 28px 45px; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:28px; }
+    .brand { display:flex; gap:11px; align-items:center; color:#cfebf6; letter-spacing:.12em; font-size:.72rem; font-weight:800; text-transform:uppercase; }
+    .brandmark { width:35px; height:35px; display:grid; place-items:center; border:1px solid #4f99aa; border-radius:10px; color:var(--cyan); font-size:20px; background:#103447; }
+    .quiet-btn { border:1px solid #33546a; background:#102639; color:#d9edf7; border-radius:12px; padding:10px 15px; cursor:pointer; font-weight:650; }
+    .quiet-btn:hover:not(:disabled), .quiet-btn:focus-visible { border-color:var(--cyan); background:#183b4e; }
+    button:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+    button:disabled { opacity:.38; cursor:not-allowed; }
+    .eyebrow { margin:0 0 12px; color:var(--cyan); letter-spacing:.2em; text-transform:uppercase; font-weight:750; font-size:.7rem; }
+    h1 { margin:0; font-weight:820; letter-spacing:-.065em; font-size:clamp(2.7rem,5.3vw,4.3rem); line-height:1.06; }
+    .subhead { color:#adcadb; max-width:630px; line-height:1.6; font-size:1rem; margin:14px 0 20px; }
+    .statusbar { display:flex; align-items:center; gap:13px; background:#10283a; border:1px solid #315468; border-radius:15px; padding:14px 18px; margin-bottom:24px; min-height:60px; }
+    .statusdot { flex:none; width:11px; height:11px; border-radius:50%; background:var(--cyan); box-shadow:0 0 0 5px #58d9e819; }
+    .statusdot.waiting { background:var(--accent); box-shadow:0 0 0 5px #f3bd7219; }
+    .statusdot.ended { background:var(--red); box-shadow:0 0 0 5px #ff777e19; }
+    .status-text { font-weight:650; line-height:1.5; }
+    .setup { background:linear-gradient(130deg,#18374b,#10293d); border:1px solid #3a6176; border-radius:17px; padding:19px 21px; margin:0 0 25px; }
+    .setup-head { display:flex; align-items:start; justify-content:space-between; gap:12px; }
+    .setup h2 { font-size:1rem; margin:0 0 5px; }
+    .setup p { font-size:.88rem; color:#b1c9d8; line-height:1.5; margin:0 0 15px; }
+    .progress { white-space:nowrap; color:var(--cyan); font-size:.82rem; font-weight:800; padding-top:2px; }
+    .controls { display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
+    .action { border:1px solid #3c6478; background:#1c4054; color:#e7f6fc; padding:10px 14px; min-height:43px; border-radius:10px; cursor:pointer; font-weight:700; font-size:.86rem; }
+    .action:hover:not(:disabled) { background:#2b5469; border-color:#78b8c7; }
+    .action.primary { background:var(--cyan); border-color:var(--cyan); color:#072c39; }
+    .action.primary:hover:not(:disabled) { background:#9aebef; }
+    .controls .push { margin-left:auto; }
+    .game-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px; align-items:start; }
+    .board-card { background:linear-gradient(180deg,#142c40 0%,#0e2234 100%); border:1px solid #2e4f63; border-radius:19px; padding:22px 22px 25px; min-width:0; }
+    .card-head { display:flex; justify-content:space-between; align-items:center; gap:9px; margin-bottom:22px; }
+    .board-name { font-size:1.14rem; letter-spacing:-.025em; font-weight:800; }
+    .board-note { font-size:.79rem; color:var(--muted); margin-top:5px; }
+    .counter { flex:none; text-align:right; font-variant-numeric:tabular-nums; }
+    .counter b { display:block; font-size:1.28rem; color:var(--cyan); }
+    .counter span { color:var(--muted); font-size:.72rem; }
+    .board-wrap { max-width:440px; margin:0 auto; width:100%; }
+    .cols { display:grid; grid-template-columns:repeat(10,minmax(0,1fr)); margin:0 0 7px 27px; text-align:center; color:#92aebe; font-size:.7rem; font-weight:700; }
+    .board-row { display:flex; gap:7px; }
+    .rows { width:20px; flex:none; display:grid; grid-template-rows:repeat(10,minmax(0,1fr)); justify-items:center; align-items:center; color:#92aebe; font-size:.72rem; font-weight:700; }
+    .board { flex:1; min-width:0; display:grid; grid-template-columns:repeat(10,minmax(0,1fr)); border:1px solid #54849a; border-radius:6px; overflow:hidden; background:#173e55; aspect-ratio:1; }
+    .cell { display:grid; place-items:center; aspect-ratio:1; padding:0; margin:0; min-width:0; min-height:0; border:1px solid #42657a60; border-radius:0; color:var(--ink); background:var(--sea); position:relative; font-weight:900; cursor:default; transition:background-color .12s; }
+    .cell.ship { background:linear-gradient(140deg,#60889d,#3b647e); box-shadow:inset 0 0 0 1px #a4ccdc55; }
+    .cell.enemy-cell:not(.fired) { cursor:crosshair; }
+    .playing .cell.enemy-cell:not(.fired):hover { background:#26617b; }
+    .cell.miss::before, .cell.blocked::before { content:""; width:19%; height:19%; border-radius:50%; background:#9bbdcb; }
+    .cell.blocked::before { opacity:.38; width:12%; height:12%; }
+    .cell.hit, .cell.sunk { background:#83404c; }
+    .cell.hit::after, .cell.sunk::after { content:"×"; color:#ffe7e8; font-size:clamp(14px,2.5vw,26px); line-height:1; font-weight:500; }
+    .cell.sunk { background:#a94854; }
+    .cell.preview-good { background:#51bac27c; box-shadow:inset 0 0 0 2px var(--cyan); }
+    .cell.preview-bad { background:#b34e5a88; box-shadow:inset 0 0 0 2px var(--red); }
+    .cell.enemy-cell:disabled { opacity:1; }
+    .cell:focus-visible { z-index:2; outline-offset:-3px; }
+    .under-board { border-top:1px solid #2a4a5d; margin:20px 0 0; padding-top:16px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; color:#aac5d5; font-size:.78rem; }
+    .under-board b { color:#e6f8ff; }
+    .legend { display:flex; align-items:center; justify-content:center; gap:22px; flex-wrap:wrap; font-size:.79rem; color:#abc6d6; margin:24px 0 0; }
+    .legend-item { display:flex; align-items:center; gap:8px; }
+    .legend-swatch { width:13px; height:13px; border-radius:3px; background:#56839a; }
+    .legend-swatch.hit { background:#a94854; }
+    .legend-swatch.miss { background:#16354c; border:1px solid #42657a; position:relative; }
+    .legend-swatch.miss::after { content:""; background:#9bbdcb; width:4px; height:4px; border-radius:50%; position:absolute; left:4px; top:4px; }
+    .footer { margin-top:22px; text-align:center; color:#8ba7b8; line-height:1.7; font-size:.81rem; }
+    @media(max-width:720px) { .shell { padding:18px 13px 35px; } .game-grid { grid-template-columns:1fr; gap:15px; } .board-card { padding:17px 17px 19px; } .topbar { margin-bottom:20px; } .controls .push { margin-left:0; } .controls .action.primary { width:100%; } .subhead { font-size:.92rem; } .statusbar { padding:12px 14px; } }
+    @media(max-width:390px) { .brand { font-size:.59rem; letter-spacing:.06em; } .quiet-btn { padding:8px; font-size:.76rem; } .board-card { padding:12px; } .cols { margin-left:25px; } .card-head { margin-bottom:15px; } }
+    @media(prefers-reduced-motion:reduce) { .cell { transition:none; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand"><div class="brandmark" aria-hidden="true">⚓</div>Настольная классика · 1 игрок</div>
+      <button class="quiet-btn" id="new-game" type="button">↻ Новая партия</button>
+    </header>
+    <p class="eyebrow">Играй без интернета</p>
+    <h1>Морской бой<span style="color:var(--cyan)">.</span></h1>
+    <p class="subhead">Расставь корабли, найди флот противника и потопи все десять кораблей раньше компьютера.</p>
+    <div class="statusbar" role="status" aria-live="polite" aria-atomic="true">
+      <span class="statusdot" id="status-dot" aria-hidden="true"></span>
+      <span class="status-text" id="status-text">Флот готов. Начни бой или выбери другую расстановку.</span>
+    </div>
+    <section class="setup" id="setup" aria-label="Расстановка кораблей">
+      <div class="setup-head">
+        <div><h2>Подготовка флота</h2><p id="setup-hint">Корабли уже расставлены случайно. Можно изменить их расположение.</p></div>
+        <div class="progress" id="setup-progress">10 / 10</div>
+      </div>
+      <div class="controls">
+        <button class="action" id="auto" type="button">⚄ Авторасстановка</button>
+        <button class="action" id="manual" type="button">✎ Вручную</button>
+        <button class="action" id="rotate" type="button" disabled>↻ Повернуть (R)</button>
+        <button class="action" id="undo" type="button" disabled>↶ Отменить</button>
+        <button class="action primary push" id="start" type="button">Начать бой →</button>
+      </div>
+    </section>
+    <div class="game-grid">
+      <section class="board-card" aria-label="Ваше поле">
+        <div class="card-head">
+          <div><div class="board-name">Ваш флот</div><div class="board-note">Свои корабли видны всегда</div></div>
+          <div class="counter"><b id="player-alive">10 / 10</b><span>кораблей на плаву</span></div>
+        </div>
+        <div class="board-wrap">
+          <div class="cols" aria-hidden="true"> <span>А</span><span>Б</span><span>В</span><span>Г</span><span>Д</span><span>Е</span><span>Ж</span><span>З</span><span>И</span><span>К</span></div>
+          <div class="board-row"><div class="rows" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div><div class="board" id="player-board" role="group" aria-label="Ваше поле 10 на 10"></div></div>
+        </div>
+        <div class="under-board"><span>Попаданий противника: <b id="computer-hits">0</b></span><span>Выстрелов: <b id="computer-shots">0</b></span></div>
+      </section>
+      <section class="board-card" aria-label="Поле компьютера">
+        <div class="card-head">
+          <div><div class="board-name">Флот компьютера</div><div class="board-note">Нажми на клетку, чтобы выстрелить</div></div>
+          <div class="counter"><b id="enemy-alive">10 / 10</b><span>кораблей на плаву</span></div>
+        </div>
+        <div class="board-wrap">
+          <div class="cols" aria-hidden="true"><span>А</span><span>Б</span><span>В</span><span>Г</span><span>Д</span><span>Е</span><span>Ж</span><span>З</span><span>И</span><span>К</span></div>
+          <div class="board-row"><div class="rows" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div><div class="board" id="enemy-board" role="group" aria-label="Поле компьютера 10 на 10"></div></div>
+        </div>
+        <div class="under-board"><span>Ваших попаданий: <b id="player-hits">0</b></span><span>Выстрелов: <b id="player-shots">0</b></span></div>
+      </section>
+    </div>
+    <div class="legend" aria-label="Условные обозначения">
+      <span class="legend-item"><span class="legend-swatch"></span>Корабль</span>
+      <span class="legend-item"><span class="legend-swatch hit"></span>Попадание</span>
+      <span class="legend-item"><span class="legend-swatch miss"></span>Мимо</span>
+    </div>
+    <p class="footer">Поле 10 × 10 · Корабли: 1 × 4, 2 × 3, 3 × 2, 4 × 1 · Корабли не соприкасаются даже углами.<br>Попадание даёт ещё один выстрел, промах передаёт ход. Вы начинаете первым.</p>
+  </main>
+  <script>
+    "use strict";
+    const SIZE = 10;
+    const FLEET = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
+    const LETTERS = ["А", "Б", "В", "Г", "Д", "Е", "Ж", "З", "И", "К"];
+    const $ = id => document.getElementById(id);
+    const ui = {
+      player: $("player-board"), enemy: $("enemy-board"), status: $("status-text"), dot: $("status-dot"),
+      setup: $("setup"), hint: $("setup-hint"), progress: $("setup-progress"),
+      auto: $("auto"), manual: $("manual"), rotate: $("rotate"), undo: $("undo"), start: $("start"), again: $("new-game")
+    };
+    let epoch = 0;
+    let game;
+
+    function createBoard() {
+      return { cells: Array(100).fill(-1), shots: Array(100).fill(null), ships: [] };
+    }
+    function xy(i) { return [i % SIZE, Math.floor(i / SIZE)]; }
+    function index(x, y) { return y * SIZE + x; }
+    function neighbors(i, diagonals = true) {
+      const [x, y] = xy(i);
+      const result = [];
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        if (!dx && !dy || !diagonals && Math.abs(dx) + Math.abs(dy) !== 1) continue;
+        const a = x + dx, b = y + dy;
+        if (a >= 0 && a < SIZE && b >= 0 && b < SIZE) result.push(index(a, b));
+      }
+      return result;
+    }
+    function candidate(board, size, at, horizontal) {
+      const [x, y] = xy(at);
+      const cells = [];
+      let valid = true;
+      for (let offset = 0; offset < size; offset++) {
+        const a = x + (horizontal ? offset : 0), b = y + (horizontal ? 0 : offset);
+        if (a >= SIZE || b >= SIZE) { valid = false; continue; }
+        const i = index(a, b);
+        cells.push(i);
+        if (board.cells[i] !== -1 || neighbors(i).some(n => board.cells[n] !== -1)) valid = false;
+      }
+      return { cells, valid: valid && cells.length === size };
+    }
+    function placeShip(board, cells) {
+      const id = board.ships.length;
+      board.ships.push({ id, size: cells.length, cells: [...cells], hits: 0, sunk: false });
+      for (const i of cells) board.cells[i] = id;
+    }
+    function randomFleet() {
+      for (let attempt = 0; attempt < 100; attempt++) {
+        const board = createBoard();
+        let failed = false;
+        for (const size of FLEET) {
+          const available = [];
+          for (let i = 0; i < 100; i++) for (const horizontal of [true, false]) {
+            if (size === 1 && !horizontal) continue;
+            const pick = candidate(board, size, i, horizontal);
+            if (pick.valid) available.push(pick.cells);
+          }
+          if (!available.length) { failed = true; break; }
+          placeShip(board, available[Math.floor(Math.random() * available.length)]);
+        }
+        if (!failed) return board;
+      }
+      throw new Error("Не удалось расставить корабли");
+    }
+    function fireAt(board, i) {
+      if (i < 0 || i >= 100 || board.shots[i] !== null) return { kind: "already" };
+      const shipId = board.cells[i];
+      if (shipId === -1) {
+        board.shots[i] = "miss";
+        return { kind: "miss" };
+      }
+      const ship = board.ships[shipId];
+      board.shots[i] = "hit";
+      ship.hits++;
+      if (ship.hits !== ship.size) return { kind: "hit" };
+      ship.sunk = true;
+      for (const part of ship.cells) {
+        board.shots[part] = "sunk";
+        for (const n of neighbors(part)) {
+          if (board.cells[n] === -1 && board.shots[n] === null) board.shots[n] = "blocked";
+        }
+      }
+      return { kind: "sunk", size: ship.size };
+    }
+    function remaining(board) { return board.ships.filter(s => !s.sunk).length; }
+    function shotCount(board) { return board.shots.filter(s => s === "hit" || s === "sunk" || s === "miss").length; }
+    function hitCount(board) { return board.ships.reduce((sum, ship) => sum + ship.hits, 0); }
+    function nameAt(i) { return `${LETTERS[i % SIZE]}${Math.floor(i / SIZE) + 1}`; }
+    function randomFrom(values) { return values[Math.floor(Math.random() * values.length)]; }
+
+    function aiChooseShot(board) {
+      // The computer chooses solely from publicly known shots and ship lengths.
+      const active = board.shots.map((s, i) => s === "hit" ? i : -1).filter(i => i !== -1);
+      const visited = new Set();
+      for (const origin of active) {
+        if (visited.has(origin)) continue;
+        const group = [origin];
+        visited.add(origin);
+        for (let j = 0; j < group.length; j++) {
+          for (const n of neighbors(group[j], false)) {
+            if (board.shots[n] === "hit" && !visited.has(n)) { visited.add(n); group.push(n); }
+          }
+        }
+        let options;
+        if (group.length === 1) {
+          options = neighbors(origin, false);
+        } else {
+          const sameRow = group.every(i => xy(i)[1] === xy(origin)[1]);
+          const sorted = group.map(xy).sort((a, b) => sameRow ? a[0] - b[0] : a[1] - b[1]);
+          const first = sorted[0], last = sorted[sorted.length - 1];
+          options = sameRow
+            ? [[first[0] - 1, first[1]], [last[0] + 1, last[1]]]
+            : [[first[0], first[1] - 1], [last[0], last[1] + 1]];
+          options = options.filter(([x, y]) => x >= 0 && x < 10 && y >= 0 && y < 10).map(([x, y]) => index(x, y));
+        }
+        options = options.filter(i => board.shots[i] === null);
+        if (options.length) return randomFrom(options);
+      }
+      // In search mode, score every possible placement of remaining ship lengths.
+      // Never inspect the location of an unhit ship.
+      const heat = Array(100).fill(0);
+      const lengths = board.ships.filter(s => !s.sunk).map(s => s.size);
+      for (const length of lengths) {
+        for (let i = 0; i < 100; i++) {
+          const [x, y] = xy(i);
+          for (const horizontal of [true, false]) {
+            if (length === 1 && !horizontal) continue;
+            if (x + (horizontal ? length : 1) > 10 || y + (horizontal ? 1 : length) > 10) continue;
+            const positions = Array.from({ length }, (_, n) => index(x + (horizontal ? n : 0), y + (horizontal ? 0 : n)));
+            if (positions.some(p => board.shots[p] !== null)) continue;
+            positions.forEach(p => heat[p]++);
+          }
+        }
+      }
+      const open = board.shots.map((v, i) => v === null ? i : -1).filter(i => i !== -1);
+      if (!open.length) return null;
+      const highest = Math.max(...open.map(i => heat[i]));
+      return randomFrom(open.filter(i => heat[i] === highest));
+    }
+    function updateStatus(message) { game.message = message; }
+    function setUpGame() {
+      epoch++;
+      game = { player: randomFleet(), enemy: randomFleet(), manual: false, horizontal: true, hover: -1,
+        phase: "setup", turn: "player", message: "Флот готов. Начни бой или выбери другую расстановку." };
+      render();
+    }
+    function paintPreview() {
+      ui.player.querySelectorAll(".preview-good,.preview-bad").forEach(c => c.classList.remove("preview-good", "preview-bad"));
+      if (!game.manual || game.phase !== "setup" || game.hover === -1) return;
+      const length = FLEET[game.player.ships.length];
+      if (!length) return;
+      const pick = candidate(game.player, length, game.hover, game.horizontal);
+      for (const i of pick.cells) ui.player.children[i].classList.add(pick.valid ? "preview-good" : "preview-bad");
+    }
+    function renderBoard(board, hidden, target) {
+      const reveal = !hidden || game.phase === "finished";
+      const canShoot = hidden && game.phase === "playing" && game.turn === "player";
+      target.classList.toggle("playing", canShoot);
+      let html = "";
+      for (let i = 0; i < 100; i++) {
+        const shot = board.shots[i];
+        const ship = board.cells[i] !== -1;
+        const classes = ["cell", hidden ? "enemy-cell" : "own-cell"];
+        if (ship && reveal && shot === null) classes.push("ship");
+        if (shot) classes.push(shot, "fired");
+        const description = shot === "miss" || shot === "blocked" ? "мимо" : shot === "hit" ? "попадание" : shot === "sunk" ? "потоплен" : ship && reveal ? "корабль" : "неизвестно";
+        html += `<button type="button" class="${classes.join(" ")}" data-i="${i}" aria-label="${nameAt(i)}: ${description}" ${hidden && (!canShoot || shot !== null) ? "disabled" : ""}></button>`;
+      }
+      target.innerHTML = html;
+    }
+    function render() {
+      renderBoard(game.player, false, ui.player);
+      renderBoard(game.enemy, true, ui.enemy);
+      ui.setup.hidden = game.phase !== "setup";
+      // Explicit display is required because the CSS class has its own display rules.
+      ui.setup.style.display = game.phase === "setup" ? "" : "none";
+      ui.status.textContent = game.message;
+      ui.dot.className = "statusdot" + (game.phase === "finished" ? " ended" : game.turn === "computer" ? " waiting" : "");
+      $("player-alive").textContent = `${remaining(game.player)} / 10`;
+      $("enemy-alive").textContent = `${remaining(game.enemy)} / 10`;
+      $("player-hits").textContent = hitCount(game.enemy);
+      $("computer-hits").textContent = hitCount(game.player);
+      $("player-shots").textContent = shotCount(game.enemy);
+      $("computer-shots").textContent = shotCount(game.player);
+      ui.progress.textContent = `${game.player.ships.length} / 10`;
+      if (game.manual) {
+        const size = FLEET[game.player.ships.length];
+        ui.hint.textContent = size ? `Поставь ${size}-палубный корабль: выбери начальную клетку на своём поле. ${game.horizontal ? "Горизонтально" : "Вертикально"}. Клавиша R — поворот.` : "Все корабли расставлены. Нажми «Начать бой».";
+      } else ui.hint.textContent = "Корабли расставлены случайно. Можно перемешать или расставить их вручную.";
+      ui.rotate.disabled = !game.manual || game.phase !== "setup" || game.player.ships.length === FLEET.length;
+      ui.undo.disabled = !game.manual || game.phase !== "setup" || !game.player.ships.length;
+      ui.start.disabled = game.phase !== "setup" || game.player.ships.length !== FLEET.length;
+      paintPreview();
+    }
+    function startBattle() {
+      if (game.phase !== "setup" || game.player.ships.length !== 10) return;
+      game.phase = "playing";
+      game.turn = "player";
+      updateStatus("Ваш ход! Стреляйте по полю компьютера справа.");
+      render();
+    }
+    function finish(winner) {
+      game.phase = "finished";
+      game.turn = winner;
+      updateStatus(winner === "player" ? "Победа! Весь флот компьютера потоплен. Начните новую партию!" : "Компьютер победил. Весь ваш флот потоплен. Попробуйте ещё раз!");
+    }
+    function playerFire(i) {
+      if (game.phase !== "playing" || game.turn !== "player") return;
+      const outcome = fireAt(game.enemy, i);
+      if (outcome.kind === "already") return;
+      if (remaining(game.enemy) === 0) finish("player");
+      else if (outcome.kind === "miss") {
+        game.turn = "computer";
+        updateStatus(`${nameAt(i)}: мимо. Ход компьютера…`);
+        const current = epoch;
+        setTimeout(() => computerFire(current), 650);
+      } else if (outcome.kind === "sunk") updateStatus(`${nameAt(i)}: корабль (${outcome.size} пал.) потоплен! Стреляйте ещё.`);
+      else updateStatus(`${nameAt(i)}: попадание! Стреляйте ещё.`);
+      render();
+    }
+    function computerFire(current) {
+      if (epoch !== current || game.phase !== "playing" || game.turn !== "computer") return;
+      const i = aiChooseShot(game.player);
+      if (i === null) return;
+      const outcome = fireAt(game.player, i);
+      if (remaining(game.player) === 0) finish("computer");
+      else if (outcome.kind === "miss") {
+        game.turn = "player";
+        updateStatus(`Компьютер выстрелил в ${nameAt(i)} и промахнулся. Ваш ход!`);
+      } else if (outcome.kind === "sunk") updateStatus(`Компьютер потопил ваш ${outcome.size}-палубный корабль в ${nameAt(i)}. Его ход продолжается…`);
+      else updateStatus(`Компьютер попал в ${nameAt(i)}. Его ход продолжается…`);
+      render();
+      if (game.phase === "playing" && game.turn === "computer") setTimeout(() => computerFire(current), 620);
+    }
+    ui.player.addEventListener("click", event => {
+      const cell = event.target.closest(".cell");
+      if (!cell || !game.manual || game.phase !== "setup") return;
+      const size = FLEET[game.player.ships.length];
+      if (!size) return;
+      const pick = candidate(game.player, size, Number(cell.dataset.i), game.horizontal);
+      if (!pick.valid) { updateStatus("Здесь корабль не поместится. Корабли не могут касаться друг друга."); render(); return; }
+      placeShip(game.player, pick.cells);
+      updateStatus(game.player.ships.length === 10 ? "Все 10 кораблей расставлены. Можно начинать бой!" : `Корабль установлен. Осталось: ${10 - game.player.ships.length}.`);
+      render();
+    });
+    ui.player.addEventListener("pointerover", event => {
+      const cell = event.target.closest(".cell");
+      if (!cell || !game.manual || game.phase !== "setup") return;
+      const i = Number(cell.dataset.i);
+      if (game.hover !== i) { game.hover = i; paintPreview(); }
+    });
+    ui.player.addEventListener("pointerleave", () => { game.hover = -1; paintPreview(); });
+    ui.enemy.addEventListener("click", event => {
+      const cell = event.target.closest(".cell");
+      if (cell) playerFire(Number(cell.dataset.i));
+    });
+    ui.again.addEventListener("click", setUpGame);
+    ui.auto.addEventListener("click", () => {
+      if (game.phase !== "setup") return;
+      game.player = randomFleet();
+      game.manual = false;
+      game.hover = -1;
+      updateStatus("Готово! Флот расставлен случайным образом.");
+      render();
+    });
+    ui.manual.addEventListener("click", () => {
+      if (game.phase !== "setup") return;
+      game.player = createBoard();
+      game.manual = true;
+      game.horizontal = true;
+      game.hover = -1;
+      updateStatus("Расставь корабли на левом поле, затем начни бой.");
+      render();
+    });
+    ui.rotate.addEventListener("click", () => {
+      if (!game.manual || game.phase !== "setup") return;
+      game.horizontal = !game.horizontal;
+      render();
+    });
+    ui.undo.addEventListener("click", () => {
+      if (!game.manual || game.phase !== "setup" || !game.player.ships.length) return;
+      const last = game.player.ships.pop();
+      for (const i of last.cells) game.player.cells[i] = -1;
+      updateStatus("Последний корабль убран. Выбери новое место.");
+      render();
+    });
+    ui.start.addEventListener("click", startBattle);
+    document.addEventListener("keydown", event => {
+      if (event.key.toLowerCase() === "r" && !event.ctrlKey && !event.altKey && !event.metaKey && game.phase === "setup" && game.manual) {
+        event.preventDefault(); ui.rotate.click();
+      }
+    });
+    setUpGame();
+  </script>
+</body>
+</html>
