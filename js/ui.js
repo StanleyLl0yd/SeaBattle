@@ -295,3 +295,10 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
     ui.quickLevel.value = "1";
     setLanguage(language);
     setUpGame();
+
+// Scope the offline shell to this project and do not reload an unfinished game.
+if (typeof navigator !== "undefined" && "serviceWorker" in navigator && typeof window !== "undefined") {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js", {scope:"./"}).catch(() => {});
+  });
+}
