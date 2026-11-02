@@ -19,7 +19,8 @@ function tacticalSnapshot(board, chosen) {
   const open = scores.map((v,i)=>shots[i]===null ? v : 0);
   const max = Math.max(0,...open);
   const selected = scores[chosen] || 0;
-  return { mode, chosen, selected, max, promising:max>0 && selected>=max*0.9 };
+  const bestCell = max > selected ? scores.findIndex((v,i)=>shots[i]===null && v===max) : null;
+  return { mode, chosen, bestCell, selected, max, promising:max>0 && selected>=max*0.9 };
 }
 function summarizeTactics(trace) {
   const hunt = trace.filter(x=>x.mode==="hunt");
