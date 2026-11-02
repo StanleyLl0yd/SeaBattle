@@ -183,7 +183,8 @@ test('offline English default markup, no remote code, and keyboard controls rema
   assert.match(html, /<option value="en"/);
   assert.match(html, /<option value="ru"/);
   assert.match(html, /aria-live="polite"/);
-  assert.doesNotMatch(html, /<link\s+[^>]*href="https?:/i);\n  for(const path of require('./source.cjs').paths) assert.ok(html.includes('src="'+path+'"'));
+  assert.doesNotMatch(html, /<link\s+[^>]*href="https?:/i);
+  for(const path of require('./source.cjs').paths) assert.ok(html.includes('src="'+path+'"'));
   assert.ok(html.includes('event.code === "KeyR"'));
   assert.doesNotMatch(html.slice(0, html.indexOf('<script defer')), /[А-ЯЁа-яё]/);
 });
