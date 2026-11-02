@@ -39,7 +39,37 @@ Ahoy, Captain! **⚓ Sea Battle** is a classic single-player Battleship game aga
 
 **⚓ Naval campaign (new in 0.4.0).** Start as a **Seaman** and earn promotions across **19 Russian Navy shipboard ranks**, reaching **Admiral of the Fleet after 45 campaign wins**. The opponent has six actual AI tiers that grow stronger as you advance. Defeats do not take away earned victories or demote you. The top rank stays playable indefinitely.
 
+**🇺🇸 US Navy campaign (new in 0.5.0).** Choose **Russian Navy** or **US Navy** independently of the EN/RU interface language. Both main careers have **19 stages, 45 wins and identical six AI tiers**, but their rank titles are authentic to each navy. The US ladder runs from **Seaman Recruit (E-1)** through **Admiral (O-10)**. The existing Russian career is migrated intact from the previous save; each navy has its own victories, defeats, streaks and honors.
+
+**Specialist route.** After **Chief Petty Officer (E-7)**, five optional Warrant Officer trial grades (W-1–W-5) can be earned with **2, 4, 7, 10 and 14** specialist victories respectively. These do **not** advance the main campaign. After **Admiral**, win **five consecutive battles at maximum difficulty** to earn the historical five-star **Fleet Admiral** distinction. It is an award, **not** a 20th active rank; a loss restarts only the five-win streak.
+
 **Quick battle** unlocks any of the 19 difficulty settings right away, without affecting campaign progress. Campaign victories, defeats, streaks and honors are saved on this device using browser `localStorage`; your unfinished battle is not saved. You can reset the career with a confirmation. The first-hit, three-win-streak and accurate-victory honors are optional little naval decorations — no in-app purchases, accounts or leaderboards.
+
+<details><summary>🇺🇸 US Navy: all 19 main ranks and their unlocks</summary>
+
+| Level | US Navy rank | Total campaign wins |
+| :---: | :--- | ---: |
+| 1 | Seaman Recruit (E-1) | 0 |
+| 2 | Seaman Apprentice (E-2) | 1 |
+| 3 | Seaman (E-3) | 2 |
+| 4 | Petty Officer Third Class (E-4) | 3 |
+| 5 | Petty Officer Second Class (E-5) | 5 |
+| 6 | Petty Officer First Class (E-6) | 7 |
+| 7 | Chief Petty Officer (E-7) | 9 |
+| 8 | Senior Chief Petty Officer (E-8) | 11 |
+| 9 | Master Chief Petty Officer (E-9) | 13 |
+| 10 | Ensign (O-1) | 15 |
+| 11 | Lieutenant Junior Grade (O-2) | 17 |
+| 12 | Lieutenant (O-3) | 20 |
+| 13 | Lieutenant Commander (O-4) | 23 |
+| 14 | Commander (O-5) | 26 |
+| 15 | Captain (O-6) | 29 |
+| 16 | Rear Admiral (Lower Half) (O-7) | 32 |
+| 17 | Rear Admiral (Upper Half) (O-8) | 36 |
+| 18 | Vice Admiral (O-9) | 40 |
+| 19 | Admiral (O-10) | 45 |
+
+</details>
 
 <details><summary>⚓ All 19 ranks and promotion milestones</summary>
 
@@ -91,7 +121,7 @@ GitHub Actions verifies engine and localization tests on pull requests. The prot
 
 | | |
 | :-- | :-- |
-| **Current version** | `0.4.0` |
+| **Current version** | `0.5.0` |
 | **Play online** | [SeaBattle on GitHub Pages](https://stanleyll0yd.github.io/SeaBattle/) |
 | **Source code** | [StanleyLl0yd/SeaBattle](https://github.com/StanleyLl0yd/SeaBattle) |
 | **Release history** | [CHANGELOG.md](CHANGELOG.md) |
