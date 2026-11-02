@@ -31,6 +31,9 @@
     .statusdot.waiting { background:var(--accent); box-shadow:0 0 0 5px #f3bd7219; }
     .statusdot.ended { background:var(--red); box-shadow:0 0 0 5px #ff777e19; }
     .status-text { font-weight:650; line-height:1.5; }
+    .result-actions { display:flex; justify-content:flex-end; margin:-12px 0 24px; }
+    .result-actions[hidden] { display:none; }
+    @media(max-width:720px) { .result-actions .action { width:100%; } }
     .career-panel { background:linear-gradient(115deg,#12354a,#102338); border:1px solid #386276; border-radius:17px; padding:18px 20px; margin:0 0 20px; }
     .career-head { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
     .career-head h2 { margin:0 0 5px; font-size:1.04rem; }
@@ -150,6 +153,9 @@
       <span class="statusdot" id="status-dot" aria-hidden="true"></span>
       <span class="status-text" id="status-text">Your fleet is ready. Start the battle or choose another layout.</span>
     </div>
+    <div class="result-actions" id="result-actions" hidden>
+      <button class="action primary" id="play-again" type="button" data-i18n="playAgain">↻ New battle</button>
+    </div>
     <section class="setup" id="setup" aria-label="Ship placement" data-i18n-aria-label="setupRegion">
       <div class="setup-head">
         <div><h2 data-i18n="setupHeading">Prepare your fleet</h2><p id="setup-hint">Ships have been placed randomly. You can change their positions.</p></div>
@@ -260,6 +266,10 @@
         "brand": "Classic board game · Single player",
         "languageLabel": "Language",
         "newGame": "↻ New game",
+        "playAgain": "↻ New battle",
+        "winCountOne": "victory",
+        "winCountFew": "victories",
+        "winCountMany": "victories",
         "eyebrow": "Play in your browser",
         "heading": "Sea Battle",
         "subhead": "Place your ships, find the enemy fleet, and sink all ten ships before the computer does.",
@@ -374,6 +384,10 @@
         "brand": "Настольная классика · 1 игрок",
         "languageLabel": "Язык",
         "newGame": "↻ Новая партия",
+        "playAgain": "↻ Новая партия",
+        "winCountOne": "победа",
+        "winCountFew": "победы",
+        "winCountMany": "побед",
         "eyebrow": "Играй в браузере",
         "heading": "Морской бой",
         "subhead": "Расставь корабли, найди флот противника и потопи все десять кораблей раньше компьютера.",
@@ -610,6 +624,14 @@
         '<option value="' + (i+1) + '">' + (i+1) + '. ' + rankLabel(navy,i) + '</option>').join("");
       ui.quickLevel.value = selected;
     }
+    function formatWinCount(count) {
+      if (language !== "ru") return count + " " + t(count === 1 ? "winCountOne" : "winCountMany");
+      const lastTwo = Math.abs(count) % 100;
+      const last = lastTwo % 10;
+      const form = lastTwo >= 11 && lastTwo <= 14 ? "winCountMany" :
+        last === 1 ? "winCountOne" : last >= 2 && last <= 4 ? "winCountFew" : "winCountMany";
+      return count + " " + t(form);
+    }
     function renderCareer() {
       const rank = rankForWins(career.wins);
       const setup = game.phase === "setup";
@@ -653,13 +675,13 @@
         t("promotion")+" "+rankLabel(game.navy,game.promotion-1) : extra;
       ui.rankList.innerHTML = Array.from({length:19},(_,i)=>
         "<li>"+rankLabel(navy,i)+(i+1<=rank ? " ✓" :
-          " · "+PROMOTION_WINS[i-1]+" "+t("careerVictories").toLowerCase())+"</li>").join("");
+          " · "+formatWinCount(PROMOTION_WINS[i-1]))+"</li>").join("");
       ui.careerSpecial.hidden = navy !== "us";
       if (navy === "us") {
         const grade = warrantRankForWins(career.warrantWins);
         const specialist = grade ? warrantLabel(grade-1) : t("warrantCandidate");
         const next = grade < 5 ? t("warrantNext")+": "+warrantLabel(grade)+" · "+
-          (WARRANT_WINS[grade]-career.warrantWins)+" "+t("careerVictories").toLowerCase() :
+          formatWinCount(WARRANT_WINS[grade]-career.warrantWins) :
           t("warrantFinished");
         const trial = rank < 7 ? t("warrantLock") : t("warrantStatus")+": "+career.warrantWins+
           " · "+t("warrantLosses")+": "+career.warrantLosses;
@@ -684,6 +706,7 @@
       player: $("player-board"), enemy: $("enemy-board"), status: $("status-text"), dot: $("status-dot"),
       setup: $("setup"), hint: $("setup-hint"), progress: $("setup-progress"),
       auto: $("auto"), manual: $("manual"), rotate: $("rotate"), undo: $("undo"), start: $("start"), again: $("new-game"), language: $("language"),
+      resultActions: $("result-actions"), playAgain: $("play-again"),
       navy: $("navy-select"), mode: $("game-mode"), quickLevel: $("quick-level"), quickBox: $("quick-controls"),
       warrantOption: $("mode-warrant"), fleetOption: $("mode-fleet"), careerSpecial: $("career-special"),
       careerRank: $("career-rank"), careerProgress: $("career-progress"), careerProgressText: $("career-progress-text"),
@@ -980,6 +1003,7 @@
       ui.setup.hidden = game.phase !== "setup";
       // Explicit display is required because the CSS class has its own display rules.
       ui.setup.style.display = game.phase === "setup" ? "" : "none";
+      ui.resultActions.hidden = game.phase !== "finished";
       ui.status.textContent = t(game.message.key, game.message.args);
       ui.dot.className = "statusdot" + (game.phase === "finished" ? " ended" : game.turn === "computer" ? " waiting" : "");
       $("player-alive").textContent = `${remaining(game.player)} / 10`;
@@ -1078,6 +1102,9 @@
       if (cell) playerFire(Number(cell.dataset.i));
     });
     ui.again.addEventListener("click", setUpGame);
+    ui.playAgain.addEventListener("click", () => {
+      if (game.phase === "finished") setUpGame();
+    });
     ui.navy.addEventListener("change", () => {
       if (game.phase !== "setup") { ui.navy.value = navy; return; }
       const choice = ui.navy.value;
