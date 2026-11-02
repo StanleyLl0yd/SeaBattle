@@ -1,3 +1,13 @@
+## [0.7.2] - 2026-11-02
+
+- Added a localized, unobtrusive offline-readiness indicator. It reports readiness only after scoped service-worker activation, with honest failure and unsupported-browser states; the current match is never reloaded.
+- Clarified macOS Safari's separate installed-web-app cache and the initial online launch requirement in both READMEs.
+- Added readiness-lifecycle and RU/EN regression tests; versioned the PWA cache with the deployable shell update.
+
+- Добавлен индикатор готовности игры к офлайн-запуску на двух языках. Готовность показывается после активации сервис-воркера; предусмотрены состояния ошибки и отсутствия поддержки, без перезапуска текущего боя.
+- Уточнено, что установленное приложение Safari на macOS требует первого запуска с интернетом из самого приложения.
+- Добавлены регрессионные тесты состояний и переводов; обновлена версия PWA-кеша.
+
 ## [0.7.1] - 2026-11-02
 
 - Fixed tactical postgame hints to exclude geometrically impossible directions after aligned hits; recommendations still use only public evidence, remain approximate, and never inspect hidden ship cells.

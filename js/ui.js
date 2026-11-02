@@ -1,8 +1,13 @@
 function updateStatus(key, args = {}) { game.message = { key, args }; }
+    function setOfflineStatus(key) {
+      offlineStatus = key;
+      ui.offlineNote.textContent = t(key);
+    }
     function setLanguage(next) {
       language = next === "ru" ? "ru" : "en";
       document.documentElement.lang = language;
       document.title = t("pageTitle");
+      ui.offlineNote.textContent = t(offlineStatus);
       document.querySelectorAll("[data-i18n]").forEach(node => { node.textContent = t(node.dataset.i18n); });
       document.querySelectorAll("[data-i18n-aria-label]").forEach(node => { node.setAttribute("aria-label", t(node.dataset.i18nAriaLabel)); });
       document.querySelectorAll(".cols").forEach(node => {
@@ -304,6 +309,11 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
 // Scope the offline shell to this project and do not reload an unfinished game.
 if (typeof navigator !== "undefined" && "serviceWorker" in navigator && typeof window !== "undefined") {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js", {scope:"./"}).catch(() => {});
+    navigator.serviceWorker.register("./sw.js", {scope:"./"})
+      .then(() => navigator.serviceWorker.ready)
+      .then(() => setOfflineStatus("offlineReady"))
+      .catch(() => setOfflineStatus("offlineUnavailable"));
   });
+} else {
+  setOfflineStatus("offlineUnsupported");
 }
