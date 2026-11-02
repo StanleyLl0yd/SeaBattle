@@ -31,6 +31,24 @@
     .statusdot.waiting { background:var(--accent); box-shadow:0 0 0 5px #f3bd7219; }
     .statusdot.ended { background:var(--red); box-shadow:0 0 0 5px #ff777e19; }
     .status-text { font-weight:650; line-height:1.5; }
+    .career-panel { background:linear-gradient(115deg,#12354a,#102338); border:1px solid #386276; border-radius:17px; padding:18px 20px; margin:0 0 20px; }
+    .career-head { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+    .career-head h2 { margin:0 0 5px; font-size:1.04rem; }
+    .career-controls { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .career-controls label { font-weight:650; font-size:.83rem; color:#bdd7e5; }
+    .career-controls select { max-width:220px; background:#102639; color:#ecf6fd; border:1px solid #527286; border-radius:8px; padding:9px; }
+    .career-info { display:grid; gap:7px; margin-top:11px; color:#b1cbd9; font-size:.85rem; }
+    .career-info strong { color:var(--cyan); }
+    .career-info progress { width:100%; height:13px; accent-color:var(--cyan); }
+    .career-achievements { display:flex; flex-wrap:wrap; gap:6px; margin-top:5px; }
+    .career-achievements span { background:#21485b; border:1px solid #49768e; border-radius:24px; color:#d5eaf4; padding:4px 10px; }
+    .career-controls button { border:1px solid #526d7b; border-radius:8px; color:#aec9d7; background:#193448; padding:8px; cursor:pointer; }
+    .career-panel details { margin-top:12px; font-size:.8rem; color:#b8d5e2; }
+    .career-panel summary { cursor:pointer; }
+    .career-panel ol { columns:2; padding-left:24px; line-height:1.9; }
+    .career-panel [hidden] { display:none !important; }
+    .promotion { margin-top:10px; color:#f3bd72; font-weight:750; }
+    @media(max-width:550px) { .career-panel ol { columns:1; } .career-controls select { max-width:180px; } }
     .setup { background:linear-gradient(130deg,#18374b,#10293d); border:1px solid #3a6176; border-radius:17px; padding:19px 21px; margin:0 0 25px; }
     .setup-head { display:flex; align-items:start; justify-content:space-between; gap:12px; }
     .setup h2 { font-size:1rem; margin:0 0 5px; }
@@ -91,6 +109,32 @@
     <p class="eyebrow" data-i18n="eyebrow">Play in your browser</p>
     <h1><span data-i18n="heading">Sea Battle</span><span style="color:var(--cyan)">.</span></h1>
     <p class="subhead" data-i18n="subhead">Place your ships, find the enemy fleet, and sink all ten ships before the computer does.</p>
+    <section class="career-panel" id="career-panel" aria-label="Naval campaign" data-i18n-aria-label="careerRegion">
+      <div class="career-head">
+        <h2 data-i18n="careerHeading">⚓ Naval career</h2>
+        <div class="career-controls">
+          <label for="game-mode" data-i18n="modeLabel">Mode</label>
+          <select id="game-mode" aria-label="Mode" data-i18n-aria-label="modeLabel">
+            <option value="campaign" data-i18n="modeCampaign">Campaign</option>
+            <option value="quick" data-i18n="modeQuick">Quick battle</option>
+          </select>
+          <span id="quick-controls" hidden>
+            <label for="quick-level" data-i18n="difficultyLabel">Difficulty</label>
+            <select id="quick-level" aria-label="Difficulty" data-i18n-aria-label="difficultyLabel"></select>
+          </span>
+          <button type="button" id="career-reset" data-i18n="careerReset">Reset career</button>
+        </div>
+      </div>
+      <div class="career-info">
+        <strong id="career-rank">Rank 1 / 19</strong>
+        <span id="career-progress-text"></span>
+        <progress id="career-progress" value="0" max="1"></progress>
+        <span id="career-stats"></span>
+        <div id="career-achievements" class="career-achievements"></div>
+        <div id="promotion" class="promotion" role="status" aria-live="polite" hidden></div>
+      </div>
+      <details id="ranks-detail"><summary data-i18n="ranksHeading">All 19 naval ranks</summary><ol id="rank-list"></ol></details>
+    </section>
     <div class="statusbar" role="status" aria-live="polite" aria-atomic="true">
       <span class="statusdot" id="status-dot" aria-hidden="true"></span>
       <span class="status-text" id="status-text">Your fleet is ready. Start the battle or choose another layout.</span>
@@ -145,6 +189,33 @@
     const FLEET = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
     const I18N = {
       "en": {
+        "careerRegion": "Naval career progress",
+        "careerHeading": "⚓ Naval career",
+        "modeLabel": "Mode",
+        "modeCampaign": "Campaign",
+        "modeQuick": "Quick battle",
+        "difficultyLabel": "Difficulty",
+        "careerReset": "Reset career",
+        "resetConfirm": "Reset all campaign victories, ranks and achievements? This cannot be undone.",
+        "careerRank": "Rank",
+        "careerProgress": "Wins toward promotion",
+        "careerMax": "Highest rank achieved — keep sailing!",
+        "careerVictories": "Victories",
+        "careerDefeats": "Defeats",
+        "careerStreak": "Win streak",
+        "ranksHeading": "All 19 naval ranks",
+        "rankLevel": "Level",
+        "promotion": "⚓ Promotion! New rank:",
+        "careerModeNotice": "Campaign victories count toward rank",
+        "quickModeNotice": "Quick battle · victories do not advance career",
+        "achievementHeading": "Honors",
+        "achievementNone": "No honors yet — your first voyage awaits.",
+        "achievementFirst": "🎯 First hit",
+        "achievementStreak": "🔥 Three wins in a row",
+        "achievementPrecision": "⚓ Sharp shooter",
+        "campaignWin": "Victory! Rank progress recorded. Another voyage awaits!",
+        "quickWin": "Victory! Quick battle doesn't count toward promotion.",
+        "careerLoss": "Defeat. Your rank is safe — ready for a rematch!",
         "pageTitle": "Sea Battle — Play Against the Computer",
         "brand": "Classic board game · Single player",
         "languageLabel": "Language",
@@ -203,6 +274,33 @@
         "undoReady": "Last ship removed. Select a new position."
       },
       "ru": {
+        "careerRegion": "Прогресс морской карьеры",
+        "careerHeading": "⚓ Морская карьера",
+        "modeLabel": "Режим",
+        "modeCampaign": "Кампания",
+        "modeQuick": "Быстрый бой",
+        "difficultyLabel": "Сложность",
+        "careerReset": "Сбросить карьеру",
+        "resetConfirm": "Сбросить все победы, звания и достижения кампании? Отменить действие нельзя.",
+        "careerRank": "Звание",
+        "careerProgress": "Побед до повышения",
+        "careerMax": "Высшее звание получено — служба продолжается!",
+        "careerVictories": "Победы",
+        "careerDefeats": "Поражения",
+        "careerStreak": "Побед подряд",
+        "ranksHeading": "Все 19 корабельных званий",
+        "rankLevel": "Уровень",
+        "promotion": "⚓ Новое звание:",
+        "careerModeNotice": "Победы кампании идут в зачёт звания",
+        "quickModeNotice": "Быстрый бой · победы не влияют на звание",
+        "achievementHeading": "Награды",
+        "achievementNone": "Наград пока нет — первый поход впереди.",
+        "achievementFirst": "🎯 Первое попадание",
+        "achievementStreak": "🔥 Три победы подряд",
+        "achievementPrecision": "⚓ Меткий стрелок",
+        "campaignWin": "Победа! Зачёт на повышение пополнен. Готовься к новому походу!",
+        "quickWin": "Победа! Быстрый бой не идёт в зачёт повышения.",
+        "careerLoss": "Поражение. Звание сохраняется — можно брать реванш!",
         "pageTitle": "Морской бой — игра против компьютера",
         "brand": "Настольная классика · 1 игрок",
         "languageLabel": "Язык",
