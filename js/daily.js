@@ -44,6 +44,21 @@ function saveDailyScore(date, shots) {
     return scores[date];
   } catch { return null; }
 }
+function recentDailyScores(date) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return [];
+  const day = new Date(date + "T00:00:00Z");
+  if (!Number.isFinite(day.getTime()) || day.toISOString().slice(0,10) !== date) return [];
+  let scores = {};
+  try {
+    const stored = JSON.parse(localStorage.getItem(DAILY_STORAGE_KEY) || "{}");
+    if (stored && typeof stored === "object" && !Array.isArray(stored)) scores = stored;
+  } catch {}
+  return Array.from({length:7}, (_, offset) => {
+    const key = new Date(day.getTime() - offset * 86400000).toISOString().slice(0,10);
+    const value = Object.prototype.hasOwnProperty.call(scores,key) ? scores[key] : null;
+    return {date:key, shots:Number.isInteger(value) && value >= 20 && value <= 100 ? value : null};
+  });
+}
 function dailyShareText(date, shots, best, locale) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isInteger(shots) || shots < 20 || shots > 100)
     return "";

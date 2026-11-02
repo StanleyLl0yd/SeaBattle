@@ -70,6 +70,11 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
         const best = dailyBest(game.dailyDate);
         ui.dailyDetails.textContent = t("dailyWhen") + ": " + game.dailyDate + " · " +
           t("dailyBest") + ": " + (best === null ? t("dailyUnplayed") : best) + ". " + t("dailyRules");
+        ui.dailyHistory.replaceChildren(...recentDailyScores(game.dailyDate).map(({date,shots}) => {
+          const item = document.createElement("li");
+          item.textContent = date + " — " + (shots === null ? t("dailyUnplayed") : t("dailyHistoryShots") + ": " + shots);
+          return item;
+        }));
       }
       ui.tacticalPanel.hidden = game.phase !== "finished" || !game.trace?.length;
       if (!ui.tacticalPanel.hidden) {
