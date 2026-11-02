@@ -121,6 +121,25 @@ test('career and honors persist, language changes do not reset the match',()=>{
   assert.match(reopened.nodes.get('career-rank').textContent,/Senior Seaman/);
 });
 
+test('rank selector and remaining-win indicator localize without changing progress',()=>{
+  const b=boot();
+  assert.match(b.nodes.get('quick-level').innerHTML,/value="19"/);
+  assert.match(b.nodes.get('career-progress-text').textContent,/Wins until promotion: 1 \(0 \/ 1\)/);
+  b.eval('setLanguage("ru")');
+  assert.match(b.nodes.get('career-progress-text').textContent,/Побед до повышения: 1 \(0 \/ 1\)/);
+  assert.match(b.nodes.get('quick-level').innerHTML,/Адмирал флота/);
+  assert.match(b.nodes.get('rank-list').innerHTML,/Главный корабельный старшина/);
+  assert.equal(b.doc.documentElement.lang,'ru');
+});
+
+test('unavailable browser storage does not break campaign play',()=>{
+  const b=boot();
+  b.eval('localStorage.getItem=()=>{throw new Error("blocked")};career=loadCareer()');
+  assert.equal(b.career().wins,0);
+  b.eval('localStorage.setItem=()=>{throw new Error("blocked")};startBattle();finish("player");render()');
+  assert.equal(b.career().wins,1);
+});
+
 test('reset requires confirmation and drops all career data, not game options',()=>{
   const saved=new Map();
   const b=boot(saved,false);
