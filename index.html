@@ -221,14 +221,14 @@
         "warrantWin": "Specialist victory! Your technical-service track advances.",
         "warrantLoss": "Specialist trial lost. Your earned grades remain safe.",
         "fleetWin": "Admiral's challenge won! Continue your streak.",
-        "fleetLoss": "Challenge lost. The five-win streak starts again; previous honors stay yours.",
+        "fleetLoss": "Challenge lost. The three-win streak starts again; previous honors stay yours.",
         "specialPromotion": "⚓ Specialist promotion:",
         "legendPromotion": "⭐ Fleet Admiral honor unlocked!",
         "quickLocaleNote": "Language and navy selection are independent.",
         "navyResetScope": "Only the selected navy's career will be reset.",
         "selectNavy": "Choose a navy to see its own career and ranks",
         "warrantModeNotice": "Specialist victories do not affect main rank",
-        "fleetModeNotice": "Five consecutive victories against the strongest AI",
+        "fleetModeNotice": "Three consecutive victories against the strongest AI",
         "careerRegion": "Naval career progress",
         "careerHeading": "⚓ Naval career",
         "modeLabel": "Mode",
@@ -335,14 +335,14 @@
         "warrantWin": "Победа в испытании! Карьера специалиста продвигается.",
         "warrantLoss": "Испытание проиграно. Полученные специальные звания сохраняются.",
         "fleetWin": "Победа в адмиральском испытании! Продолжай серию.",
-        "fleetLoss": "Испытание проиграно. Серия из пяти побед начинается заново, награды сохраняются.",
+        "fleetLoss": "Испытание проиграно. Серия из трёх побед начинается заново, награды сохраняются.",
         "specialPromotion": "⚓ Новое специальное звание:",
         "legendPromotion": "⭐ Открыто историческое отличие Fleet Admiral!",
         "quickLocaleNote": "Язык интерфейса и флот выбираются независимо.",
         "navyResetScope": "Сбрасывается карьера только выбранного флота.",
         "selectNavy": "Выбери флот для просмотра его карьеры и званий",
         "warrantModeNotice": "Победы специалиста не меняют основное звание",
-        "fleetModeNotice": "Пять побед подряд против самого сильного ИИ",
+        "fleetModeNotice": "Три победы подряд против самого сильного ИИ",
         "careerRegion": "Прогресс морской карьеры",
         "careerHeading": "⚓ Морская карьера",
         "modeLabel": "Режим",
@@ -497,7 +497,7 @@
         if (![value.warrantWins,value.warrantLosses,value.fleetStreak].every(validScore) ||
             value.fleetStreak > 5 || typeof value.fleetAdmiral !== "boolean") return null;
         Object.assign(result, {warrantWins:value.warrantWins,warrantLosses:value.warrantLosses,
-          fleetStreak:value.fleetStreak,fleetAdmiral:value.fleetAdmiral});
+          fleetStreak:Math.min(3,value.fleetStreak),fleetAdmiral:value.fleetAdmiral || value.fleetStreak >= 3});
       }
       return result;
     }
@@ -580,8 +580,8 @@
       }
       if (game.mode === "fleet") {
         if (winner === "player") {
-          career.fleetStreak = Math.min(5, career.fleetStreak + 1);
-          if (career.fleetStreak === 5 && !career.fleetAdmiral) {
+          career.fleetStreak = Math.min(3, career.fleetStreak + 1);
+          if (career.fleetStreak === 3 && !career.fleetAdmiral) {
             career.fleetAdmiral = true;
             saveCareers();
             return 6;
@@ -664,7 +664,7 @@
         const trial = rank < 7 ? t("warrantLock") : t("warrantStatus")+": "+career.warrantWins+
           " · "+t("warrantLosses")+": "+career.warrantLosses;
         const fleet = career.fleetAdmiral ? t("fleetAwarded") :
-          rank < 19 ? t("fleetLock") : t("fleetStatus")+": "+career.fleetStreak+" / 5";
+          rank < 19 ? t("fleetLock") : t("fleetStatus")+": "+Math.min(3, career.fleetStreak)+" / 3";
         ui.careerSpecial.textContent=t("warrantHeading")+" · "+specialist+"\n"+trial+"\n"+next+
           "\n"+WARRANT_RANKS[language].map((_,i)=>warrantLabel(i)+(i<grade ? " ✓" : "")).join(" · ")+
           "\n"+t("fleetHeading")+"\n"+fleet+"\n"+t("fleetNote");
@@ -850,9 +850,11 @@
       // All levels respect public evidence; bounded local probability is the fallback.
       const heat = new Float64Array(SIZE * SIZE);
       let samples = 0;
-      const sampleLimit = level < 9 ? 0 : level <= 12 ? 18 + (level - 9) * 6 :
+      const sampleLimit = level === 3 ? 0 : level <= 9 ? 3 * (level - 3) :
+        level <= 12 ? 18 + (level - 9) * 6 :
         level <= 15 ? 40 + (level - 13) * 8 : 60 + (level - 16) * 8;
-      const timeBudget = level <= 12 ? 14 : level <= 15 ? 14 : 17 + (level - 16) * 2;
+      const timeBudget = level <= 6 ? 9 : level <= 8 ? 11 :
+        level <= 15 ? 14 : 17 + (level - 16) * 2;
       const nodeLimit = level <= 12 ? 900 : level <= 15 ? 1100 : 1300;
       const deadline = Date.now() + timeBudget;
       const ordered = [...lengths].sort((a, b) => b - a);
@@ -895,15 +897,19 @@
       const liveCells = lengths.reduce((sum, length) => sum + length, 0);
       const edgeRate = (edgeHits + 2) / (edgeShots + 10);
       const innerRate = (innerHits + 2) / (innerShots + 10);
-      const adaptation = level >= 9
-        ? Math.max(-0.09, Math.min(0.09, (edgeRate - innerRate) * 0.3)) : 0;
+      // Introduce positional adaptation gradually, rather than abruptly at rank 9.
+      const adaptationStrength = level <= 3 ? 0 : level <= 9 ? (level - 3) / 10 :
+        Math.min(1, 0.6 + (level - 9) * 0.04);
+      const adaptation = adaptationStrength *
+        Math.max(-0.09, Math.min(0.09, (edgeRate - innerRate) * 0.3));
       let best = -Infinity;
       const scores = new Float64Array(SIZE * SIZE);
       for (const i of open) {
         const p = samples ? heat[i] / samples : 0;
         const base = localSum ? (local[i] * liveCells / localSum) : 0;
-        const probability = samples >= 6 ? (level >= 16 ? 0.88 : 0.8) * p +
-          (level >= 16 ? 0.12 : 0.2) * base : base;
+        const sampleShare = level <= 3 ? 0 : Math.min(0.88, 0.08 * (level - 3));
+        const reliableShare = samples >= 3 ? sampleShare : 0;
+        const probability = reliableShare * p + (1 - reliableShare) * base;
         const [x, y] = xy(i);
         const edge = x === 0 || x === 9 || y === 0 || y === 9;
         const information = level >= 16 ? 0.1 * probability * (1 - probability) : 0.06 * probability * (1 - probability);
@@ -911,8 +917,9 @@
         scores[i] = score;
         if (score > best) best = score;
       }
-      const exploration = level <= 6 ? 0.45 - (level - 3) * 0.12 :
-        level === 7 ? 0.08 : level === 8 ? 0.03 : level <= 12 ? 0.02 : 0;
+      const exploration = level <= 8 ? Math.max(0.10, 0.45 - (level - 3) * 0.07) :
+        level <= 12 ? 0.08 - (level - 9) * 0.015 :
+        level <= 16 ? 0.026 - (level - 13) * 0.006 : Math.max(0, 0.008 - (level - 17) * 0.004);
       if (!active && Math.random() < exploration) return randomFrom(open);
       return randomFrom(open.filter(i => scores[i] >= best - (level >= 16 ? 0.002 : 0.004)));
     }
