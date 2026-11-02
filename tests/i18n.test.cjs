@@ -11,10 +11,13 @@ assert.ok(script, 'Expected one inline game script');
 
 function boot(languages, fallback = 'en-US') {
   const nodes = new Map();
+  const documentEvents = new Map();
   const make = () => ({
     textContent: '', innerHTML: '', style: {}, dataset: {}, children: [],
-    classList: { toggle() {}, add() {}, remove() {} },
-    addEventListener() {}, setAttribute(name, value) { this[name] = value; },
+    handlers: {}, classList: { toggle() {}, add() {}, remove() {} },
+    addEventListener(name, callback) { this.handlers[name] = callback; },
+    click() { this.handlers.click?.(); },
+    setAttribute(name, value) { this[name] = value; },
     querySelectorAll() { return []; }, replaceChildren(...children) { this.children = children; }
   });
   const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map(m => m[1]);
@@ -40,7 +43,7 @@ function boot(languages, fallback = 'en-US') {
       return [];
     },
     createElement() { return make(); },
-    addEventListener() {}
+    addEventListener(name, callback) { documentEvents.set(name, callback); }
   };
   const context = vm.createContext({
     document: doc,
@@ -49,7 +52,17 @@ function boot(languages, fallback = 'en-US') {
   });
   vm.runInContext(script, context, { filename: 'index.html' });
   return { doc, nodes, textNodes, ariaNodes, columns, context,
-    eval: source => vm.runInContext(source, context) };
+    eval: source => vm.runInContext(source, context),
+    keydown: input => {
+      let prevented = false;
+      documentEvents.get('keydown')({
+        code: '', key: '', target: { tagName: 'BODY' },
+        preventDefault() { prevented = true; },
+        ...input
+      });
+      return prevented;
+    }
+  };
 }
 
 test('English first, exact Russian browser locale, and safe fallbacks', () => {
@@ -124,6 +137,44 @@ test('manual ship setup and completed battle messages localize at runtime', () =
   assert.match(b.nodes.get('status-text').textContent, /J10/);
 });
 
+
+test('R-position key rotates manual ships on any keyboard layout, without repeating', () => {
+  const b = boot(['ru-RU']);
+  b.eval('game.player = createBoard(); game.manual = true; game.horizontal = true; render()');
+  assert.equal(b.nodes.get('rotate').disabled, false);
+  for (const [key, code] of [['r', 'KeyR'], ['к', 'KeyR'], ['ق', 'KeyR'], ['γ', 'KeyR']]) {
+    const previous = b.eval('game.horizontal');
+    assert.equal(b.keydown({ key, code }), true, 'Expected ' + key + ' to rotate');
+    assert.equal(b.eval('game.horizontal'), !previous);
+  }
+  assert.equal(b.keydown({ key: 'r', code: '' }), true, 'Legacy key-only events remain supported');
+  assert.equal(b.eval('game.horizontal'), false);
+  assert.equal(b.keydown({ key: 'к', code: 'KeyR', repeat: true }), false);
+  assert.equal(b.eval('game.horizontal'), false);
+});
+
+test('rotation shortcut respects modifiers, composing, editable targets and game phase', () => {
+  const b = boot(['en-US']);
+  b.eval('game.player = createBoard(); game.manual = true; game.horizontal = true; render()');
+  const base = { key: 'к', code: 'KeyR' };
+  for (const change of [
+    { ctrlKey: true }, { altKey: true }, { metaKey: true },
+    { isComposing: true }, { target: { tagName: 'SELECT' } },
+    { target: { tagName: 'INPUT' } }, { target: { tagName: 'TEXTAREA' } },
+    { target: { tagName: 'DIV', isContentEditable: true } },
+    { key: 't', code: 'KeyT' }
+  ]) {
+    assert.equal(b.keydown({ ...base, ...change }), false);
+    assert.equal(b.eval('game.horizontal'), true);
+  }
+  b.eval('game.phase = "playing"; render()');
+  assert.equal(b.keydown(base), false);
+  b.eval('game.phase = "setup"; game.manual = false; render()');
+  assert.equal(b.keydown(base), false);
+  b.eval('game.manual = true; game.player = randomFleet(); render()');
+  assert.equal(b.keydown(base), false, 'Shortcut must respect disabled Rotate button');
+});
+
 test('offline English default markup, no remote code, and keyboard controls remain', () => {
   assert.match(html, /^<!doctype html>/i);
   assert.match(html, /<html lang="en">/);
@@ -132,6 +183,6 @@ test('offline English default markup, no remote code, and keyboard controls rema
   assert.match(html, /<option value="ru"/);
   assert.match(html, /aria-live="polite"/);
   assert.doesNotMatch(html, /<script\s+src=|<link\s+[^>]*href="https?:/i);
-  assert.ok(html.includes('event.key.toLowerCase() === "r"'));
+  assert.ok(html.includes('event.code === "KeyR"'));
   assert.doesNotMatch(html.slice(0, html.indexOf('<script>')), /[А-ЯЁа-яё]/);
 });
