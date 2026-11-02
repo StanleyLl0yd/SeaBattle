@@ -528,12 +528,12 @@ The final goal is a codebase containing only the complexity required to implemen
 
 ## App icon and canonical artwork
 
-- No canonical SeaBattle app-icon artwork has been designated by the project owner yet. Do not invent one by treating a UI emoji, screenshot, mockup, or arbitrary generated image as canonical.
+- The approved SeaBattle browser/app icon is the **canonical vector** `assets/seabattle-icon.svg`: dark-navy rounded square, bright cyan ship silhouette, and coral hit marker. `favicon.ico` is its compatible 16×16 / 32×32 derivative. Keep the original geometry and colors unchanged unless the owner explicitly requests a redesign. Other concept sketches and PNG exports are archived separately; do not substitute them into the live favicon without approval.
 - If the owner provides a PNG and explicitly designates it as the app icon, store that exact original PNG as the canonical raster artwork (prefer `artwork/app-icon.png` unless the owner specifies another path). Keep the source bytes unchanged.
 - Do not redraw, trace, vectorize, restyle, regenerate, convert to SVG/vector PDF, overwrite, recompress, or optimize the canonical PNG in place without explicit owner approval.
 - Only create separately named platform/browser-required raster derivatives (such as favicon PNG sizes, PNG thumbnails or ICO). Preserve the icon's composition, colors, proportions and details; do not crop, pad, recolor or otherwise change the visible design unless required and approved.
 - If an existing icon becomes canonical, preserve it until the owner explicitly approves replacement. A new icon design is separate work and requires an explicit request; normal code cleanup never changes brand assets.
-- Keep all HTML icon references, documentation, release assets and derivative files consistent with the selected canonical artwork once one exists. Verify assets load correctly from the GitHub Pages project subpath without third-party runtime services.
+- Keep all HTML icon references, documentation, release assets and derivative files consistent with the selected canonical artwork once one exists. Verify both `favicon.ico` and `assets/seabattle-icon.svg` are included in the static GitHub Pages artifact and resolve from the project subpath without third-party runtime services.
 
 ## Completion and transparency
 
