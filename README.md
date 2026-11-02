@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="README.md"><strong>EN English</strong></a> &nbsp;·&nbsp; <a href="README.ru.md">🇷🇺 Русский</a>
+  <a href="README.md"><strong>🇺🇸 English</strong></a> &nbsp;·&nbsp; <a href="README.ru.md">🇷🇺 Русский</a>
 </p>
 
 <p align="center">
@@ -71,7 +71,7 @@ GitHub Actions verifies engine and localization tests on pull requests. The prot
 ---
 
 <p align="center">
-  <a href="README.md"><strong>EN English</strong></a> &nbsp;·&nbsp; <a href="README.ru.md">🇷🇺 Русский</a>
+  <a href="README.md"><strong>🇺🇸 English</strong></a> &nbsp;·&nbsp; <a href="README.ru.md">🇷🇺 Русский</a>
 </p>
 
 <p align="center"><sub>⚓ SEA BATTLE · 10 × 10 · BUILT FOR THE OPEN WEB</sub></p>
