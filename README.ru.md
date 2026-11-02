@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="README.md">🇬🇧 English</a> &nbsp;·&nbsp; <a href="README.ru.md"><strong>🇷🇺 Русский</strong></a>
+  <a href="README.md">EN English</a> &nbsp;·&nbsp; <a href="README.ru.md"><strong>🇷🇺 Русский</strong></a>
 </p>
 
 <p align="center">
@@ -71,7 +71,7 @@ GitHub Actions проверяет игровые правила и локали�
 ---
 
 <p align="center">
-  <a href="README.md">🇬🇧 English</a> &nbsp;·&nbsp; <a href="README.ru.md"><strong>🇷🇺 Русский</strong></a>
+  <a href="README.md">EN English</a> &nbsp;·&nbsp; <a href="README.ru.md"><strong>🇷🇺 Русский</strong></a>
 </p>
 
 <p align="center"><sub>⚓ МОРСКОЙ БОЙ · 10 × 10 · ИГРА ДЛЯ БРАУЗЕРА</sub></p>
