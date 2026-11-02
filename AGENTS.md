@@ -4,13 +4,13 @@ These instructions apply to all automated contributors and repository maintenanc
 
 ## Product invariants
 
-- SeaBattle is an English-first, English/Russian bilingual single-player classic Battleship game against a computer. The deployed site and a locally opened `index.html` must both work without a server, network access, user account, installation, or runtime package dependencies.
+- SeaBattle is an English-first, English/Russian bilingual single-player classic Battleship game against a computer. The GitHub Pages game must run in the browser without an account, downloads, installation, application server or third-party runtime dependencies. Internet access to load the hosted page is expected; do not present a downloadable HTML file as a user-facing play option.
 - Preserve two 10×10 grids, the fleet [4, 3, 3, 2, 2, 2, 1, 1, 1, 1] (10 ships; 20 occupied cells per side), straight horizontal/vertical ships, and the no-touch rule including diagonals.
 - Preserve automatic and manual placement, rotate, undo, first turn by the player, repeated turn after a hit/sink, transfer on a miss, sinking and adjacent-cell blocking, win detection, and restarting a fresh match.
 - The computer must base targeting only on publicly revealed shots, hits, sunk ships, remaining legal ship lengths, and derived public information; it must not inspect hidden player ship positions to pick a shot. Use the same authoritative shot resolution and game rules for both players.
 - AI search must remain bounded on slower mobile devices. Sample only whole non-touching fleet placements compatible with public evidence; use a safe fallback if sampling is too constrained, and prioritize finishing visible hits. Do not turn the approximate posterior into a claim of proven optimality, introduce hidden-state lookups, or persist opponent profiles without owner approval.
-- Treat `index.html` as the authoritative browser implementation. `tests/game.test.cjs` must continue exercising the current engine; if the internal layout changes, update the test harness without weakening coverage.
-- Preserve responsive layout, keyboard input, readable contrast, touch controls, accessibility semantics, and game-state feedback.
+- `index.html` currently hosts the browser implementation, but a single-file architecture is **not mandatory**. Keep tests exercising the authoritative game engine; if moving code into modules/assets, update test harnesses and the Pages artifact workflow without weakening coverage or changing gameplay.
+- Preserve responsive layout, keyboard input, readable contrast, touch controls, accessibility semantics, and game-state feedback. Manual-setup rotation uses physical `KeyboardEvent.code === "KeyR"` so it works with Cyrillic and other keyboard layouts; maintain legacy Latin `event.key` fallback and do not hijack editable fields, modifiers or active IME composition.
 - English is the default language. Select Russian automatically only when the primary browser language is Russian (`ru`, `ru-*`, or `ru_*`); unknown and other locales fall back to English. Allow instant manual EN/RU switching without resetting a game. All visible text, statuses, coordinates, document title and accessibility labels must follow the active language.
 - Keep user-facing README and gameplay instructions available in both English and Russian, using `README.md` and `README.ru.md` respectively. The code-facing `AGENTS.md` remains in English for unambiguous agent instructions. Avoid external translation services, runtime localization dependencies and persistent language tracking. Do not change gameplay or appearance merely for refactoring.
 - Keep runtime state in the browser tab, unless the owner explicitly approves persistence. Do not add analytics, tracking, ads, external API calls, telemetry, social features, user accounts, or online multiplayer without approval.
@@ -43,8 +43,8 @@ These instructions apply to all automated contributors and repository maintenanc
 - Do not commit credentials, tokens, private keys, access logs, personal data or `.env` secrets. The static game must not require secrets at build time or in the browser.
 - Keep GitHub Actions pinned to audited full 40-character commit SHAs, with a nearby upstream action-version comment; upgrade deliberately and verify the new target.
 - Use least-privilege GitHub Actions permissions. Do not run untrusted PR code using secrets or write-capable credentials; do not use `pull_request_target` for ordinary CI.
-- Deploy the static `index.html` to GitHub Pages only from verified `main` after tests pass. Do not weaken CI or protection rules to force a release.
-- Avoid adding external images, fonts, scripts and remote resources that would break offline mode or create privacy/supply-chain dependencies.
+- Deploy the complete static site (HTML and any required local CSS, JavaScript and assets) to GitHub Pages only from verified `main` after tests pass. Do not weaken CI or protection rules to force a release.
+- Avoid unnecessary external images, fonts, scripts and remote resources that create runtime tracking, privacy, availability or supply-chain dependencies.
 ## Mandatory repository-wide audit and deep-refactoring protocol
 
 When the owner explicitly requests a **full audit, security audit, code review, full cleanup, optimization, simplification, or full/deep refactoring of the project/repository**, these rules are mandatory. This means a complete repository-wide pass, never just the diff or recently modified modules. A narrowly scoped change or review remains scoped unless the owner asks for full coverage.
@@ -529,7 +529,7 @@ The final goal is a codebase containing only the complexity required to implemen
 - Do not redraw, trace, vectorize, restyle, regenerate, convert to SVG/vector PDF, overwrite, recompress, or optimize the canonical PNG in place without explicit owner approval.
 - Only create separately named platform/browser-required raster derivatives (such as favicon PNG sizes, PNG thumbnails or ICO). Preserve the icon's composition, colors, proportions and details; do not crop, pad, recolor or otherwise change the visible design unless required and approved.
 - If an existing icon becomes canonical, preserve it until the owner explicitly approves replacement. A new icon design is separate work and requires an explicit request; normal code cleanup never changes brand assets.
-- Keep all HTML icon references, documentation, release assets and derivative files consistent with the selected canonical artwork once one exists. Verify assets load offline and on the GitHub Pages project subpath.
+- Keep all HTML icon references, documentation, release assets and derivative files consistent with the selected canonical artwork once one exists. Verify assets load correctly from the GitHub Pages project subpath without third-party runtime services.
 
 ## Completion and transparency
 
