@@ -41,6 +41,9 @@
     .tactical-panel #tactical-details { white-space:pre-line; }
     .tactical-panel small { color:#93aec1; }
     .daily-panel button { margin-top:7px; }
+    .daily-panel details { margin-top:11px; }
+    .daily-panel summary { cursor:pointer; font-weight:700; color:var(--cyan); }
+    .daily-history-list { padding-left:24px; margin:8px 0; font-size:.84rem; color:#b8d5e2; line-height:1.7; }
     .result-actions { display:flex; justify-content:flex-end; margin:-12px 0 24px; }
     .result-actions[hidden] { display:none; }
     @media(max-width:720px) { .result-actions .action { width:100%; } }
@@ -168,6 +171,7 @@
     <section class="daily-panel" id="daily-panel" hidden aria-label="Daily challenge" data-i18n-aria-label="dailyRegion">
       <strong data-i18n="dailyHeading">⚓ Daily sea challenge</strong>
       <p id="daily-details"></p>
+      <details><summary data-i18n="dailyHistoryHeading">Recent 7 UTC days</summary><ol class="daily-history-list" id="daily-history"></ol></details>
       <button class="action primary" type="button" id="daily-share" data-i18n="dailyShare" hidden>Copy result</button>
     </section>
     <section class="tactical-panel" id="tactical-panel" hidden aria-label="Tactical review" data-i18n-aria-label="tacticalRegion">

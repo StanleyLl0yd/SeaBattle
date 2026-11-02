@@ -1,3 +1,13 @@
+## [0.8.0] - 2026-11-02
+
+- Added a collapsible last-seven-UTC-days history to Daily Challenge using existing best-shot records only; unplayed and corrupted entries are handled safely.
+- Kept the `seabattle.daily.v1` storage shape, 90-date retention, deterministic puzzles, local privacy and both campaigns unchanged.
+- Added UTC-boundary and corruption regression coverage; bumped PWA cache with the new shell.
+
+- Добавлена раскрывающаяся история ежедневных испытаний за последние семь дней UTC на основе существующих личных рекордов.
+- Сохранены формат `seabattle.daily.v1`, хранение последних 90 дат, приватность, флот и обе кампании.
+- Добавлены проверки границ дат UTC и повреждённых записей; обновлена версия PWA-кеша.
+
 ## [0.7.2] - 2026-11-02
 
 - Added a localized, unobtrusive offline-readiness indicator. It reports readiness only after scoped service-worker activation, with honest failure and unsupported-browser states; the current match is never reloaded.

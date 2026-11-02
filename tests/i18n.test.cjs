@@ -201,3 +201,22 @@ test('offline readiness indicator follows live RU/EN language without changing t
   b.eval('setLanguage("en")');
   assert.match(b.nodes.get('offline-note').textContent,/Ready for offline play/);
 });
+
+test('seven-day Daily history shows safe localized scores without changing the game',()=>{
+  const b=boot(['en-US']);
+  b.context.localStorage = {getItem:()=>JSON.stringify({'2026-11-02':27,'2026-11-01':33})};
+  const fleet=b.eval('game.player');
+  b.eval('game.mode="daily"; game.dailyDate="2026-11-02"; render()');
+  assert.equal(b.nodes.get('daily-panel').hidden,false);
+  const items=b.nodes.get('daily-history').children;
+  assert.equal(items.length,7);
+  assert.equal(items[0].textContent,'2026-11-02 — Shots: 27');
+  assert.equal(items[1].textContent,'2026-11-01 — Shots: 33');
+  assert.match(items[2].textContent,/Not completed yet/);
+  b.eval('setLanguage("ru")');
+  assert.equal(b.nodes.get('daily-history').children[0].textContent,'2026-11-02 — Выстрелов: 27');
+  assert.match(b.nodes.get('daily-history').children[2].textContent,/Пока не пройдено/);
+  assert.strictEqual(b.eval('game.player'),fleet);
+  b.eval('game.mode="campaign"; render()');
+  assert.equal(b.nodes.get('daily-panel').hidden,true);
+});
