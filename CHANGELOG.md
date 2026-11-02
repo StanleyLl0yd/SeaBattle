@@ -1,3 +1,13 @@
+## [0.6.0] - 2026-11-02
+
+- Smoothed progression of fair, public-information-only AI inference across ranks 3–19, replacing the abrupt level-9 activation of fleet sampling and gradually increasing positional adaptation, search budget and decision quality.
+- Rebalanced optional Fleet Admiral challenge to three consecutive level-19 victories (was five); existing streaks of three or more in stored profiles now count as earned without resetting main career.
+- Added automated difficulty regression benchmarks for perimeter fleets, ordinary random fleets and complete alternating-turn games with original fleet and shot rules.
+
+- Сложность ИИ растёт более плавно на уровнях 3–19: нет резкого включения моделирования на девятом уровне, адаптация к расстановкам и точность выбора выстрела усиливаются постепенно.
+- Историческая награда Fleet Admiral теперь выдаётся за три победы подряд на 19-й сложности; ранее накопленные серии не теряются.
+- Добавлены регрессионные проверки баланса на случайных и периметральных флотах и полных партиях с чередованием ходов.
+
 ## [0.4.0] - 2026-11-02
 
 - Added a 19-rank Russian Navy campaign from Seaman to Admiral of the Fleet, with 18 promotions requiring 45 cumulative campaign wins. Losses never demote.

@@ -166,7 +166,7 @@ test('Warrant trials lock until US main E-7, then unlock all five grades without
   assert.match(b.nodes.get('career-special').textContent,/Chief Warrant Officer 5/);
 });
 
-test('Fleet Admiral is an optional historic five-star award after five consecutive level-19 wins',()=>{
+test('Fleet Admiral is an optional historic five-star award after three consecutive level-19 wins',()=>{
   const b=boot();
   b.nodes.get('game-mode').value='fleet';
   b.nodes.get('game-mode').handlers.change();
@@ -176,13 +176,14 @@ test('Fleet Admiral is an optional historic five-star award after five consecuti
   b.nodes.get('game-mode').value='fleet';
   b.nodes.get('game-mode').handlers.change();
   assert.equal(b.game().level,19);
-  for(let i=0;i<3;i++)b.eval('startBattle();finish("player");render();setUpGame()');
-  assert.equal(b.career().fleetStreak,3);
+  for(let i=0;i<2;i++)b.eval('startBattle();finish("player");render();setUpGame()');
+  assert.equal(b.career().fleetStreak,2);
+  assert.equal(b.career().fleetAdmiral,false);
   b.eval('startBattle();finish("computer");render();setUpGame()');
   assert.equal(b.career().fleetStreak,0);
-  for(let i=0;i<5;i++){
+  for(let i=0;i<3;i++){
     b.eval('startBattle();finish("player");render()');
-    assert.equal(b.game().specialPromotion,i===4?6:0);
+    assert.equal(b.game().specialPromotion,i===2?6:0);
     b.eval('setUpGame()');
   }
   assert.equal(b.career().fleetAdmiral,true);
@@ -218,4 +219,19 @@ test('malformed dual profile safely falls back to valid legacy RU profile',()=>{
   assert.equal(b.career().wins,1);
   const after=JSON.parse(saved.get('seabattle.careers.v2'));
   assert.equal(after.ru.wins,12);
+});
+
+test('existing Fleet Admiral progress of three or four wins is honored on upgrade',()=>{
+  for(const oldStreak of [3,4,5]) {
+    const us={wins:45,losses:0,streak:0,bestStreak:0,achievements:[],
+      warrantWins:0,warrantLosses:0,fleetStreak:oldStreak,fleetAdmiral:false};
+    const ru={wins:0,losses:0,streak:0,bestStreak:0,achievements:[]};
+    const saved=new Map([['seabattle.careers.v2',JSON.stringify({version:2,us,ru})]]);
+    const b=boot(saved);
+    assert.equal(b.career().fleetStreak,3);
+    assert.equal(b.career().fleetAdmiral,true,'Earlier completed streak must count for relaxed threshold');
+    assert.equal(b.career().wins,45);
+    b.eval('startBattle();finish("computer");render()');
+    assert.equal(b.career().fleetAdmiral,true);
+  }
 });
