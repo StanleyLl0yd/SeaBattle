@@ -144,3 +144,28 @@ test('language switching updates challenge and review without resetting a comple
   b.eval('setLanguage("en")');
   assert.match(b.nodes.get('tactical-details').textContent,/Search shots/);
 });
+
+test('same daily UTC fleet across Russian and American careers and locales',()=>{
+  const ru=boot(new Map(),true,['ru-RU']);
+  const us=boot(new Map(),true,['en-US']);
+  for(const day of ['2026-11-02','2026-11-03','2027-01-01']){
+    const expression='JSON.stringify(dailyFleet("'+day+'").cells)';
+    assert.equal(ru.eval(expression),us.eval(expression));
+  }
+  ru.eval('setLanguage("en")');
+  us.eval('setLanguage("ru")');
+  assert.equal(ru.eval('JSON.stringify(dailyFleet("2026-11-02").cells)'),
+    us.eval('JSON.stringify(dailyFleet("2026-11-02").cells)'));
+});
+
+test('postgame review names concrete higher-scored cells only after a finished match',()=>{
+  const b=boot(new Map(),true,['ru-RU']);
+  b.eval('startBattle()');
+  b.eval('game.trace=[{mode:"hunt",chosen:0,bestCell:44,selected:1,max:5,promising:false,outcome:"miss"}];render()');
+  assert.equal(b.nodes.get('tactical-panel').hidden,true);
+  b.eval('game.phase="finished";render()');
+  assert.equal(b.nodes.get('tactical-panel').hidden,false);
+  assert.match(b.nodes.get('tactical-details').textContent,/А1 → Д5/);
+  b.eval('setLanguage("en")');
+  assert.match(b.nodes.get('tactical-details').textContent,/A1 → E5/);
+});
