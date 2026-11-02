@@ -917,7 +917,7 @@
         scores[i] = score;
         if (score > best) best = score;
       }
-      const exploration = level <= 8 ? Math.max(0.10, 0.45 - (level - 3) * 0.07) :
+      const exploration = level <= 8 ? [0,0,0,0.78,0.6,0.45,0.32,0.20,0.12][level] :
         level <= 12 ? 0.08 - (level - 9) * 0.015 :
         level <= 16 ? 0.026 - (level - 13) * 0.006 : Math.max(0, 0.008 - (level - 17) * 0.004);
       if (!active && Math.random() < exploration) return randomFrom(open);
