@@ -61,6 +61,7 @@ test('all 19 ranks and the cumulative 45-win milestone match the approved ladder
   assert.equal(b.eval('RANK_NAMES.ru.length'),19);
   assert.equal(b.eval('RANK_NAMES.ru[0]'),'Матрос');
   assert.equal(b.eval('RANK_NAMES.ru[18]'),'Адмирал флота');
+  assert.equal(b.eval('US_RANKS.en[18]'),'Admiral');
   for(let wins=0;wins<=50;wins++){
     const expected=1+[1,2,3,5,7,9,11,13,15,17,20,23,26,29,32,36,40,45].filter(n=>wins>=n).length;
     assert.equal(b.eval('rankForWins('+wins+')'),expected,'win count '+wins);
@@ -96,7 +97,8 @@ test('quick battles support all ranks, do not grant career victories',()=>{
   b.nodes.get('quick-level').handlers.change();
   assert.equal(b.game().level,19);
   b.eval('startBattle();finish("player");render()');
-  assert.deepEqual(b.career(),{wins:0,losses:0,streak:0,bestStreak:0,achievements:[]});
+  assert.deepEqual(b.career(),{wins:0,losses:0,streak:0,bestStreak:0,achievements:[],
+    warrantWins:0,warrantLosses:0,fleetStreak:0,fleetAdmiral:false});
   assert.match(b.nodes.get('status-text').textContent,/Quick battle/);
   b.eval('setUpGame()');
   assert.equal(b.game().level,19);
@@ -114,11 +116,11 @@ test('career and honors persist, language changes do not reset the match',()=>{
   assert.ok(b.career().achievements.includes('achievementPrecision'));
   assert.equal(b.game().promotion,2);
   b.eval('setLanguage("ru")');
-  assert.match(b.nodes.get('promotion').textContent,/Старший матрос/);
-  assert.match(b.nodes.get('career-rank').textContent,/Старший матрос/);
-  const reopened=boot(saved,['ru-RU']);
+  assert.match(b.nodes.get('promotion').textContent,/Матрос-ученик/);
+  assert.match(b.nodes.get('career-rank').textContent,/Матрос-ученик/);
+  const reopened=boot(saved,true,['en-US']);
   assert.equal(reopened.career().wins,1);
-  assert.match(reopened.nodes.get('career-rank').textContent,/Senior Seaman/);
+  assert.match(reopened.nodes.get('career-rank').textContent,/Seaman Apprentice/);
 });
 
 test('rank selector and remaining-win indicator localize without changing progress',()=>{
@@ -127,14 +129,14 @@ test('rank selector and remaining-win indicator localize without changing progre
   assert.match(b.nodes.get('career-progress-text').textContent,/Wins until promotion: 1 \(0 \/ 1\)/);
   b.eval('setLanguage("ru")');
   assert.match(b.nodes.get('career-progress-text').textContent,/Побед до повышения: 1 \(0 \/ 1\)/);
-  assert.match(b.nodes.get('quick-level').innerHTML,/Адмирал флота/);
-  assert.match(b.nodes.get('rank-list').innerHTML,/Главный корабельный старшина/);
+  assert.match(b.nodes.get('quick-level').innerHTML,/Адмирал \(O-10\)/);
+  assert.match(b.nodes.get('rank-list').innerHTML,/Главный петти-офицер/);
   assert.equal(b.doc.documentElement.lang,'ru');
 });
 
 test('unavailable browser storage does not break campaign play',()=>{
   const b=boot();
-  b.eval('localStorage.getItem=()=>{throw new Error("blocked")};career=loadCareer()');
+  b.eval('localStorage.getItem=()=>{throw new Error("blocked")};careers=loadCareers();career=careers[navy]');
   assert.equal(b.career().wins,0);
   b.eval('localStorage.setItem=()=>{throw new Error("blocked")};startBattle();finish("player");render()');
   assert.equal(b.career().wins,1);
