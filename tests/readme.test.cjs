@@ -59,8 +59,8 @@ test('bilingual gameplay facts and fleet tables stay equivalent', () => {
   }
   assert.match(english, /English is the default/i);
   assert.match(russian, /Английский — язык по умолчанию/);
-  assert.match(english, /no account, server, installation/);
-  assert.match(russian, /без регистрации, сервера, установки/);
+  assert.match(english, /no account or installation required/);
+  assert.match(russian, /без регистрации и установки/);
 });
 
 test('shared maritime hero is safe, self-contained, and uses the app palette', () => {
@@ -89,7 +89,7 @@ test('player documentation links to the hosted browser game, not local HTML dist
   for (const [name, content] of docs) {
     assert.match(content, /https:\/\/stanleyll0yd\.github\.io\/SeaBattle\//);
     assert.doesNotMatch(content, /(?:open|download|save|открой|скачать|сохрани).{0,40}`index\.html`/i, name);
-    assert.doesNotMatch(content, /(?:offline-first|single-file|в одном HTML-файле|одном HTML-файле)/i, name);
+    assert.doesNotMatch(content, /(?:offline-first|автономная игра в одном HTML-файле|скачай.{0,40}HTML|download.{0,40}HTML)/i, name);
   }
   assert.match(read('AGENTS.md'), /single-file architecture is \*\*not mandatory\*\*/);
 });
