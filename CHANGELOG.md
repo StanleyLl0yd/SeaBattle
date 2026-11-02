@@ -1,3 +1,13 @@
+## [0.7.1] - 2026-11-02
+
+- Fixed tactical postgame hints to exclude geometrically impossible directions after aligned hits; recommendations still use only public evidence, remain approximate, and never inspect hidden ship cells.
+- Made concrete tactical alternatives wrap onto a separate line, including on mobile screens.
+- Bumped the PWA cache version so the updated game shell replaces the previous offline resources.
+
+- Исправлены послематчевые подсказки: невозможные направления продолжения подбитого корабля исключаются по открытым попаданиям и правилам расстановки, без чтения скрытых клеток.
+- Примеры альтернативных выстрелов выводятся с новой строки, в том числе на узких экранах.
+- Обновлена версия кеша PWA для загрузки исправленных локальных ресурсов.
+
 ## [0.7.0] - 2026-11-02
 
 - Split browser logic into ordered local scripts: localization/config, independent naval careers, UI state, game engine, fair AI, daily challenges, tactical assessment and UI handlers; no frameworks or bundler.

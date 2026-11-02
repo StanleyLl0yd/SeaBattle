@@ -131,6 +131,25 @@ test('tactical snapshots use only publicly observed shots and ship lengths',()=>
   assert.equal(report.alternatives,1);
 });
 
+test('targeting ignores impossible perpendicular continuations after aligned hits',()=>{
+  const b=boot();
+  b.eval('var exposed={shots:Array(100).fill(null),ships:[{size:3,sunk:false},{size:2,sunk:false}]};exposed.shots[44]="hit";exposed.shots[45]="hit"');
+  b.eval('Object.defineProperty(exposed,"cells",{get(){throw Error("Hidden cells read")}})');
+  const perpendicular=b.eval('tacticalSnapshot(exposed,34)');
+  const aligned=b.eval('tacticalSnapshot(exposed,43)');
+  assert.equal(perpendicular.mode,'target');
+  assert.equal(perpendicular.selected,0);
+  assert.ok(aligned.selected>0);
+  assert.equal(perpendicular.promising,false);
+  b.eval('exposed.shots[43]="blocked"');
+  assert.equal(b.eval('tacticalSnapshot(exposed,34).bestCell'),46);
+  assert.ok(b.eval('tacticalSnapshot(exposed,46).promising'));
+});
+
+test('review examples retain a visual line break on narrow screens',()=>{
+  assert.match(html,/\.tactical-panel #tactical-details\s*\{\s*white-space:\s*pre-line;/);
+});
+
 test('language switching updates challenge and review without resetting a completed game',()=>{
   const b=boot();
   b.nodes.get('game-mode').value='daily';
