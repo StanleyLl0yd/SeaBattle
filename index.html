@@ -637,9 +637,9 @@
       // All levels respect public evidence; bounded local probability is the fallback.
       const heat = new Float64Array(SIZE * SIZE);
       let samples = 0;
-      const sampleLimit = level < 9 ? 0 : level <= 12 ? 16 + (level - 9) * 7 :
+      const sampleLimit = level < 9 ? 0 : level <= 12 ? 18 + (level - 9) * 6 :
         level <= 15 ? 40 + (level - 13) * 8 : 60 + (level - 16) * 8;
-      const timeBudget = level <= 12 ? 9 : level <= 15 ? 14 : 17 + (level - 16) * 2;
+      const timeBudget = level <= 12 ? 14 : level <= 15 ? 14 : 17 + (level - 16) * 2;
       const nodeLimit = level <= 12 ? 900 : level <= 15 ? 1100 : 1300;
       const deadline = Date.now() + timeBudget;
       const ordered = [...lengths].sort((a, b) => b - a);
