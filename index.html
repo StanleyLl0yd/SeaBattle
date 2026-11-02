@@ -40,7 +40,7 @@
     .career-info { display:grid; gap:7px; margin-top:11px; color:#b1cbd9; font-size:.85rem; }
     .career-info strong { color:var(--cyan); }
     .career-info progress { width:100%; height:13px; accent-color:var(--cyan); }
-    .career-special { border:1px solid #395e70; background:#0f293b; border-radius:10px; padding:12px; line-height:1.7; }
+    .career-special { white-space:pre-line; border:1px solid #395e70; background:#0f293b; border-radius:10px; padding:12px; line-height:1.7; }
     .career-special strong { color:#f3bd72; }
     .career-achievements { display:flex; flex-wrap:wrap; gap:6px; margin-top:5px; }
     .career-achievements span { background:#21485b; border:1px solid #49768e; border-radius:24px; color:#d5eaf4; padding:4px 10px; }
@@ -552,65 +552,123 @@
     function grantAchievement(key) {
       if (!career.achievements.includes(key)) {
         career.achievements.push(key);
-        saveCareer();
+        saveCareers();
       }
     }
     function recordCareerResult(winner, misses) {
       const before = rankForWins(career.wins);
       if (winner === "player") {
-        career.wins++;
-        career.streak++;
+        career.wins = Math.min(1000000, career.wins + 1);
+        career.streak = Math.min(1000000, career.streak + 1);
         career.bestStreak = Math.max(career.bestStreak, career.streak);
         if (career.streak >= 3) grantAchievement("achievementStreak");
         if (misses <= 10) grantAchievement("achievementPrecision");
       } else {
-        career.losses++;
+        career.losses = Math.min(1000000, career.losses + 1);
         career.streak = 0;
       }
-      saveCareer();
+      saveCareers();
       return rankForWins(career.wins) > before ? rankForWins(career.wins) : 0;
     }
+    function recordSpecialResult(winner) {
+      if (navy !== "us") return 0;
+      if (game.mode === "warrant") {
+        const before = warrantRankForWins(career.warrantWins);
+        if (winner === "player") career.warrantWins = Math.min(1000000, career.warrantWins + 1);
+        else career.warrantLosses = Math.min(1000000, career.warrantLosses + 1);
+        saveCareers();
+        const after = warrantRankForWins(career.warrantWins);
+        return after > before ? after : 0;
+      }
+      if (game.mode === "fleet") {
+        if (winner === "player") {
+          career.fleetStreak = Math.min(5, career.fleetStreak + 1);
+          if (career.fleetStreak === 5 && !career.fleetAdmiral) {
+            career.fleetAdmiral = true;
+            saveCareers();
+            return 6;
+          }
+        } else career.fleetStreak = 0;
+        saveCareers();
+      }
+      return 0;
+    }
+    function availableMode(mode) {
+      if (mode === "quick") return "quick";
+      if (navy === "us" && mode === "warrant" && rankForWins(career.wins) >= 7) return "warrant";
+      if (navy === "us" && mode === "fleet" && rankForWins(career.wins) === 19) return "fleet";
+      return "campaign";
+    }
     function selectedLevel() {
-      return ui.mode.value === "quick" ? Math.max(1, Math.min(19, Number(ui.quickLevel.value) || 1)) : rankForWins(career.wins);
+      const mode = availableMode(ui.mode.value);
+      if (mode === "quick") return Math.max(1, Math.min(19, Number(ui.quickLevel.value) || 1));
+      if (mode === "fleet") return 19;
+      if (mode === "warrant") return [9,11,13,15,17,19][warrantRankForWins(career.warrantWins)];
+      return rankForWins(career.wins);
     }
     function fillRankOptions() {
       const selected = ui.quickLevel.value || "1";
-      ui.quickLevel.innerHTML = RANK_NAMES[language].map((name, i) =>
-        '<option value="' + (i + 1) + '">' + (i + 1) + '. ' + name + '</option>').join("");
+      ui.quickLevel.innerHTML = Array.from({length:19},(_,i) =>
+        '<option value="' + (i+1) + '">' + (i+1) + '. ' + rankLabel(navy,i) + '</option>').join("");
       ui.quickLevel.value = selected;
     }
     function renderCareer() {
       const rank = rankForWins(career.wins);
-      const current = game.phase === "setup" ? selectedLevel() : game.level;
-      ui.mode.disabled = game.phase !== "setup";
-      ui.quickLevel.disabled = game.phase !== "setup" || ui.mode.value !== "quick";
+      const setup = game.phase === "setup";
+      if (setup) ui.mode.value = availableMode(ui.mode.value);
+      const current = setup ? selectedLevel() : game.level;
+      ui.navy.disabled = !setup;
+      ui.mode.disabled = !setup;
+      ui.quickLevel.disabled = !setup || ui.mode.value !== "quick";
       ui.quickBox.hidden = ui.mode.value !== "quick";
+      ui.warrantOption.disabled = navy !== "us" || rank < 7;
+      ui.fleetOption.disabled = navy !== "us" || rank < 19;
       ui.careerReset.disabled = game.phase === "playing";
-      ui.careerRank.textContent = t("careerRank") + " " + rank + " / 19 · " + RANK_NAMES[language][rank - 1];
+      ui.careerRank.textContent = t("careerRank") + " " + rank + " / 19 · " + rankLabel(navy,rank-1);
       if (rank < 19) {
-        const previous = rank === 1 ? 0 : PROMOTION_WINS[rank - 2];
-        const required = PROMOTION_WINS[rank - 1] - previous;
+        const previous = rank === 1 ? 0 : PROMOTION_WINS[rank-2];
+        const required = PROMOTION_WINS[rank-1] - previous;
         const progress = career.wins - previous;
         ui.careerProgress.max = required;
         ui.careerProgress.value = progress;
-        ui.careerProgressText.textContent = t("careerProgress") + ": " + (required - progress) + " (" + progress + " / " + required + ")";
+        ui.careerProgressText.textContent = t("careerProgress") + ": " + (required-progress) +
+          " (" + progress + " / " + required + ")";
       } else {
-        ui.careerProgress.max = 1;
-        ui.careerProgress.value = 1;
-        ui.careerProgressText.textContent = t("careerMax");
+        ui.careerProgress.max=1;
+        ui.careerProgress.value=1;
+        ui.careerProgressText.textContent=t("careerMax");
       }
+      const notice=ui.mode.value==="quick" ? "quickModeNotice" :
+        ui.mode.value==="warrant" ? "warrantModeNotice" :
+        ui.mode.value==="fleet" ? "fleetModeNotice" : "careerModeNotice";
       ui.careerStats.textContent = t("careerVictories") + ": " + career.wins + " · " +
         t("careerDefeats") + ": " + career.losses + " · " + t("careerStreak") + ": " + career.streak +
-        " · " + t("rankLevel") + ": " + current + "/19 · " +
-        t(ui.mode.value === "quick" ? "quickModeNotice" : "careerModeNotice");
-      ui.careerAchievements.textContent = "";
-      ui.careerAchievements.innerHTML = career.achievements.length
-        ? career.achievements.map(a => "<span>" + t(a) + "</span>").join("")
-        : "<span>" + t("achievementNone") + "</span>";
-      ui.promotion.hidden = !game.promotion;
-      ui.promotion.textContent = game.promotion ? t("promotion") + " " + RANK_NAMES[language][game.promotion - 1] : "";
-      ui.rankList.innerHTML = RANK_NAMES[language].map((name, i) =>
-        "<li>" + name + (i + 1 <= rank ? " ✓" : " · " + PROMOTION_WINS[i - 1] + " " + t("careerVictories").toLowerCase()) + "</li>").join("");
+        " · " + t("rankLevel") + ": " + current + "/19 · " + t(notice);
+      ui.careerAchievements.innerHTML = career.achievements.length ?
+        career.achievements.map(a=>"<span>"+t(a)+"</span>").join("") :
+        "<span>"+t("achievementNone")+"</span>";
+      const extra=game.specialPromotion===6 ? t("legendPromotion") :
+        game.specialPromotion>0 ? t("specialPromotion")+" "+warrantLabel(game.specialPromotion-1) : "";
+      ui.promotion.hidden = !game.promotion && !extra;
+      ui.promotion.textContent = game.promotion ?
+        t("promotion")+" "+rankLabel(game.navy,game.promotion-1) : extra;
+      ui.rankList.innerHTML = Array.from({length:19},(_,i)=>
+        "<li>"+rankLabel(navy,i)+(i+1<=rank ? " ✓" :
+          " · "+PROMOTION_WINS[i-1]+" "+t("careerVictories").toLowerCase())+"</li>").join("");
+      ui.careerSpecial.hidden = navy !== "us";
+      if (navy === "us") {
+        const grade = warrantRankForWins(career.warrantWins);
+        const specialist = grade ? warrantLabel(grade-1) : t("warrantCandidate");
+        const next = grade < 5 ? t("warrantNext")+": "+warrantLabel(grade)+" · "+
+          (WARRANT_WINS[grade]-career.warrantWins)+" "+t("careerVictories").toLowerCase() :
+          t("warrantFinished");
+        const trial = rank < 7 ? t("warrantLock") : t("warrantStatus")+": "+career.warrantWins+
+          " · "+t("warrantLosses")+": "+career.warrantLosses;
+        const fleet = career.fleetAdmiral ? t("fleetAwarded") :
+          rank < 19 ? t("fleetLock") : t("fleetStatus")+": "+career.fleetStreak+" / 5";
+        ui.careerSpecial.textContent=t("warrantHeading")+" · "+specialist+"\n"+trial+"\n"+next+
+          "\n"+t("fleetHeading")+"\n"+fleet+"\n"+t("fleetNote");
+      }
     }
 
     const LETTERS = { en: ["A","B","C","D","E","F","G","H","I","J"], ru: ["А","Б","В","Г","Д","Е","Ж","З","И","К"] };
