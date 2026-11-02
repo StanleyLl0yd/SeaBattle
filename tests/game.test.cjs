@@ -18,9 +18,9 @@ const {SIZE,FLEET,createBoard,candidate,placeShip,randomFleet,fireAt,remaining,s
 
 test('HTML is self-contained, localized and has working controls', () => {
   assert.match(html, /^<!doctype html>/i);
-  assert.match(html, /<html lang="ru">/);
+  assert.match(html, /<html lang="en">/);
   assert.match(html, /<meta name="viewport"/);
-  for (const id of ['player-board','enemy-board','auto','manual','rotate','undo','start','new-game']) {
+  for (const id of ['player-board','enemy-board','auto','manual','rotate','undo','start','new-game','language']) {
     assert.ok(html.includes('id="' + id + '"'), id);
   }
   assert.doesNotMatch(html, /<script\s+src=|<link\s+[^>]*href="https?:/i);
