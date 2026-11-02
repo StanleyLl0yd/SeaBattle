@@ -37,6 +37,36 @@ Ahoy, Captain! **⚓ Sea Battle** is a classic single-player Battleship game aga
 4. Select **Start battle**, take aim, then fire by selecting cells on the computer's grid. Periscope optional.
 5. Use **New game** to begin again — even seasoned sea dogs deserve a rematch. The layout supports desktop, mobile, and keyboard navigation.
 
+**⚓ Naval campaign (new in 0.4.0).** Start as a **Seaman** and earn promotions across **19 Russian Navy shipboard ranks**, reaching **Admiral of the Fleet after 45 campaign wins**. The opponent has six actual AI tiers that grow stronger as you advance. Defeats do not take away earned victories or demote you. The top rank stays playable indefinitely.
+
+**Quick battle** unlocks any of the 19 difficulty settings right away, without affecting campaign progress. Campaign victories, defeats, streaks and honors are saved on this device using browser `localStorage`; your unfinished battle is not saved. You can reset the career with a confirmation. The first-hit, three-win-streak and accurate-victory honors are optional little naval decorations — no in-app purchases, accounts or leaderboards.
+
+<details><summary>⚓ All 19 ranks and promotion milestones</summary>
+
+| Level | Naval rank | Total campaign wins to unlock |
+| :---: | :--- | ---: |
+| 1 | Seaman | 0 |
+| 2 | Senior Seaman | 1 |
+| 3 | Petty Officer 2nd Class | 2 |
+| 4 | Petty Officer 1st Class | 3 |
+| 5 | Chief Petty Officer | 5 |
+| 6 | Chief Shipboard Petty Officer | 7 |
+| 7 | Warrant Officer | 9 |
+| 8 | Senior Warrant Officer | 11 |
+| 9 | Junior Lieutenant | 13 |
+| 10 | Lieutenant | 15 |
+| 11 | Senior Lieutenant | 17 |
+| 12 | Captain-Lieutenant | 20 |
+| 13 | Captain 3rd Rank | 23 |
+| 14 | Captain 2nd Rank | 26 |
+| 15 | Captain 1st Rank | 29 |
+| 16 | Rear Admiral | 32 |
+| 17 | Vice Admiral | 36 |
+| 18 | Admiral | 40 |
+| 19 | Admiral of the Fleet | 45 |
+
+</details>
+
 ## 🌐 03 · Language & accessibility
 
 - **English is the default language.** If the browser's primary language is Russian (`ru`, `ru-RU`, `ru_*`), the game starts in Russian; all other locales use English.
@@ -61,7 +91,7 @@ GitHub Actions verifies engine and localization tests on pull requests. The prot
 
 | | |
 | :-- | :-- |
-| **Current version** | `0.3.1` |
+| **Current version** | `0.4.0` |
 | **Play online** | [SeaBattle on GitHub Pages](https://stanleyll0yd.github.io/SeaBattle/) |
 | **Source code** | [StanleyLl0yd/SeaBattle](https://github.com/StanleyLl0yd/SeaBattle) |
 | **Release history** | [CHANGELOG.md](CHANGELOG.md) |
