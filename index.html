@@ -40,6 +40,13 @@
     .stats-panel summary { cursor:pointer; font-weight:700; color:var(--cyan); }
      .stats-panel p { margin:8px 0; color:#b8d5e2; }
      .stats-list { padding-left:24px; margin:8px 0; color:#b8d5e2; font-size:.87rem; line-height:1.7; }
+    .backup-panel { margin-top:14px; border-top:1px solid #315468; padding-top:12px; }
+    .backup-actions { display:flex; flex-wrap:wrap; gap:9px; margin:10px 0; }
+    .backup-label { display:block; font-size:.83rem; margin:8px 0 5px; color:#b8d5e2; }
+    .backup-text { box-sizing:border-box; display:block; width:100%; min-height:100px; resize:vertical;
+      background:#081522; color:#d9edf7; border:1px solid #527286; border-radius:8px; padding:10px; font:0.78rem/1.5 monospace; }
+    .backup-text:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+    .backup-status { min-height:1.5em; color:var(--cyan); }
      .daily-panel p,.tactical-panel p { margin:8px 0; color:#b8d5e2; }
     .tactical-panel #tactical-details { white-space:pre-line; }
     .tactical-panel small { color:#93aec1; }
@@ -172,6 +179,17 @@
        <p data-i18n="statsNote">Completed battles on this device since v0.9.1; earlier games are not included.</p>
        <p id="stats-summary"></p>
        <ul class="stats-list" id="stats-list"></ul>
+       <details class="backup-panel">
+         <summary data-i18n="backupHeading">Local backup / restore</summary>
+         <p data-i18n="backupNote">Copy this text somewhere safe. It contains only local progress aggregates. Restoring replaces both careers, Daily results and statistics; no cloud sync.</p>
+         <div class="backup-actions">
+           <button class="action" type="button" id="backup-export" data-i18n="backupExport">Show backup text</button>
+           <button class="action" type="button" id="backup-restore" data-i18n="backupRestore">Restore from text</button>
+         </div>
+         <label class="backup-label" for="backup-text" data-i18n="backupLabel">Backup JSON to copy or paste</label>
+         <textarea class="backup-text" id="backup-text" rows="4" maxlength="32768" spellcheck="false"></textarea>
+         <p class="backup-status" id="backup-status" role="status" aria-live="polite"></p>
+       </details>
      </details>
      <div class="statusbar" role="status" aria-live="polite" aria-atomic="true">
       <span class="statusdot" id="status-dot" aria-hidden="true"></span>
@@ -252,6 +270,7 @@
   <script defer src="js/ai.js"></script>
   <script defer src="js/daily.js"></script>
   <script defer src="js/tactics.js"></script>
+  <script defer src="js/backup.js"></script>
   <script defer src="js/ui.js"></script>
 </body>
 </html>

@@ -8,6 +8,7 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
       document.documentElement.lang = language;
       document.title = t("pageTitle");
       ui.offlineNote.textContent = t(offlineStatus);
+      if (backupStatusKey) ui.backupStatus.textContent = t(backupStatusKey);
       document.querySelectorAll("[data-i18n]").forEach(node => { node.textContent = t(node.dataset.i18n); });
       document.querySelectorAll("[data-i18n-aria-label]").forEach(node => { node.setAttribute("aria-label", t(node.dataset.i18nAriaLabel)); });
       document.querySelectorAll(".cols").forEach(node => {
@@ -146,6 +147,7 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
       ui.start.disabled = game.phase !== "setup" || game.player.ships.length !== FLEET.length;
       renderCareer();
       renderPersonalStats();
+      ui.backupRestore.disabled = game.phase === "playing";
       paintPreview();
     }
     function startBattle() {
@@ -259,6 +261,23 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
         if (typeof window !== "undefined" && typeof window.prompt === "function")
           window.prompt(t("dailyCopyFallback"),text);
       }
+    });
+    function showBackupStatus(key) {
+      backupStatusKey = key;
+      ui.backupStatus.textContent = t(key);
+    }
+    ui.backupExport.addEventListener("click", () => {
+      const text = createProgressBackup();
+      ui.backupText.value = text || "";
+      showBackupStatus(text ? "backupReady" : "backupExportError");
+    });
+    ui.backupRestore.addEventListener("click", () => {
+      if (game.phase === "playing") { showBackupStatus("backupPlaying"); return; }
+      if (!parseProgressBackup(ui.backupText.value)) { showBackupStatus("backupInvalid"); return; }
+      if (typeof confirm !== "function" || !confirm(t("backupConfirm"))) return;
+      const result = restoreProgressBackup(ui.backupText.value);
+      if (result === "backupImported") ui.backupText.value = "";
+      showBackupStatus(result);
     });
     ui.playAgain.addEventListener("click", () => {
       if (game.phase === "finished") setUpGame();
