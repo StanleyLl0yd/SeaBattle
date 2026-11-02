@@ -41,7 +41,9 @@ Ahoy, Captain! **⚓ Sea Battle** is a classic single-player Battleship game aga
 
 **🇺🇸 US Navy campaign (new in 0.5.0).** Choose **Russian Navy** or **US Navy** independently of the EN/RU interface language. Both main careers have **19 stages, 45 wins and identical six AI tiers**, but their rank titles are authentic to each navy. The US ladder runs from **Seaman Recruit (E-1)** through **Admiral (O-10)**. The existing Russian career is migrated intact from the previous save; each navy has its own victories, defeats, streaks and honors.
 
-**Specialist route.** After **Chief Petty Officer (E-7)**, five optional Warrant Officer trial grades (W-1–W-5) can be earned with **2, 4, 7, 10 and 14** specialist victories respectively. These do **not** advance the main campaign. After **Admiral**, win **five consecutive battles at maximum difficulty** to earn the historical five-star **Fleet Admiral** distinction. It is an award, **not** a 20th active rank; a loss restarts only the five-win streak.
+**Specialist route.** After **Chief Petty Officer (E-7)**, five optional Warrant Officer trial grades (W-1–W-5) can be earned with **2, 4, 7, 10 and 14** specialist victories respectively. These do **not** advance the main campaign. After **Admiral**, win **three consecutive battles at maximum difficulty** to earn the historical five-star **Fleet Admiral** distinction. It is an award, **not** a 20th active rank; a loss restarts only the three-win streak.
+
+**⚓ Fairer difficulty (0.6.0).** AI search now ramps up between the rank bands instead of abruptly unlocking full-fleet sampling at level 9. Early ranks use progressively better placement search; advanced ranks blend whole-fleet sampling with a fast baseline and respond to observed edge-heavy defenses. Sampling is time-bounded and does not inspect hidden player ships. Different ranks are not mathematically guaranteed to improve on every possible fleet; unusual placements can still give a clever captain an advantage.
 
 **Quick battle** unlocks any of the 19 difficulty settings right away, without affecting campaign progress. Campaign victories, defeats, streaks and honors are saved on this device using browser `localStorage`; your unfinished battle is not saved. You can reset the career with a confirmation. The first-hit, three-win-streak and accurate-victory honors are optional little naval decorations — no in-app purchases, accounts or leaderboards.
 
@@ -121,7 +123,7 @@ GitHub Actions verifies engine and localization tests on pull requests. The prot
 
 | | |
 | :-- | :-- |
-| **Current version** | `0.5.0` |
+| **Current version** | `0.6.0` |
 | **Play online** | [SeaBattle on GitHub Pages](https://stanleyll0yd.github.io/SeaBattle/) |
 | **Source code** | [StanleyLl0yd/SeaBattle](https://github.com/StanleyLl0yd/SeaBattle) |
 | **Release history** | [CHANGELOG.md](CHANGELOG.md) |
