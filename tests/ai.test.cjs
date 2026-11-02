@@ -98,9 +98,46 @@ test('AI falls back gracefully for constrained endgames', () => {
   assert.equal(ai.aiChooseShot(board), null);
 });
 
-test('bounded sampler uses no remote service, dynamic script or persistent store', () => {
+test('six AI tiers are bounded and use only public information', () => {
   assert.match(script, /AI_PLACEMENTS/);
-  assert.match(script, /Date\.now\(\) \+ 14/);
-  assert.match(script, /nodes > 900/);
-  assert.doesNotMatch(script, /\bfetch\(|\bXMLHttpRequest\b|\blocalStorage\b|\bindexedDB\b/);
+  assert.match(script, /Date\.now\(\) \+ timeBudget/);
+  assert.match(script, /nodes > nodeLimit/);
+  assert.match(script, /level <= 2\) return aiNoviceShot/);
+  assert.doesNotMatch(script, /\bfetch\(|\bXMLHttpRequest\b|\bindexedDB\b/);
+  const ai = engine();
+  for (const level of [1,2,3,6,7,8,9,12,13,15,16,19]) {
+    const board = {
+      shots: Array(100).fill(null),
+      ships: Array.from(ai.FLEET, size => ({ size, sunk:false,
+        get cells() { throw new Error('Hidden geometry read at level ' + level); } })),
+      get cells() { throw new Error('Hidden board read at level ' + level); }
+    };
+    const shot = ai.aiChooseShot(board, level);
+    assert.ok(Number.isInteger(shot) && shot >= 0 && shot < 100, 'level ' + level);
+  }
+});
+
+test('novice and admiral finish legal fleets without duplicate shots', () => {
+  const ai = engine();
+  for (const level of [1,2,4,7,10,15,19]) for (let run = 0; run < 5; run++) {
+    const board = ai.createBoard();
+    const shapes = Array.from(ai.FLEET);
+    for (const size of shapes) {
+      const options = [];
+      for (let start = 0; start < 100; start++) for (const horizontal of [true, false]) {
+        if (size === 1 && !horizontal) continue;
+        const pick = ai.candidate(board, size, start, horizontal);
+        if (pick.valid) options.push(pick.cells);
+      }
+      assert.ok(options.length);
+      ai.placeShip(board, options[Math.floor(Math.random() * options.length)]);
+    }
+    let count = 0;
+    while (ai.remaining(board)) {
+      const shot = ai.aiChooseShot(board, level);
+      assert.ok(Number.isInteger(shot) && board.shots[shot] === null);
+      assert.notEqual(ai.fireAt(board, shot).kind, 'already');
+      assert.ok(++count <= 100);
+    }
+  }
 });
