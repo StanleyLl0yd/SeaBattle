@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="icon-title">
+  <title id="icon-title">SeaBattle — ship and hit mark</title>
+  <rect width="256" height="256" rx="49" fill="#082C45"/>
+  <!-- A single bright ship silhouette remains legible at favicon sizes. -->
+  <path d="M36 155H218L191 199H70Z" fill="#40DFE8"/>
+  <path d="M82 157V126H112V105H143V126H163V157Z" fill="#D5FCFF"/>
+  <path d="M127 104V82" stroke="#D5FCFF" stroke-width="10" stroke-linecap="round"/>
+  <path d="M176 52L212 88M212 52L176 88" fill="none" stroke="#FF6779" stroke-width="18" stroke-linecap="round"/>
+</svg>
