@@ -1,4 +1,14 @@
-## [0.9.2] - Unreleased
+## [1.0.0] - 2026-11-03
+
+- First stable SeaBattle release. Includes all accepted single-player features from 0.9.2: two independent naval careers, daily challenges, tactical reviews/training, local statistics, offline PWA and optional JSON progress backup/restore.
+- Completed a repository-wide review of game scripts, tests, PWA/service worker, assets, CI, dependencies, security surfaces and bilingual documentation. Tightened exact-field backup validation and consolidated UTC date validation across Daily history, scores and backup handling; invalid dates and poisoned stored scores no longer persist.
+- Preserved fleet/AI rules, offline behavior, public-only tactical inference, both national progression records, legacy storage compatibility, bilingual interface and zero runtime dependencies.
+
+- Первый стабильный релиз SeaBattle. Включены все принятые возможности 0.9.2: две независимые карьеры, ежедневные испытания, тактический разбор и тренажёр, локальная статистика, офлайн-PWA и резервные копии прогресса в JSON.
+- Проведён полный обзор исходников, тестов, PWA, ресурсов, CI, зависимостей, безопасности и документации на двух языках. Уточнена проверка точных полей резервной копии и объединена проверка календарных дат UTC; невозможные даты и повреждённые результаты больше не сохраняются.
+- Сохранены игровые правила, ИИ, офлайн-режим, честность подсказок, карьерный прогресс, совместимость сохранений, RU/EN-интерфейс и отсутствие внешних зависимостей.
+
+## [0.9.2] - 2026-11-03
 
 - Added optional, text-only offline backup and restore of validated local RU/US careers, navy selection, Daily best scores and aggregate statistics.
 - Strictly bounded import, explicit overwrite confirmation, active-game guard, storage rollback attempt and bilingual UI. No hidden ship data, account, sync or new persistent keys.

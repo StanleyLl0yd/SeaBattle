@@ -4,7 +4,8 @@ const BACKUP_STORAGE_KEYS = [CAREER_KEY,NAVY_KEY,DAILY_STORAGE_KEY,STATS_KEY];
 
 function backupHasKeys(value, keys) {
   return value !== null && typeof value === "object" && !Array.isArray(value) &&
-    Object.keys(value).sort().join("|") === keys.slice().sort().join("|");
+    Object.keys(value).length === keys.length &&
+    keys.every(key => Object.prototype.hasOwnProperty.call(value,key));
 }
 function backupCareer(value, nation) {
   const keys=["wins","losses","streak","bestStreak","achievements"];
@@ -19,8 +20,7 @@ function backupDaily(value) {
   const dates=Object.keys(value);
   if (dates.length>90) return null;
   for (const date of dates) {
-    try { challengeSeed(date); }
-    catch { return null; }
+    if (!validChallengeDate(date)) return null;
     if (!Number.isSafeInteger(value[date]) || value[date]<20 || value[date]>100) return null;
   }
   return Object.fromEntries(dates.sort().map(date=>[date,value[date]]));
