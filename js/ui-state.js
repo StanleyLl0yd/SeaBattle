@@ -20,11 +20,13 @@ const LETTERS = { en: ["A","B","C","D","E","F","G","H","I","J"], ru: ["А","Б",
       warrantOption: $("mode-warrant"), fleetOption: $("mode-fleet"), careerSpecial: $("career-special"),
       careerRank: $("career-rank"), careerProgress: $("career-progress"), careerProgressText: $("career-progress-text"),
       careerStats: $("career-stats"), careerAchievements: $("career-achievements"),
+      statsSummary: $("stats-summary"), statsList: $("stats-list"),
       careerReset: $("career-reset"), rankList: $("rank-list"), promotion: $("promotion")
     };
     let epoch = 0;
     let navy = loadSelectedNavy();
     let careers = loadCareers();
+    let personalStats = loadPersonalStats();
     let career = careers[navy];
     let game;
     let offlineStatus = "offlinePreparing";
