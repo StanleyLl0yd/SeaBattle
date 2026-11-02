@@ -97,7 +97,8 @@ test('quick battles support all ranks, do not grant career victories',()=>{
   b.nodes.get('quick-level').handlers.change();
   assert.equal(b.game().level,19);
   b.eval('startBattle();finish("player");render()');
-  assert.deepEqual(b.career(),{wins:0,losses:0,streak:0,bestStreak:0,achievements:[]});
+  assert.deepEqual(b.career(),{wins:0,losses:0,streak:0,bestStreak:0,achievements:[],
+    warrantWins:0,warrantLosses:0,fleetStreak:0,fleetAdmiral:false});
   assert.match(b.nodes.get('status-text').textContent,/Quick battle/);
   b.eval('setUpGame()');
   assert.equal(b.game().level,19);
