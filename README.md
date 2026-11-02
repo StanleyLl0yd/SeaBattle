@@ -99,11 +99,11 @@ Ahoy, Captain! **⚓ Sea Battle** is a classic single-player Battleship game aga
 
 </details>
 
-### ⚓ Daily sea challenge and tactical review (0.7.0)
+### ⚓ Daily sea challenge and tactical review (0.7.1)
 
 Choose **Daily challenge** in the mode selector. Every UTC calendar date has one reproducibly generated opponent fleet shared by all players running the same game release. In this solo puzzle you shoot until all ships are sunk; the computer never takes a turn. Minimize your **total shots** (hits and misses). The browser saves only your best shot count for recent dates, never the hidden fleet or shot coordinates. After completion, **Copy result** shares the date, shot count and personal best without revealing the fleet.
 
-Every finished battle also includes a **tactical review** showing how many shots were fired while searching versus finishing a damaged ship, plus counts of high-scored choices and potentially more promising alternatives. These are **approximate, public-information-only assessments**, not retrospective proof of the best possible move.
+Every finished battle also includes a **tactical review** showing how many shots were fired while searching versus finishing a damaged ship, plus counts of high-scored choices and potentially more promising alternatives. These are **approximate, public-information-only assessments**, not retrospective proof of the best possible move. A damaged ship's possible continuations respect the remaining ship sizes, visible hits, and the no-touch rule; concrete alternatives appear on a separate line.
 
 ### 📱 Install and play offline
 
@@ -135,7 +135,7 @@ GitHub Actions verifies engine and localization tests on pull requests. The prot
 
 | | |
 | :-- | :-- |
-| **Current version** | `0.7.0` |
+| **Current version** | `0.7.1` |
 | **Play online** | [SeaBattle on GitHub Pages](https://stanleyll0yd.github.io/SeaBattle/) |
 | **Source code** | [StanleyLl0yd/SeaBattle](https://github.com/StanleyLl0yd/SeaBattle) |
 | **Release history** | [CHANGELOG.md](CHANGELOG.md) |
