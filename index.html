@@ -42,6 +42,7 @@
     .career-info progress { width:100%; height:13px; accent-color:var(--cyan); }
     .career-achievements { display:flex; flex-wrap:wrap; gap:6px; margin-top:5px; }
     .career-achievements span { background:#21485b; border:1px solid #49768e; border-radius:24px; color:#d5eaf4; padding:4px 10px; }
+    .career-controls select:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
     .career-controls button { border:1px solid #526d7b; border-radius:8px; color:#aec9d7; background:#193448; padding:8px; cursor:pointer; }
     .career-panel details { margin-top:12px; font-size:.8rem; color:#b8d5e2; }
     .career-panel summary { cursor:pointer; }
@@ -198,7 +199,7 @@
         "careerReset": "Reset career",
         "resetConfirm": "Reset all campaign victories, ranks and achievements? This cannot be undone.",
         "careerRank": "Rank",
-        "careerProgress": "Wins toward promotion",
+        "careerProgress": "Wins until promotion",
         "careerMax": "Highest rank achieved — keep sailing!",
         "careerVictories": "Victories",
         "careerDefeats": "Defeats",
@@ -441,7 +442,7 @@
         const progress = career.wins - previous;
         ui.careerProgress.max = required;
         ui.careerProgress.value = progress;
-        ui.careerProgressText.textContent = t("careerProgress") + ": " + progress + " / " + required;
+        ui.careerProgressText.textContent = t("careerProgress") + ": " + (required - progress) + " (" + progress + " / " + required + ")";
       } else {
         ui.careerProgress.max = 1;
         ui.careerProgress.value = 1;
