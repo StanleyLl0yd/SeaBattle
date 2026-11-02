@@ -29,7 +29,7 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
       game = { player: randomFleet(), enemy: ui.mode.value === "daily" ? dailyFleet(day) : randomFleet(),
         manual: false, horizontal: true, hover: -1,
         phase: "setup", turn: "player", navy, mode: ui.mode.value, level: selectedLevel(), promotion:0, specialPromotion:0,
-        dailyDate: day, dailyResult: null, trace: [],
+        dailyDate: day, dailyResult: null, trace: [], trainerVisible:false,
         message: { key: "ready", args: {} } };
       render();
     }
@@ -60,6 +60,23 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
     function render() {
       renderBoard(game.player, false, ui.player);
       renderBoard(game.enemy, true, ui.enemy);
+      const trainingTurn = game.mode === "quick" && game.phase === "playing" && game.turn === "player";
+      ui.trainerPanel.hidden = !trainingTurn;
+      if (trainingTurn) {
+        ui.trainerToggle.textContent = t(game.trainerVisible ? "trainerHide" : "trainerShow");
+        ui.trainerAdvice.hidden = !game.trainerVisible;
+        if (game.trainerVisible) {
+          const candidates = tacticalCandidates(game.enemy);
+          ui.trainerSuggestions.textContent = t(candidates.mode === "hunt" ? "trainerHunt" : "trainerTarget") + ": " +
+            (candidates.top.length ? candidates.top.map(x => nameAt(x.index) + " (" + x.score + ")").join(" · ") : t("trainerEmpty"));
+          const last = game.trace[game.trace.length - 1];
+          ui.trainerComparison.textContent = last ?
+            t("trainerLatest") + ": " + nameAt(last.chosen) + " (" + last.selected + ")" +
+              (last.bestCell === null ? " · " + t("trainerNoBetter") :
+                " → " + nameAt(last.bestCell) + " (" + last.max + ")") :
+            t("trainerNoShots");
+        }
+      }
       ui.setup.hidden = game.phase !== "setup";
       // Explicit display is required because the CSS class has its own display rules.
       ui.setup.style.display = game.phase === "setup" ? "" : "none";
@@ -204,6 +221,11 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
       if (cell) playerFire(Number(cell.dataset.i));
     });
     ui.again.addEventListener("click", setUpGame);
+    ui.trainerToggle.addEventListener("click", () => {
+      if (game.mode !== "quick" || game.phase !== "playing" || game.turn !== "player") return;
+      game.trainerVisible = !game.trainerVisible;
+      render();
+    });
     ui.dailyShare.addEventListener("click", async () => {
       if (game.mode !== "daily" || game.phase !== "finished" ||
           game.turn !== "player" || !game.dailyResult) return;
@@ -246,6 +268,7 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
       game.enemy = game.mode === "daily" ? dailyFleet(game.dailyDate) : randomFleet();
       game.trace = [];
       game.dailyResult = null;
+      game.trainerVisible = false;
       render();
     });
     ui.quickLevel.addEventListener("change", () => {

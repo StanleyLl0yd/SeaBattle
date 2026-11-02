@@ -1,3 +1,13 @@
+## [0.9.0] - 2026-11-02
+
+- Added an opt-in Quick Battle tactical trainer with up to three unshot cells scored from public shot evidence and remaining ship sizes; scores are relative placement weights, not probabilities.
+- Added pre-shot comparison for the previous shot, bilingual accessible Show/Hide controls, and match-local off-by-default state.
+- No changes to fleets, turn rules, AI, careers, daily puzzle, storage keys, privacy, or runtime dependencies. Updated the PWA shell cache.
+
+- Добавлен необязательный тактический тренажёр быстрого боя: до трёх необстрелянных клеток с оценкой по открытым выстрелам и размерам оставшихся кораблей; баллы не являются вероятностями.
+- Добавлено сравнение последнего выстрела с альтернативой, оценённой до выстрела; поддержка RU/EN, доступное управление и выключенное по умолчанию состояние.
+- Флоты, правила ходов, ИИ, карьеры, ежедневные испытания, формат сохранений, приватность и зависимости не изменены. Обновлён PWA-кеш.
+
 ## [0.8.0] - 2026-11-02
 
 - Added a collapsible last-seven-UTC-days history to Daily Challenge using existing best-shot records only; unplayed and corrupted entries are handled safely.

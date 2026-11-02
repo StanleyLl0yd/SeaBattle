@@ -35,8 +35,8 @@
     .statusdot.waiting { background:var(--accent); box-shadow:0 0 0 5px #f3bd7219; }
     .statusdot.ended { background:var(--red); box-shadow:0 0 0 5px #ff777e19; }
     .status-text { font-weight:650; line-height:1.5; }
-    .daily-panel,.tactical-panel { background:#10283a; border:1px solid #315468; border-radius:15px; padding:15px 18px; margin:0 0 20px; line-height:1.6; color:var(--ink); }
-    .daily-panel[hidden],.tactical-panel[hidden] { display:none; }
+    .daily-panel,.tactical-panel,.trainer-panel { background:#10283a; border:1px solid #315468; border-radius:15px; padding:15px 18px; margin:0 0 20px; line-height:1.6; color:var(--ink); }
+    .daily-panel[hidden],.tactical-panel[hidden],.trainer-panel[hidden],#trainer-advice[hidden] { display:none; }
     .daily-panel p,.tactical-panel p { margin:8px 0; color:#b8d5e2; }
     .tactical-panel #tactical-details { white-space:pre-line; }
     .tactical-panel small { color:#93aec1; }
@@ -173,6 +173,15 @@
       <p id="daily-details"></p>
       <details><summary data-i18n="dailyHistoryHeading">Recent 7 UTC days</summary><ol class="daily-history-list" id="daily-history"></ol></details>
       <button class="action primary" type="button" id="daily-share" data-i18n="dailyShare" hidden>Copy result</button>
+    </section>
+    <section class="trainer-panel" id="trainer-panel" hidden aria-label="Tactical trainer" data-i18n-aria-label="trainerRegion">
+      <strong data-i18n="trainerHeading">🎯 Tactical trainer · Quick battle</strong>
+      <p data-i18n="trainerExplain">Relative placement scores from visible shots, not guaranteed hit probabilities.</p>
+      <button class="action" type="button" id="trainer-toggle" data-i18n="trainerShow">Show tactical hint</button>
+      <div id="trainer-advice" hidden>
+        <p id="trainer-suggestions" role="status" aria-live="polite"></p>
+        <p id="trainer-comparison"></p>
+      </div>
     </section>
     <section class="tactical-panel" id="tactical-panel" hidden aria-label="Tactical review" data-i18n-aria-label="tacticalRegion">
       <strong data-i18n="tacticalHeading">Tactical review</strong>
