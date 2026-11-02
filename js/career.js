@@ -123,6 +123,7 @@ function freshCareer(nation = "ru") {
       return 0;
     }
     function availableMode(mode) {
+      if (mode === "daily") return "daily";
       if (mode === "quick") return "quick";
       if (navy === "us" && mode === "warrant" && rankForWins(career.wins) >= 7) return "warrant";
       if (navy === "us" && mode === "fleet" && rankForWins(career.wins) === 19) return "fleet";
@@ -130,6 +131,7 @@ function freshCareer(nation = "ru") {
     }
     function selectedLevel() {
       const mode = availableMode(ui.mode.value);
+      if (mode === "daily") return 12;
       if (mode === "quick") return Math.max(1, Math.min(19, Number(ui.quickLevel.value) || 1));
       if (mode === "fleet") return 19;
       if (mode === "warrant") return [9,11,13,15,17,19][warrantRankForWins(career.warrantWins)];
@@ -176,7 +178,8 @@ function freshCareer(nation = "ru") {
         ui.careerProgress.value=1;
         ui.careerProgressText.textContent=t("careerMax");
       }
-      const notice=ui.mode.value==="quick" ? "quickModeNotice" :
+      const notice=ui.mode.value==="daily" ? "dailyModeNotice" :
+        ui.mode.value==="quick" ? "quickModeNotice" :
         ui.mode.value==="warrant" ? "warrantModeNotice" :
         ui.mode.value==="fleet" ? "fleetModeNotice" : "careerModeNotice";
       ui.careerStats.textContent = t("careerVictories") + ": " + career.wins + " · " +
