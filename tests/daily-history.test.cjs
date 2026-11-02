@@ -37,3 +37,27 @@ test('invalid UTC dates are rejected without touching storage',()=>{
   }
   assert.equal(reads,0);
 });
+
+test('invalid calendar dates and poisoned legacy entries never persist in Daily scores',()=>{
+  const values=new Map([['seabattle.daily.v1',JSON.stringify({
+    '2026-02-30':21,'2026-11-01':30,'2026-11-02':'bad',hiddenShips:[7,8]
+  })]]);
+  let writes=0;
+  const storage={
+    getItem:key=>values.get(key)??null,
+    setItem:(key,value)=>{writes++;values.set(key,value);}
+  };
+  const run=source=>runInNewContext(daily+'\n'+source,{localStorage:storage});
+  for(const date of ['2026-02-30','2026-02-29','2026-13-01','2026-00-01','2026-04-31']){
+    assert.equal(run('saveDailyScore('+JSON.stringify(date)+',25)'),null);
+  }
+  assert.equal(writes,0);
+  assert.equal(run('saveDailyScore("2026-11-03",26)'),26);
+  assert.equal(writes,1);
+  assert.deepEqual(JSON.parse(values.get('seabattle.daily.v1')),{'2026-11-01':30,'2026-11-03':26});
+  assert.equal(run('validChallengeDate("2024-02-29")'),true);
+  assert.equal(run('validChallengeDate("2026-02-29")'),false);
+  assert.equal(run('dailyBest("2026-02-30")'),null);
+  assert.equal(run('dailyShareText("2026-02-30",25,25,"en")'),"");
+  assert.equal(run('dailyShareText("2024-02-29",25,25,"en").includes("2024-02-29")'),true);
+});

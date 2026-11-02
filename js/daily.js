@@ -4,9 +4,13 @@ const DAILY_STORAGE_KEY = "seabattle.daily.v1";
 function utcChallengeDate(date = new Date()) {
   return date.toISOString().slice(0, 10);
 }
+function validChallengeDate(date) {
+  if (typeof date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+  const parsed = new Date(date + "T00:00:00Z");
+  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0,10) === date;
+}
 function challengeSeed(date) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || new Date(date + "T00:00:00Z").toISOString().slice(0,10) !== date)
-    throw new Error("Invalid UTC challenge date");
+  if (!validChallengeDate(date)) throw new Error("Invalid UTC challenge date");
   let hash = 2166136261;
   for (const ch of "seabattle-daily-v1:" + date) {
     hash ^= ch.charCodeAt(0);
@@ -26,6 +30,7 @@ function dailyFleet(date) {
   return randomFleet(seededRandom(challengeSeed(date)));
 }
 function dailyBest(date) {
+  if (!validChallengeDate(date)) return null;
   try {
     const record = JSON.parse(localStorage.getItem(DAILY_STORAGE_KEY) || "{}");
     const score = record?.[date];
@@ -33,21 +38,20 @@ function dailyBest(date) {
   } catch { return null; }
 }
 function saveDailyScore(date, shots) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isInteger(shots) || shots < 20 || shots > 100) return null;
+  if (!validChallengeDate(date) || !Number.isInteger(shots) || shots < 20 || shots > 100) return null;
   try {
     const stored = JSON.parse(localStorage.getItem(DAILY_STORAGE_KEY) || "{}");
     const scores = stored && typeof stored === "object" && !Array.isArray(stored) ? stored : {};
     const best = dailyBest(date);
     scores[date] = best === null ? shots : Math.min(best, shots);
-    const dates = Object.keys(scores).filter(key => /^\d{4}-\d{2}-\d{2}$/.test(key)).sort().slice(-90);
+    const dates = Object.keys(scores).filter(key => validChallengeDate(key) && Number.isInteger(scores[key]) && scores[key] >= 20 && scores[key] <= 100).sort().slice(-90);
     localStorage.setItem(DAILY_STORAGE_KEY, JSON.stringify(Object.fromEntries(dates.map(key=>[key,scores[key]]))));
     return scores[date];
   } catch { return null; }
 }
 function recentDailyScores(date) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return [];
+  if (!validChallengeDate(date)) return [];
   const day = new Date(date + "T00:00:00Z");
-  if (!Number.isFinite(day.getTime()) || day.toISOString().slice(0,10) !== date) return [];
   let scores = {};
   try {
     const stored = JSON.parse(localStorage.getItem(DAILY_STORAGE_KEY) || "{}");
@@ -60,7 +64,7 @@ function recentDailyScores(date) {
   });
 }
 function dailyShareText(date, shots, best, locale) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isInteger(shots) || shots < 20 || shots > 100)
+  if (!validChallengeDate(date) || !Number.isInteger(shots) || shots < 20 || shots > 100)
     return "";
   const prefix = locale === "ru" ? "⚓ Морской бой · испытание" : "⚓ SeaBattle · Daily challenge";
   const count = locale === "ru" ? "Выстрелов" : "Shots";

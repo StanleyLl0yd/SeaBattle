@@ -137,3 +137,13 @@ test('bilingual controls export selectable text and confirm restore',()=>{
   assert.match(b.nodes.get('backup-status').textContent,/restored/i);
   assert.equal(b.nodes.get('backup-text').value,'');
 });
+
+test('schema key checking cannot confuse delimiters or accept inherited fields',()=>{
+  const b=boot();
+  assert.equal(b.eval('backupHasKeys({"first|second":1},["first","second"])'),false);
+  assert.equal(b.eval('backupHasKeys({"first":1,"second":2},["first","second"])'),true);
+  assert.equal(b.eval('backupHasKeys(Object.create({second:2}),["second"])'),false);
+  const valid=JSON.parse(b.eval('createProgressBackup()'));
+  valid.daily={'2026-02-30':22};
+  assert.equal(b.eval('parseProgressBackup('+JSON.stringify(JSON.stringify(valid))+')'),null);
+});

@@ -143,7 +143,7 @@ GitHub Actions проверяет игровые правила и локали�
 
 | | |
 | :-- | :-- |
-| **Текущая версия** | `0.9.2` |
+| **Текущая версия** | `1.0.0` |
 | **Играть онлайн** | [SeaBattle на GitHub Pages](https://stanleyll0yd.github.io/SeaBattle/) |
 | **Исходный код** | [StanleyLl0yd/SeaBattle](https://github.com/StanleyLl0yd/SeaBattle) |
 | **История изменений** | [CHANGELOG.md](CHANGELOG.md) |
