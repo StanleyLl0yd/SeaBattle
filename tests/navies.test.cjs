@@ -176,8 +176,9 @@ test('Fleet Admiral is an optional historic five-star award after three consecut
   b.nodes.get('game-mode').value='fleet';
   b.nodes.get('game-mode').handlers.change();
   assert.equal(b.game().level,19);
-  for(let i=0;i<3;i++)b.eval('startBattle();finish("player");render();setUpGame()');
-  assert.equal(b.career().fleetStreak,3);
+  for(let i=0;i<2;i++)b.eval('startBattle();finish("player");render();setUpGame()');
+  assert.equal(b.career().fleetStreak,2);
+  assert.equal(b.career().fleetAdmiral,false);
   b.eval('startBattle();finish("computer");render();setUpGame()');
   assert.equal(b.career().fleetStreak,0);
   for(let i=0;i<3;i++){
