@@ -1,5 +1,15 @@
 # Changelog / История изменений
 
+## [0.3.0] - 2026-11-02
+
+- Replaced local-only hunt heuristics with bounded approximate inference over complete legal fleets, informed by public shot history and non-touching constraints.
+- Improved tactical targeting and mid-game adaptation to edge-heavy defenses, with a deterministic work budget and a fast fallback.
+- Added AI fairness, target-selection, boundedness and adversarial perimeter regression tests; no dependencies or new network features.
+
+- Компьютер теперь оценивает вероятные целые флоты, учитывая открытые выстрелы и запрет касания кораблей.
+- Улучшены добивание повреждённых кораблей и адаптация к расстановке у краёв; есть ограничение вычислений и резервная тактика.
+- Добавлены тесты честности ИИ, поиска целей и сложной периметральной расстановки. Новых зависимостей нет.
+
 ## [0.2.0] - 2026-11-02
 
 - English is the default language; Russian is selected automatically for Russian browser locales.

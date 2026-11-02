@@ -47,7 +47,7 @@ Ahoy, Captain! **⚓ Sea Battle** is a classic single-player Battleship game aga
 
 ## 🛠 04 · Run & develop
 
-No need to launch an entire shipyard: this is an **offline-first, single-file** HTML/CSS/JavaScript game with **zero runtime dependencies** and no build step. All game rules, UI, and AI live in `index.html`.
+No need to launch an entire shipyard: this is an **offline-first, single-file** HTML/CSS/JavaScript game with **zero runtime dependencies** and no build step. All game rules, UI, and AI live in `index.html`. The computer now uses a **bounded, approximate fleet-probability search**: it samples whole legal fleets consistent with revealed shots, adapts to patterns seen during the match, finishes damaged ships first, and falls back to a fast placement heatmap when needed. No peeking at hidden ship positions — even admirals must play fair.
 
 Automated tests require **Node.js 22+**:
 
@@ -61,7 +61,7 @@ GitHub Actions verifies engine and localization tests on pull requests. The prot
 
 | | |
 | :-- | :-- |
-| **Current version** | `0.2.0` |
+| **Current version** | `0.3.0` |
 | **Play online** | [SeaBattle on GitHub Pages](https://stanleyll0yd.github.io/SeaBattle/) |
 | **Source code** | [StanleyLl0yd/SeaBattle](https://github.com/StanleyLl0yd/SeaBattle) |
 | **Release history** | [CHANGELOG.md](CHANGELOG.md) |
