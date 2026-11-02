@@ -20,8 +20,11 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
     function setUpGame() {
       epoch++;
       ui.mode.value = availableMode(ui.mode.value);
-      game = { player: randomFleet(), enemy: randomFleet(), manual: false, horizontal: true, hover: -1,
+      const day = utcChallengeDate();
+      game = { player: randomFleet(), enemy: ui.mode.value === "daily" ? dailyFleet(day) : randomFleet(),
+        manual: false, horizontal: true, hover: -1,
         phase: "setup", turn: "player", navy, mode: ui.mode.value, level: selectedLevel(), promotion:0, specialPromotion:0,
+        dailyDate: day, dailyResult: null, trace: [],
         message: { key: "ready", args: {} } };
       render();
     }
@@ -56,6 +59,25 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
       // Explicit display is required because the CSS class has its own display rules.
       ui.setup.style.display = game.phase === "setup" ? "" : "none";
       ui.resultActions.hidden = game.phase !== "finished";
+      ui.dailyPanel.hidden = game.mode !== "daily";
+      ui.dailyShare.hidden = game.mode !== "daily" || game.phase !== "finished" || game.turn !== "player";
+      if (game.mode === "daily") {
+        const best = dailyBest(game.dailyDate);
+        ui.dailyDetails.textContent = t("dailyWhen") + ": " + game.dailyDate + " · " +
+          t("dailyBest") + ": " + (best === null ? t("dailyUnplayed") : best) + ". " + t("dailyRules");
+      }
+      ui.tacticalPanel.hidden = game.phase !== "finished" || !game.trace?.length;
+      if (!ui.tacticalPanel.hidden) {
+        const report = summarizeTactics(game.trace);
+        ui.tacticalDetails.textContent = t("tacticalSummary") + ": " + report.shots +
+          " · " + t("tacticalHunt") + ": " + report.huntShots +
+          " (" + t("tacticalHits") + ": " + report.huntHits + ")" +
+          " · " + t("tacticalFinish") + ": " + report.targetShots +
+          " (" + t("tacticalHits") + ": " + report.targetHits + ")" +
+          " · " + t("tacticalMisses") + ": " + report.misses +
+          " · " + t("tacticalPromising") + ": " + report.promising +
+          " · " + t("tacticalAlternatives") + ": " + report.alternatives;
+      }
       ui.status.textContent = t(game.message.key, game.message.args);
       ui.dot.className = "statusdot" + (game.phase === "finished" ? " ended" : game.turn === "computer" ? " waiting" : "");
       $("player-alive").textContent = `${remaining(game.player)} / 10`;
@@ -83,7 +105,7 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
       game.level = selectedLevel();
       game.mode = ui.mode.value;
       game.navy = navy;
-      updateStatus("turn");
+      updateStatus(game.mode === "daily" ? "dailyRules" : "turn");
       render();
     }
     function finish(winner) {
@@ -93,26 +115,39 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
       if (game.mode === "campaign") {
         const misses = shotCount(game.enemy) - hitCount(game.enemy);
         game.promotion = recordCareerResult(winner, misses);
+      } else if (game.mode === "daily") {
+        if (winner === "player") {
+          const shots = shotCount(game.enemy);
+          game.dailyResult = { date:game.dailyDate, shots, best:saveDailyScore(game.dailyDate, shots) };
+        }
       } else if (game.mode === "warrant" || game.mode === "fleet") {
         game.specialPromotion = recordSpecialResult(winner);
       }
-      const keys = game.mode === "campaign" ? ["campaignWin","careerLoss"] :
+      const keys = game.mode === "daily" ? ["dailyWin","careerLoss"] :
+        game.mode === "campaign" ? ["campaignWin","careerLoss"] :
         game.mode === "warrant" ? ["warrantWin","warrantLoss"] :
         game.mode === "fleet" ? ["fleetWin","fleetLoss"] : ["quickWin","lose"];
       updateStatus(keys[winner === "player" ? 0 : 1]);
     }
     function playerFire(i) {
       if (game.phase !== "playing" || game.turn !== "player") return;
+      const snapshot = tacticalSnapshot(game.enemy, i);
       const outcome = fireAt(game.enemy, i);
       if (outcome.kind === "already") return;
+      game.trace.push({...snapshot, outcome:outcome.kind});
       if (game.mode === "campaign" && shotCount(game.enemy) === 1 && outcome.kind !== "miss")
         grantAchievement("achievementFirst");
       if (remaining(game.enemy) === 0) finish("player");
       else if (outcome.kind === "miss") {
-        game.turn = "computer";
-        updateStatus("playerMiss", { at: i });
-        const current = epoch;
-        setTimeout(() => computerFire(current), 650);
+        if (game.mode === "daily") {
+          game.turn = "player";
+          updateStatus("dailyMiss");
+        } else {
+          game.turn = "computer";
+          updateStatus("playerMiss", { at: i });
+          const current = epoch;
+          setTimeout(() => computerFire(current), 650);
+        }
       } else if (outcome.kind === "sunk") updateStatus("playerSunk", { at: i, size: outcome.size });
       else updateStatus("playerHit", { at: i });
       render();
@@ -154,6 +189,20 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
       if (cell) playerFire(Number(cell.dataset.i));
     });
     ui.again.addEventListener("click", setUpGame);
+    ui.dailyShare.addEventListener("click", async () => {
+      if (game.mode !== "daily" || game.phase !== "finished" ||
+          game.turn !== "player" || !game.dailyResult) return;
+      const {date,shots,best} = game.dailyResult;
+      const text = dailyShareText(date,shots,best,language);
+      try {
+        if (!navigator.clipboard?.writeText) throw new Error("Clipboard not available");
+        await navigator.clipboard.writeText(text);
+        ui.dailyShare.textContent = t("dailyCopied");
+      } catch {
+        if (typeof window !== "undefined" && typeof window.prompt === "function")
+          window.prompt(t("dailyCopyFallback"),text);
+      }
+    });
     ui.playAgain.addEventListener("click", () => {
       if (game.phase === "finished") setUpGame();
     });
@@ -178,6 +227,10 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
       ui.mode.value = availableMode(ui.mode.value);
       game.mode = ui.mode.value;
       game.level = selectedLevel();
+      game.dailyDate = utcChallengeDate();
+      game.enemy = game.mode === "daily" ? dailyFleet(game.dailyDate) : randomFleet();
+      game.trace = [];
+      game.dailyResult = null;
       render();
     });
     ui.quickLevel.addEventListener("change", () => {
