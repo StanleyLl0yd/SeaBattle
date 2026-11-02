@@ -4,7 +4,7 @@
   <defs>
     <linearGradient id="sea" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#081522"/><stop offset=".57" stop-color="#102338"/><stop offset="1" stop-color="#16354c"/></linearGradient>
     <radialGradient id="glow" cx=".74" cy=".48" r=".7"><stop stop-color="#22627e" stop-opacity=".44"/><stop offset="1" stop-color="#081522" stop-opacity="0"/></radialGradient>
-    <linearGradient id="ship" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#60889d"/><stop offset="1" stop-color="#3b647e"/></linearGradient>
+    <linearGradient id="ship" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#60889d"/><stop offset="1" stop-color="#49768e"/></linearGradient>
     <clipPath id="rounded"><rect width="1280" height="356" rx="26"/></clipPath>
     <pattern id="grid" width="29" height="29" patternUnits="userSpaceOnUse"><path d="M29 0H0V29" fill="none" stroke="#547f96" stroke-opacity=".38" stroke-width="1"/></pattern>
   </defs>
@@ -32,6 +32,7 @@
     <text x="51" y="171" fill="#ecf6fd" font-size="76" font-weight="800" font-family="Arial, sans-serif" letter-spacing="-2">SEA BATTLE</text>
     <text x="54" y="225" fill="#58d9e8" font-size="28" font-weight="700" font-family="Arial, sans-serif" letter-spacing="2">МОРСКОЙ БОЙ</text>
     <path d="M53 247h492" stroke="#58d9e8" stroke-opacity=".45" stroke-width="2"/>
+    <path d="M53 247h73" stroke="#f3bd72" stroke-opacity=".85" stroke-width="3"/>
     <text x="54" y="283" fill="#b2cbd8" font-size="18" font-weight="600" font-family="Arial, sans-serif" letter-spacing="1.1">10 × 10  ·  10 SHIPS  ·  OFFLINE PLAY</text>
     <rect x="0.5" y="0.5" width="1279" height="355" rx="26" fill="none" stroke="#28445a"/>
   </g>
