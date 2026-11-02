@@ -84,3 +84,12 @@ test('agent instructions require two matching documents and preserve the hero', 
   assert.match(agents, /assets\/readme-banner\.svg/);
   assert.match(agents, /tests\/readme\.test\.cjs/);
 });
+
+test('player documentation links to the hosted browser game, not local HTML distribution', () => {
+  for (const [name, content] of docs) {
+    assert.match(content, /https:\/\/stanleyll0yd\.github\.io\/SeaBattle\//);
+    assert.doesNotMatch(content, /(?:open|download|save|открой|скачать|сохрани).{0,40}`index\.html`/i, name);
+    assert.doesNotMatch(content, /(?:offline-first|single-file|в одном HTML-файле|одном HTML-файле)/i, name);
+  }
+  assert.match(read('AGENTS.md'), /single-file architecture is \*\*not mandatory\*\*/);
+});
