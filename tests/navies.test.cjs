@@ -50,7 +50,7 @@ function boot(saved = new Map(), confirmReset = true, languages = ['en-US']) {
     nodes,storage,saved,doc,
     eval:source=>vm.runInContext(source,context),
     career:()=>JSON.parse(vm.runInContext('JSON.stringify(career)',context)),
-    game:()=>JSON.parse(vm.runInContext('JSON.stringify({mode:game.mode,level:game.level,phase:game.phase,promotion:game.promotion})',context))
+    game:()=>JSON.parse(vm.runInContext('JSON.stringify({mode:game.mode,level:game.level,phase:game.phase,promotion:game.promotion,specialPromotion:game.specialPromotion,navy:game.navy})',context))
   };
 }
 
