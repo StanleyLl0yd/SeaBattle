@@ -1,5 +1,15 @@
 # Changelog / История изменений
 
+## [0.3.1] - 2026-11-02
+
+- Manual ship rotation now responds to the physical R-position key regardless of keyboard layout, while respecting modifiers and focused editable controls.
+- The game and both READMEs direct players to the browser site rather than local HTML-file play; retained the existing lightweight architecture without mandating a single file.
+- Clarified that static CSS/JavaScript modules can be introduced when their maintenance or performance value justifies the migration.
+
+- Поворот кораблей работает физической клавишей на месте R при любой раскладке, без перехвата ввода в текстовые поля и с учётом модификаторов.
+- Убраны предложения открывать локальный HTML-файл: играть предлагается через браузерный сайт. Требование единого файла снято.
+- Разделение на CSS/JavaScript-модули разрешено, когда оно действительно улучшит поддержку, тестирование или производительность.
+
 ## [0.3.0] - 2026-11-02
 
 - Replaced local-only hunt heuristics with bounded approximate inference over complete legal fleets, informed by public shot history and non-touching constraints.
