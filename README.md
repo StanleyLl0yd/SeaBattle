@@ -35,7 +35,7 @@ Ahoy, Captain! **⚓ Sea Battle** is a classic single-player Battleship game aga
 2. Your ships are already on station. Keep the automatically arranged fleet, select **Random fleet** to shuffle it, or choose **Place manually** if your inner admiral insists.
 3. For manual placement, select a starting cell; use **Rotate (R)** or the physical **R-position key** (works with any keyboard layout) to change orientation. **Undo** removes the last ship.
 4. Select **Start battle**, take aim, then fire by selecting cells on the computer's grid. Periscope optional.
-5. Use **New game** to begin again — even seasoned sea dogs deserve a rematch. The layout supports desktop, mobile, and keyboard navigation.
+5. After a victory or defeat, use the prominent **New battle** button beneath the result to play again (the header's **New game** button also remains available). Even seasoned sea dogs deserve a rematch. The layout supports desktop, mobile, and keyboard navigation.
 
 **⚓ Naval campaign (new in 0.4.0).** Start as a **Seaman** and earn promotions across **19 Russian Navy shipboard ranks**, reaching **Admiral of the Fleet after 45 campaign wins**. The opponent has six actual AI tiers that grow stronger as you advance. Defeats do not take away earned victories or demote you. The top rank stays playable indefinitely.
 
@@ -123,7 +123,7 @@ GitHub Actions verifies engine and localization tests on pull requests. The prot
 
 | | |
 | :-- | :-- |
-| **Current version** | `0.6.0` |
+| **Current version** | `0.6.1` |
 | **Play online** | [SeaBattle on GitHub Pages](https://stanleyll0yd.github.io/SeaBattle/) |
 | **Source code** | [StanleyLl0yd/SeaBattle](https://github.com/StanleyLl0yd/SeaBattle) |
 | **Release history** | [CHANGELOG.md](CHANGELOG.md) |

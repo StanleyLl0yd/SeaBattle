@@ -1,3 +1,13 @@
+## [0.6.1] - 2026-11-02
+
+- Fixed Russian victory-count inflection for rank milestones and Warrant Officer trial targets (including 11–14 and 21–24), and English singular/plural win counts.
+- Added an obvious, accessible New battle button immediately below the final result after either side wins; restarting preserves the selected career and difficulty.
+- Added regression tests for all victory forms, a real computer finishing turn, player victory, mode preservation and bilingual UI.
+
+- Исправлено склонение слова «победа» в порогах званий и целях испытаний уорент-офицеров, а также единственное/множественное число по-английски.
+- После победы и поражения появляется отдельная кнопка «Новая партия» под результатом; звание и выбранный режим не сбрасываются.
+- Добавлены проверки окончаний числительных, фактического последнего хода ИИ, победы игрока и повторного запуска.
+
 ## [0.6.0] - 2026-11-02
 
 - Smoothed progression of fair, public-information-only AI inference across ranks 3–19, replacing the abrupt level-9 activation of fleet sampling and gradually increasing positional adaptation, search budget and decision quality.

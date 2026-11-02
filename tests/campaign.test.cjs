@@ -165,3 +165,84 @@ test('malformed, oversized and blocked browser storage fail closed',()=>{
   const b=boot();
   assert.equal(b.eval('freshCareer().wins'),0);
 });
+
+
+test('Russian victory counts decline correctly in rank milestones and Warrant trials',()=>{
+  const b=boot(new Map(),true,['ru-RU']);
+  const samples={
+    0:'0 побед',1:'1 победа',2:'2 победы',3:'3 победы',4:'4 победы',5:'5 побед',
+    7:'7 побед',9:'9 побед',10:'10 побед',11:'11 побед',12:'12 побед',
+    13:'13 побед',14:'14 побед',15:'15 побед',17:'17 побед',20:'20 побед',21:'21 победа',
+    22:'22 победы',23:'23 победы',24:'24 победы',25:'25 побед',26:'26 побед',29:'29 побед',
+    32:'32 победы',36:'36 побед',40:'40 побед',45:'45 побед',
+    101:'101 победа',111:'111 побед',112:'112 побед',121:'121 победа'
+  };
+  for(const [n,expected] of Object.entries(samples))
+    assert.equal(b.eval('formatWinCount('+n+')'),expected,n);
+  const ranks=b.nodes.get('rank-list').innerHTML;
+  assert.match(ranks,/Старший матрос · 1 победа/);
+  for(const threshold of [5,7,9,11,13,15,17,20,23,26,29,32,36,40,45])
+    assert.ok(ranks.includes(' · '+samples[threshold]),'rank milestone '+threshold);
+  assert.doesNotMatch(ranks,/5 победы|7 победы|11 победы|15 победы|20 победы/);
+  b.nodes.get('navy-select').value='us';
+  b.nodes.get('navy-select').handlers.change();
+  assert.match(b.nodes.get('career-special').textContent,/2 победы/);
+  b.eval('career.warrantWins=3;render()');
+  assert.match(b.nodes.get('career-special').textContent,/1 победа/);
+});
+
+test('English victory counts use singular and plural independently of navy',()=>{
+  const b=boot(new Map(),true,['en-US']);
+  assert.equal(b.eval('formatWinCount(1)'),'1 victory');
+  assert.equal(b.eval('formatWinCount(2)'),'2 victories');
+  assert.equal(b.eval('formatWinCount(45)'),'45 victories');
+  assert.match(b.nodes.get('rank-list').innerHTML,/Seaman Apprentice \(E-2\) · 1 victory/);
+  assert.match(b.nodes.get('rank-list').innerHTML,/Petty Officer Second Class \(E-5\) · 5 victories/);
+  assert.match(b.nodes.get('career-special').textContent,/2 victories/);
+  b.eval('setLanguage("ru")');
+  assert.match(b.nodes.get('rank-list').innerHTML,/Матрос-ученик \(E-2\).*1 победа/);
+  b.eval('setLanguage("en")');
+  assert.match(b.nodes.get('rank-list').innerHTML,/1 victory/);
+});
+
+test('defeat by actual computer turn shows visible new-battle action and preserves career',()=>{
+  const b=boot(new Map(),true,['ru-RU']);
+  assert.equal(b.nodes.get('result-actions').hidden,true);
+  b.eval('startBattle()');
+  assert.equal(b.nodes.get('result-actions').hidden,true);
+  b.nodes.get('play-again').click();
+  assert.equal(b.game().phase,'playing','Hidden action must not restart during a battle');
+  b.eval('game.player=createBoard();placeShip(game.player,[99]);game.player.shots.fill("miss");game.player.shots[99]=null;game.turn="computer";computerFire(epoch)');
+  assert.equal(b.game().phase,'finished');
+  assert.equal(b.nodes.get('result-actions').hidden,false);
+  assert.equal(b.career().losses,1);
+  assert.equal(b.career().wins,0);
+  assert.match(b.nodes.get('status-text').textContent,/Поражение/);
+  b.nodes.get('play-again').click();
+  assert.equal(b.game().phase,'setup');
+  assert.equal(b.nodes.get('result-actions').hidden,true);
+  assert.equal(b.career().losses,1,'Restarting must not erase or duplicate a loss');
+  assert.equal(b.career().wins,0);
+  assert.equal(b.eval('game.player.ships.length'),10);
+});
+
+test('new-battle action appears after player victory, translates live and respects quick mode',()=>{
+  const b=boot(new Map(),true,['en-US']);
+  b.nodes.get('game-mode').value='quick';
+  b.nodes.get('game-mode').handlers.change();
+  b.nodes.get('quick-level').value='19';
+  b.nodes.get('quick-level').handlers.change();
+  b.eval('startBattle();game.enemy=createBoard();placeShip(game.enemy,[0]);playerFire(0)');
+  assert.equal(b.game().phase,'finished');
+  assert.equal(b.nodes.get('result-actions').hidden,false);
+  assert.equal(b.career().wins,0,'Quick victories still do not advance careers');
+  b.eval('setLanguage("ru")');
+  assert.equal(b.eval('I18N.ru.playAgain'),'↻ Новая партия');
+  assert.match(b.nodes.get('status-text').textContent,/Победа/);
+  assert.equal(b.nodes.get('result-actions').hidden,false);
+  b.nodes.get('play-again').click();
+  assert.equal(b.game().phase,'setup');
+  assert.equal(b.game().mode,'quick');
+  assert.equal(b.game().level,19);
+  assert.equal(b.nodes.get('result-actions').hidden,true);
+});
