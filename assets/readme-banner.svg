@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="356" viewBox="0 0 1280 356" role="img" aria-labelledby="title desc">
+  <title id="title">SEA BATTLE / МОРСКОЙ БОЙ</title>
+  <desc id="desc">Navy-blue Battleship banner with a ten-by-ten grid, ships, hits, misses, and sea waves.</desc>
+  <defs>
+    <linearGradient id="sea" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#081522"/><stop offset=".57" stop-color="#102338"/><stop offset="1" stop-color="#16354c"/></linearGradient>
+    <radialGradient id="glow" cx=".74" cy=".48" r=".7"><stop stop-color="#22627e" stop-opacity=".44"/><stop offset="1" stop-color="#081522" stop-opacity="0"/></radialGradient>
+    <linearGradient id="ship" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#60889d"/><stop offset="1" stop-color="#3b647e"/></linearGradient>
+    <clipPath id="rounded"><rect width="1280" height="356" rx="26"/></clipPath>
+    <pattern id="grid" width="29" height="29" patternUnits="userSpaceOnUse"><path d="M29 0H0V29" fill="none" stroke="#547f96" stroke-opacity=".38" stroke-width="1"/></pattern>
+  </defs>
+  <g clip-path="url(#rounded)">
+    <rect width="1280" height="356" fill="url(#sea)"/>
+    <rect width="1280" height="356" fill="url(#glow)"/>
+    <path d="M0 305 Q80 283 160 305T320 305T480 305T640 305T800 305T960 305T1120 305T1280 305" fill="none" stroke="#58d9e8" stroke-opacity=".14" stroke-width="2"/>
+    <path d="M0 323 Q80 301 160 323T320 323T480 323T640 323T800 323T960 323T1120 323T1280 323" fill="none" stroke="#58d9e8" stroke-opacity=".1" stroke-width="2"/>
+    <path d="M0 341 Q80 319 160 341T320 341T480 341T640 341T800 341T960 341T1120 341T1280 341" fill="none" stroke="#58d9e8" stroke-opacity=".08" stroke-width="2"/>
+    <rect x="732" y="29" width="330" height="296" rx="16" fill="#0e2234" fill-opacity=".86" stroke="#3b667c" stroke-opacity=".8"/>
+    <rect x="752" y="47" width="290" height="290" fill="#16354c" fill-opacity=".8"/>
+    <rect x="752" y="47" width="290" height="290" fill="url(#grid)"/>
+    <rect x="810" y="76" width="29" height="29" rx="3" fill="url(#ship)"/>
+    <rect x="839" y="76" width="29" height="29" rx="3" fill="url(#ship)"/>
+    <rect x="868" y="76" width="29" height="29" rx="3" fill="url(#ship)"/>
+    <rect x="897" y="76" width="29" height="29" rx="3" fill="url(#ship)"/>
+    <path d="M850 194l12 12m0-12l-12 12" fill="none" stroke="#ff777e" stroke-width="5" stroke-linecap="round"/>
+    <path d="M966 134l12 12m0-12l-12 12" fill="none" stroke="#ff777e" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="796" cy="257" r="3.7" fill="#93aec1"/>
+    <circle cx="941" cy="229" r="3.7" fill="#93aec1"/>
+    <circle cx="1000" cy="287" r="3.7" fill="#93aec1"/>
+    <rect x="46" y="42" width="43" height="43" rx="12" fill="#103447" stroke="#4f99aa"/>
+    <path d="M67.5 52v20m-8-13h16m-8-7a3 3 0 1 1 0 6a3 3 0 1 1 0-6M56 68c0 13 23 13 23 0m-23 0l-5 4m28-4l5 4" stroke="#58d9e8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <text x="103" y="71" fill="#b4d4e1" font-size="17" font-weight="700" font-family="Arial, sans-serif" letter-spacing="3">CLASSIC BATTLESHIP · 1 PLAYER</text>
+    <text x="51" y="171" fill="#ecf6fd" font-size="76" font-weight="800" font-family="Arial, sans-serif" letter-spacing="-2">SEA BATTLE</text>
+    <text x="54" y="225" fill="#58d9e8" font-size="28" font-weight="700" font-family="Arial, sans-serif" letter-spacing="2">МОРСКОЙ БОЙ</text>
+    <path d="M53 247h492" stroke="#58d9e8" stroke-opacity=".45" stroke-width="2"/>
+    <text x="54" y="283" fill="#b2cbd8" font-size="18" font-weight="600" font-family="Arial, sans-serif" letter-spacing="1.1">10 × 10  ·  10 SHIPS  ·  OFFLINE PLAY</text>
+    <rect x="0.5" y="0.5" width="1279" height="355" rx="26" fill="none" stroke="#28445a"/>
+  </g>
+</svg>
