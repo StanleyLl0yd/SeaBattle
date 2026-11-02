@@ -107,6 +107,8 @@ Every finished battle also includes a **tactical review** showing how many shots
 
 The expandable **Recent 7 UTC days** history lists each day's personal best or unplayed status. It reads only existing local aggregate scores; no coordinates or tracking are added.
 
+**Tactical trainer (0.9.0).** During an active **Quick battle**, select **Show tactical hint** to see up to three unshot cells ranked by a relative legal-placement score and compare your previous shot with an alternative assessed *before* you fired. The score is **not a hit probability** or a promise of success. The trainer is hidden in campaigns and daily challenges, disabled by default every battle, uses only public shots and remaining ship lengths, and stores nothing.
+
 ### 📱 Install and play offline
 
 SeaBattle is now a small **progressive web app**: open the hosted game once while connected, then use your browser's **Install app / Add to Home Screen** command (where supported). Its local service worker caches the complete game shell and 192/512-pixel icons under the GitHub Pages project path. Wait for the **Ready for offline play** message before disconnecting; it appears once the service worker is active after the game shell has been cached. On macOS Safari, installed web apps have separate site data from Safari tabs: open the **installed app itself** with internet at least once, wait for readiness, then fully quit and cold-launch offline. After that, the game can launch without a connection. Updates are downloaded when a new service worker installs; your in-progress match is not automatically reloaded. Clearing site data or uninstalling can erase local progress; this is not cloud synchronization.
@@ -137,7 +139,7 @@ GitHub Actions verifies engine and localization tests on pull requests. The prot
 
 | | |
 | :-- | :-- |
-| **Current version** | `0.8.0` |
+| **Current version** | `0.9.0` |
 | **Play online** | [SeaBattle on GitHub Pages](https://stanleyll0yd.github.io/SeaBattle/) |
 | **Source code** | [StanleyLl0yd/SeaBattle](https://github.com/StanleyLl0yd/SeaBattle) |
 | **Release history** | [CHANGELOG.md](CHANGELOG.md) |

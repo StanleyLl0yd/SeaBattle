@@ -1,6 +1,6 @@
 "use strict";
 const CACHE_PREFIX = "seabattle-shell-";
-const CACHE_NAME = CACHE_PREFIX + "v0.8.0";
+const CACHE_NAME = CACHE_PREFIX + "v0.9.0";
 const SHELL = [
   "./", "./index.html", "./manifest.webmanifest", "./favicon.ico",
   "./assets/seabattle-icon.svg", "./assets/icon-192.png", "./assets/icon-512.png",

@@ -1,6 +1,6 @@
 "use strict";
-// Use only shot evidence and public remaining ship lengths, never hidden cells.
-function tacticalSnapshot(board, chosen) {
+// Scores depend only on observed shots and publicly known remaining ship sizes.
+function tacticalScores(board) {
   const shots = board.shots;
   let active = 0n, forbidden = 0n;
   for (let i = 0; i < shots.length; i++) {
@@ -21,10 +21,23 @@ function tacticalSnapshot(board, chosen) {
         if (shots[cell] === null) scores[cell] += weight;
     }
   }
+  return { mode, scores };
+}
+function tacticalCandidates(board, limit = 3) {
+  const { mode, scores } = tacticalScores(board);
+  const top = [];
+  for (let i = 0; i < scores.length; i++) {
+    if (board.shots[i] === null && scores[i] > 0) top.push({ index:i, score:scores[i] });
+  }
+  top.sort((a, b) => b.score - a.score || a.index - b.index);
+  return { mode, top:top.slice(0, Math.max(0, Math.min(3, limit))) };
+}
+function tacticalSnapshot(board, chosen) {
+  const { mode, scores } = tacticalScores(board);
   const max = Math.max(0, ...scores);
   const selected = Number.isInteger(chosen) && chosen >= 0 && chosen < 100 &&
-    shots[chosen] === null ? scores[chosen] : 0;
-  const bestCell = max > selected ? scores.findIndex((v, i) => shots[i] === null && v === max) : null;
+    board.shots[chosen] === null ? scores[chosen] : 0;
+  const bestCell = max > selected ? scores.findIndex((v, i) => board.shots[i] === null && v === max) : null;
   return { mode, chosen, bestCell, selected, max, promising: max > 0 && selected >= max * 0.9 };
 }
 function summarizeTactics(trace) {
