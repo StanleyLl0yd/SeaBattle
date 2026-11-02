@@ -88,7 +88,7 @@
       <div class="brand"><div class="brandmark" aria-hidden="true">⚓</div><span data-i18n="brand">Classic board game · Single player</span></div>
       <div class="top-actions"><label class="language-label" for="language" data-i18n="languageLabel">Language</label><select class="language-select" id="language" aria-label="Language" data-i18n-aria-label="languageLabel"><option value="en" lang="en">EN</option><option value="ru" lang="ru">RU</option></select><button class="quiet-btn" id="new-game" type="button" data-i18n="newGame">↻ New game</button></div>
     </header>
-    <p class="eyebrow" data-i18n="eyebrow">Play offline</p>
+    <p class="eyebrow" data-i18n="eyebrow">Play in your browser</p>
     <h1><span data-i18n="heading">Sea Battle</span><span style="color:var(--cyan)">.</span></h1>
     <p class="subhead" data-i18n="subhead">Place your ships, find the enemy fleet, and sink all ten ships before the computer does.</p>
     <div class="statusbar" role="status" aria-live="polite" aria-atomic="true">
@@ -149,7 +149,7 @@
         "brand": "Classic board game · Single player",
         "languageLabel": "Language",
         "newGame": "↻ New game",
-        "eyebrow": "Play offline",
+        "eyebrow": "Play in your browser",
         "heading": "Sea Battle",
         "subhead": "Place your ships, find the enemy fleet, and sink all ten ships before the computer does.",
         "ready": "Your fleet is ready. Start the battle or choose another layout.",
@@ -181,7 +181,7 @@
         "unknown": "Unknown",
         "footer1": "10 × 10 grid · Ships: 1 × 4, 2 × 3, 3 × 2, 4 × 1 · Ships cannot touch, even diagonally.",
         "footer2": "A hit gives another shot; a miss passes the turn. You shoot first.",
-        "hintManual": "Place a {size}-cell ship: select its starting cell on your grid. {direction}. Press R to rotate.",
+        "hintManual": "Place a {size}-cell ship: select its starting cell on your grid. {direction}. Press the R-position key to rotate (any keyboard layout).",
         "hintComplete": "All ships placed. Select “Start battle”.",
         "hintAuto": "Ships are placed randomly. Shuffle them or place them manually.",
         "horizontal": "Horizontal",
@@ -207,7 +207,7 @@
         "brand": "Настольная классика · 1 игрок",
         "languageLabel": "Язык",
         "newGame": "↻ Новая партия",
-        "eyebrow": "Играй без интернета",
+        "eyebrow": "Играй в браузере",
         "heading": "Морской бой",
         "subhead": "Расставь корабли, найди флот противника и потопи все десять кораблей раньше компьютера.",
         "ready": "Флот готов. Начни бой или выбери другую расстановку.",
@@ -239,7 +239,7 @@
         "unknown": "Неизвестно",
         "footer1": "Поле 10 × 10 · Корабли: 1 × 4, 2 × 3, 3 × 2, 4 × 1 · Корабли не соприкасаются даже углами.",
         "footer2": "Попадание даёт ещё один выстрел, промах передаёт ход. Вы начинаете первым.",
-        "hintManual": "Поставь {size}-палубный корабль: выбери начальную клетку на своём поле. {direction}. Клавиша R — поворот.",
+        "hintManual": "Поставь {size}-палубный корабль: выбери начальную клетку на своём поле. {direction}. Поворот — клавиша на месте R, при любой раскладке.",
         "hintComplete": "Все корабли расставлены. Нажми «Начать бой».",
         "hintAuto": "Корабли расставлены случайно. Можно перемешать или расставить их вручную.",
         "horizontal": "Горизонтально",
@@ -641,8 +641,13 @@
     });
     ui.start.addEventListener("click", startBattle);
     document.addEventListener("keydown", event => {
-      if (event.key.toLowerCase() === "r" && !event.ctrlKey && !event.altKey && !event.metaKey && game.phase === "setup" && game.manual) {
-        event.preventDefault(); ui.rotate.click();
+      const rotateKey = event.code === "KeyR" || event.key?.toLowerCase() === "r";
+      const editing = event.target?.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(event.target?.tagName);
+      if (rotateKey && !editing && !event.repeat && !event.isComposing &&
+          !event.ctrlKey && !event.altKey && !event.metaKey &&
+          game.phase === "setup" && game.manual && !ui.rotate.disabled) {
+        event.preventDefault();
+        ui.rotate.click();
       }
     });
     ui.language.addEventListener("change", () => setLanguage(ui.language.value));
