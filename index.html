@@ -503,8 +503,12 @@
     }
     function loadCareers() {
       const fallback = {ru:freshCareer("ru"),us:freshCareer("us")};
+      if (typeof localStorage === "undefined") return fallback;
       try {
-        if (typeof localStorage === "undefined") return fallback;
+        const old = localStorage.getItem(LEGACY_CAREER_KEY);
+        if (old !== null) fallback.ru = sanitizeCareer(JSON.parse(old),"ru") || fallback.ru;
+      } catch { /* Keep a fresh RU profile when legacy storage is invalid. */ }
+      try {
         const stored = localStorage.getItem(CAREER_KEY);
         if (stored !== null) {
           const parsed = JSON.parse(stored);
@@ -512,13 +516,7 @@
             return {ru:sanitizeCareer(parsed.ru,"ru") || fallback.ru,
               us:sanitizeCareer(parsed.us,"us") || fallback.us};
         }
-      } catch { /* Recover the original career if the new record is corrupt. */ }
-      try {
-        if (typeof localStorage !== "undefined") {
-          const old = localStorage.getItem(LEGACY_CAREER_KEY);
-          if (old !== null) fallback.ru = sanitizeCareer(JSON.parse(old),"ru") || fallback.ru;
-        }
-      } catch { /* Disabled storage does not stop a game. */ }
+      } catch { /* Corrupt new data cannot destroy valid legacy progress. */ }
       return fallback;
     }
     function saveCareers() {
@@ -667,6 +665,7 @@
         const fleet = career.fleetAdmiral ? t("fleetAwarded") :
           rank < 19 ? t("fleetLock") : t("fleetStatus")+": "+career.fleetStreak+" / 5";
         ui.careerSpecial.textContent=t("warrantHeading")+" · "+specialist+"\n"+trial+"\n"+next+
+          "\n"+WARRANT_RANKS[language].map((_,i)=>warrantLabel(i)+(i<grade ? " ✓" : "")).join(" · ")+
           "\n"+t("fleetHeading")+"\n"+fleet+"\n"+t("fleetNote");
       }
     }
