@@ -1,8 +1,8 @@
 {
   "name": "sea-battle-browser",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
-  "description": "Classic offline Battleship browser game",
+  "description": "Classic bilingual Battleship browser game",
   "scripts": {
     "test": "node --test tests/*.test.cjs"
   },
