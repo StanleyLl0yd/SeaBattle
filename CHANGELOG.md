@@ -12,6 +12,16 @@
 
 # Changelog / История изменений
 
+## [0.5.0] - 2026-11-02
+
+- Introduced separate 19-rank RU Navy and US Navy main campaigns, each requiring 45 victories; locale chooses a default navy but players can switch language and fleet independently.
+- Added US E-1–E-9 and O-1–O-10 grades, an optional five-grade Warrant Officer trial (W-1–W-5) and a historical Fleet Admiral five-star achievement after five consecutive maximum-difficulty victories.
+- Migrated existing Russian career safely from `seabattle.career.v1` into versioned dual profiles without deleting the legacy record. New data validation, nation-scoped reset and mode guards are tested.
+
+- Две независимые кампании ВМФ России и ВМС США по 19 уровням и 45 победам, с отдельным выбором флота и языка.
+- Американские звания E-1–E-9 и O-1–O-10, дополнительная ветка Warrant Officer (W-1–W-5) и историческая награда Fleet Admiral за пять побед подряд против сильнейшего ИИ.
+- Безопасный перенос российской карьеры из `seabattle.career.v1`, проверка сохраняемых данных, раздельный сброс и защита специальных режимов.
+
 ## [0.3.1] - 2026-11-02
 
 - Manual ship rotation now responds to the physical R-position key regardless of keyboard layout, while respecting modifiers and focused editable controls.
