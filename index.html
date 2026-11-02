@@ -33,6 +33,11 @@
     .statusdot.waiting { background:var(--accent); box-shadow:0 0 0 5px #f3bd7219; }
     .statusdot.ended { background:var(--red); box-shadow:0 0 0 5px #ff777e19; }
     .status-text { font-weight:650; line-height:1.5; }
+    .daily-panel,.tactical-panel { background:#10283a; border:1px solid #315468; border-radius:15px; padding:15px 18px; margin:0 0 20px; line-height:1.6; color:var(--ink); }
+    .daily-panel[hidden],.tactical-panel[hidden] { display:none; }
+    .daily-panel p,.tactical-panel p { margin:8px 0; color:#b8d5e2; }
+    .tactical-panel small { color:#93aec1; }
+    .daily-panel button { margin-top:7px; }
     .result-actions { display:flex; justify-content:flex-end; margin:-12px 0 24px; }
     .result-actions[hidden] { display:none; }
     @media(max-width:720px) { .result-actions .action { width:100%; } }
@@ -130,6 +135,7 @@
           <select id="game-mode" aria-label="Mode" data-i18n-aria-label="modeLabel">
             <option value="campaign" data-i18n="modeCampaign">Campaign</option>
             <option value="quick" data-i18n="modeQuick">Quick battle</option>
+            <option value="daily" data-i18n="modeDaily">Daily challenge</option>
             <option id="mode-warrant" value="warrant" data-i18n="modeWarrant">Warrant Officer trials</option>
             <option id="mode-fleet" value="fleet" data-i18n="modeFleet">Fleet Admiral challenge</option>
           </select>
@@ -155,6 +161,16 @@
       <span class="statusdot" id="status-dot" aria-hidden="true"></span>
       <span class="status-text" id="status-text">Your fleet is ready. Start the battle or choose another layout.</span>
     </div>
+    <section class="daily-panel" id="daily-panel" hidden aria-label="Daily challenge" data-i18n-aria-label="dailyRegion">
+      <strong data-i18n="dailyHeading">⚓ Daily sea challenge</strong>
+      <p id="daily-details"></p>
+      <button class="action primary" type="button" id="daily-share" data-i18n="dailyShare" hidden>Copy result</button>
+    </section>
+    <section class="tactical-panel" id="tactical-panel" hidden aria-label="Tactical review" data-i18n-aria-label="tacticalRegion">
+      <strong data-i18n="tacticalHeading">Tactical review</strong>
+      <p id="tactical-details"></p>
+      <small data-i18n="tacticalCaveat">Evaluations use only public evidence and a rough placement model, not hindsight or a guaranteed optimal shot.</small>
+    </section>
     <div class="result-actions" id="result-actions" hidden>
       <button class="action primary" id="play-again" type="button" data-i18n="playAgain">↻ New battle</button>
     </div>
