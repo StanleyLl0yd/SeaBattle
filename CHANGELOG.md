@@ -1,3 +1,15 @@
+## [0.4.0] - 2026-11-02
+
+- Added a 19-rank Russian Navy campaign from Seaman to Admiral of the Fleet, with 18 promotions requiring 45 cumulative campaign wins. Losses never demote.
+- Added six fair computer-search tiers and 19 tuned difficulties; quick battle permits any difficulty without changing career progress.
+- Added optional browser-local career save (wins, losses, streak and honors), confirmation for reset, promotion messages, bilingual rank list and progress indicator.
+- Added comprehensive campaign, fairness, persistence and difficulty regression tests. No external services or runtime packages.
+
+- Добавлена кампания с 19 корабельными званиями ВМФ России: от матроса до адмирала флота за 45 побед. Поражения не понижают в звании.
+- Шесть ступеней честного ИИ и 19 настроек сложности; быстрый бой не влияет на карьеру.
+- Локальное сохранение карьеры, серии побед, награды, подтверждение сброса, экран повышения и двуязычный список званий.
+- Добавлены проверки кампании, честности ИИ, сохранения и разных сложностей; внешние сервисы не нужны.
+
 # Changelog / История изменений
 
 ## [0.3.1] - 2026-11-02
