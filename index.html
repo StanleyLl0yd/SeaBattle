@@ -355,55 +355,127 @@
     function nameAt(i) { return `${LETTERS[language][i % SIZE]}${Math.floor(i / SIZE) + 1}`; }
     function randomFrom(values) { return values[Math.floor(Math.random() * values.length)]; }
 
-    function aiChooseShot(board) {
-      // The computer chooses solely from publicly known shots and ship lengths.
-      const active = board.shots.map((s, i) => s === "hit" ? i : -1).filter(i => i !== -1);
-      const visited = new Set();
-      for (const origin of active) {
-        if (visited.has(origin)) continue;
-        const group = [origin];
-        visited.add(origin);
-        for (let j = 0; j < group.length; j++) {
-          for (const n of neighbors(group[j], false)) {
-            if (board.shots[n] === "hit" && !visited.has(n)) { visited.add(n); group.push(n); }
-          }
+    const AI_BITS = Array.from({ length: SIZE * SIZE }, (_, i) => 1n << BigInt(i));
+    const AI_PLACEMENTS = [[], [], [], [], []];
+    for (let length = 1; length <= 4; length++) {
+      for (let i = 0; i < SIZE * SIZE; i++) for (const horizontal of [true, false]) {
+        if (length === 1 && !horizontal) continue;
+        const [x, y] = xy(i);
+        if (x + (horizontal ? length : 1) > SIZE || y + (horizontal ? 1 : length) > SIZE) continue;
+        const cells = Array.from({ length }, (_, n) => index(x + (horizontal ? n : 0), y + (horizontal ? 0 : n)));
+        let mask = 0n, halo = 0n, edge = 0;
+        for (const cell of cells) {
+          mask |= AI_BITS[cell];
+          halo |= AI_BITS[cell];
+          for (const neighbor of neighbors(cell)) halo |= AI_BITS[neighbor];
+          const [cx, cy] = xy(cell);
+          if (cx === 0 || cx === SIZE - 1 || cy === 0 || cy === SIZE - 1) edge++;
         }
-        let options;
-        if (group.length === 1) {
-          options = neighbors(origin, false);
-        } else {
-          const sameRow = group.every(i => xy(i)[1] === xy(origin)[1]);
-          const sorted = group.map(xy).sort((a, b) => sameRow ? a[0] - b[0] : a[1] - b[1]);
-          const first = sorted[0], last = sorted[sorted.length - 1];
-          options = sameRow
-            ? [[first[0] - 1, first[1]], [last[0] + 1, last[1]]]
-            : [[first[0], first[1] - 1], [last[0], last[1] + 1]];
-          options = options.filter(([x, y]) => x >= 0 && x < 10 && y >= 0 && y < 10).map(([x, y]) => index(x, y));
-        }
-        options = options.filter(i => board.shots[i] === null);
-        if (options.length) return randomFrom(options);
+        AI_PLACEMENTS[length].push({ cells, mask, halo, edge });
       }
-      // In search mode, score every possible placement of remaining ship lengths.
-      // Never inspect the location of an unhit ship.
-      const heat = Array(100).fill(0);
-      const lengths = board.ships.filter(s => !s.sunk).map(s => s.size);
-      for (const length of lengths) {
-        for (let i = 0; i < 100; i++) {
-          const [x, y] = xy(i);
-          for (const horizontal of [true, false]) {
-            if (length === 1 && !horizontal) continue;
-            if (x + (horizontal ? length : 1) > 10 || y + (horizontal ? 1 : length) > 10) continue;
-            const positions = Array.from({ length }, (_, n) => index(x + (horizontal ? n : 0), y + (horizontal ? 0 : n)));
-            if (positions.some(p => board.shots[p] !== null)) continue;
-            positions.forEach(p => heat[p]++);
-          }
-        }
-      }
-      const open = board.shots.map((v, i) => v === null ? i : -1).filter(i => i !== -1);
-      if (!open.length) return null;
-      const highest = Math.max(...open.map(i => heat[i]));
-      return randomFrom(open.filter(i => heat[i] === highest));
     }
+
+    function aiChooseShot(board) {
+      const shots = board.shots;
+      const open = [];
+      let forbidden = 0n, active = 0n, edgeHits = 0, innerHits = 0;
+      let edgeShots = 0, innerShots = 0;
+      for (let i = 0; i < shots.length; i++) {
+        const shot = shots[i];
+        if (shot === null) { open.push(i); continue; }
+        const [x, y] = xy(i);
+        const edge = x === 0 || x === 9 || y === 0 || y === 9;
+        if (shot !== "blocked") {
+          if (edge) { edgeShots++; if (shot === "hit" || shot === "sunk") edgeHits++; }
+          else { innerShots++; if (shot === "hit" || shot === "sunk") innerHits++; }
+        }
+        if (shot === "hit") active |= AI_BITS[i];
+        else forbidden |= AI_BITS[i];
+      }
+      if (!open.length) return null;
+      const lengths = board.ships.filter(ship => !ship.sunk).map(ship => ship.size);
+      const legal = [[], [], [], [], []];
+      for (const length of new Set(lengths)) {
+        legal[length] = AI_PLACEMENTS[length].filter(p =>
+          (p.mask & forbidden) === 0n && (p.halo & active) === (p.mask & active));
+      }
+
+      // Finish revealed ships first. Non-touching ships cannot share a hit's halo.
+      if (active) {
+        const target = new Float64Array(SIZE * SIZE);
+        for (const length of new Set(lengths)) for (const p of legal[length]) {
+          const hits = p.cells.filter(i => shots[i] === "hit").length;
+          if (!hits) continue;
+          const weight = hits * hits / Math.max(1, legal[length].length);
+          for (const cell of p.cells) {
+            if (shots[cell] === null && neighbors(cell, false).some(i => shots[i] === "hit")) target[cell] += weight;
+          }
+        }
+        const best = Math.max(...open.map(i => target[i]));
+        if (best > 0) return randomFrom(open.filter(i => target[i] >= best * 0.995));
+      }
+
+      // Sample complete, mutually non-touching fleets consistent with public shots.
+      // The search is strictly bounded; a local placement heatmap is the fallback.
+      const heat = new Float64Array(SIZE * SIZE);
+      let samples = 0;
+      const deadline = Date.now() + 14;
+      const ordered = [...lengths].sort((a, b) => b - a);
+      for (let attempt = 0; attempt < 36 && Date.now() < deadline; attempt++) {
+        const chosen = [];
+        let nodes = 0;
+        const style = attempt % 4 === 0 ? 1 : attempt % 4 === 1 ? -1 : 0;
+        const place = (depth, blocked) => {
+          if (depth === ordered.length) return true;
+          if (++nodes > 900 || Date.now() >= deadline) return false;
+          const length = ordered[depth];
+          const options = legal[length];
+          if (!options.length) return false;
+          const start = Math.floor(Math.random() * options.length);
+          const step = Math.random() < 0.5 ? 1 : -1;
+          const limit = Math.min(options.length, 55);
+          for (let n = 0; n < limit; n++) {
+            const p = options[(start + step * n + options.length * 2) % options.length];
+            if ((p.mask & blocked) !== 0n) continue;
+            if (style !== 0 && Math.random() < (style > 0 ? (length - p.edge) : p.edge) / (length * 1.35)) continue;
+            chosen.push(p);
+            if (place(depth + 1, blocked | p.halo)) return true;
+            chosen.pop();
+            if (nodes > 900 || Date.now() >= deadline) return false;
+          }
+          return false;
+        };
+        if (place(0, 0n)) {
+          samples++;
+          for (const p of chosen) for (const i of p.cells) heat[i]++;
+        }
+      }
+
+      // Marginal fallback covers late-game states where constrained sampling is costly.
+      const local = new Float64Array(SIZE * SIZE);
+      let localSum = 0;
+      for (const length of lengths) for (const p of legal[length]) for (const i of p.cells) {
+        if (shots[i] === null) { local[i]++; localSum++; }
+      }
+      const liveCells = lengths.reduce((sum, length) => sum + length, 0);
+      const edgeRate = (edgeHits + 2) / (edgeShots + 10);
+      const innerRate = (innerHits + 2) / (innerShots + 10);
+      const adaptation = Math.max(-0.09, Math.min(0.09, (edgeRate - innerRate) * 0.3));
+      let best = -Infinity;
+      const scores = new Float64Array(SIZE * SIZE);
+      for (const i of open) {
+        const p = samples ? heat[i] / samples : 0;
+        const base = localSum ? (local[i] * liveCells / localSum) : 0;
+        const probability = samples >= 6 ? 0.8 * p + 0.2 * base : base;
+        const [x, y] = xy(i);
+        const edge = x === 0 || x === 9 || y === 0 || y === 9;
+        const score = probability + 0.06 * probability * (1 - probability) + (edge ? adaptation : 0);
+        scores[i] = score;
+        if (score > best) best = score;
+      }
+      return randomFrom(open.filter(i => scores[i] >= best - 0.004));
+    }
+
     function updateStatus(key, args = {}) { game.message = { key, args }; }
     function setLanguage(next) {
       language = next === "ru" ? "ru" : "en";
