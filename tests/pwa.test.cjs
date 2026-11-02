@@ -32,6 +32,27 @@ test('manifest stays within the Pages project subpath and provides installable i
   assert.ok(manifest.icons.find(x=>x.sizes==='512x512'));
 });
 
+test('published PWA icons contain valid decoded indexed pixel data',()=>{
+  const {inflateSync}=require('node:zlib');
+  for(const size of [192,512]){
+    const image=readFileSync(join(root,'assets','icon-'+size+'.png'));
+    let pos=8,parts=[],palette=false,transparency=false;
+    while(pos<image.length){
+      const length=image.readUInt32BE(pos),type=image.toString('ascii',pos+4,pos+8);
+      if(type==='IDAT')parts.push(image.subarray(pos+8,pos+8+length));
+      if(type==='PLTE')palette=true;
+      if(type==='tRNS')transparency=true;
+      pos+=12+length;
+      if(type==='IEND')break;
+    }
+    assert.ok(palette&&transparency,'Indexed images must contain color palette and alpha');
+    const raw=inflateSync(Buffer.concat(parts));
+    assert.equal(raw.length,size*(1+size/2),'4-bit indexed image has complete rows');
+    for(let row=0;row<size;row++)assert.equal(raw[row*(1+size/2)],0,'PNG scanlines must use filter type 0');
+    assert.ok(raw.some(x=>x!==0),'Image cannot be empty');
+  }
+});
+
 test('offline cache covers all first-party runtime modules and manifest entries',()=>{
   assert.match(sw,/cache\.addAll\(SHELL\)/);
   assert.match(sw,/caches\.open\(CACHE_NAME\)/);
