@@ -188,3 +188,16 @@ test('offline English default markup, no remote code, and keyboard controls rema
   assert.ok(script.includes('event.code === "KeyR"'));
   assert.doesNotMatch(html.slice(0, html.indexOf('<script defer')), /[А-ЯЁа-яё]/);
 });
+
+test('offline readiness indicator follows live RU/EN language without changing the game',()=>{
+  const b=boot(['en-US']);
+  const fleet=b.eval('game.player');
+  assert.equal(b.nodes.get('offline-note').textContent,'Offline play is not supported by this browser.');
+  b.eval('setOfflineStatus("offlineReady")');
+  assert.match(b.nodes.get('offline-note').textContent,/Ready for offline play/);
+  b.eval('setLanguage("ru")');
+  assert.match(b.nodes.get('offline-note').textContent,/готова к запуску без интернета/);
+  assert.strictEqual(b.eval('game.player'),fleet);
+  b.eval('setLanguage("en")');
+  assert.match(b.nodes.get('offline-note').textContent,/Ready for offline play/);
+});

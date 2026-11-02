@@ -8,7 +8,7 @@ const LETTERS = { en: ["A","B","C","D","E","F","G","H","I","J"], ru: ["А","Б",
     }
     const $ = id => document.getElementById(id);
     const ui = {
-      player: $("player-board"), enemy: $("enemy-board"), status: $("status-text"), dot: $("status-dot"),
+      player: $("player-board"), enemy: $("enemy-board"), status: $("status-text"), dot: $("status-dot"), offlineNote: $("offline-note"),
       setup: $("setup"), hint: $("setup-hint"), progress: $("setup-progress"),
       auto: $("auto"), manual: $("manual"), rotate: $("rotate"), undo: $("undo"), start: $("start"), again: $("new-game"), language: $("language"),
       resultActions: $("result-actions"), playAgain: $("play-again"),
@@ -25,3 +25,4 @@ const LETTERS = { en: ["A","B","C","D","E","F","G","H","I","J"], ru: ["А","Б",
     let careers = loadCareers();
     let career = careers[navy];
     let game;
+    let offlineStatus = "offlinePreparing";

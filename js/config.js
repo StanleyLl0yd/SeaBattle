@@ -3,6 +3,10 @@
     const FLEET = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
     const I18N = {
       "en": {
+        "offlinePreparing": "Preparing offline play…",
+        "offlineReady": "✓ Ready for offline play on this device.",
+        "offlineUnavailable": "Offline play is not ready. Open the app with internet and reload.",
+        "offlineUnsupported": "Offline play is not supported by this browser.",
         "modeDaily": "Daily challenge",
         "dailyRegion": "Daily challenge",
         "dailyHeading": "⚓ Daily sea challenge",
@@ -146,6 +150,10 @@
         "undoReady": "Last ship removed. Select a new position."
       },
       "ru": {
+        "offlinePreparing": "Подготовка игры без интернета…",
+        "offlineReady": "✓ Игра готова к запуску без интернета на этом устройстве.",
+        "offlineUnavailable": "Офлайн-режим не готов. Откройте приложение с интернетом и обновите его.",
+        "offlineUnsupported": "Этот браузер не поддерживает офлайн-режим.",
         "modeDaily": "Ежедневное испытание",
         "dailyRegion": "Ежедневное испытание",
         "dailyHeading": "⚓ Ежедневное морское испытание",

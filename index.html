@@ -28,7 +28,8 @@
     button:disabled { opacity:.38; cursor:not-allowed; }
     .eyebrow { margin:0 0 12px; color:var(--cyan); letter-spacing:.2em; text-transform:uppercase; font-weight:750; font-size:.7rem; }
     h1 { margin:0; font-weight:820; letter-spacing:-.065em; font-size:clamp(2.7rem,5.3vw,4.3rem); line-height:1.06; }
-    .subhead { color:#adcadb; max-width:630px; line-height:1.6; font-size:1rem; margin:14px 0 20px; }
+    .subhead { color:#adcadb; max-width:630px; line-height:1.6; font-size:1rem; margin:14px 0 10px; }
+    .offline-note { color:var(--muted); font-size:.8rem; line-height:1.5; margin:0 0 20px; }
     .statusbar { display:flex; align-items:center; gap:13px; background:#10283a; border:1px solid #315468; border-radius:15px; padding:14px 18px; margin-bottom:24px; min-height:60px; }
     .statusdot { flex:none; width:11px; height:11px; border-radius:50%; background:var(--cyan); box-shadow:0 0 0 5px #58d9e819; }
     .statusdot.waiting { background:var(--accent); box-shadow:0 0 0 5px #f3bd7219; }
@@ -124,6 +125,7 @@
     <p class="eyebrow" data-i18n="eyebrow">Play in your browser</p>
     <h1><span data-i18n="heading">Sea Battle</span><span style="color:var(--cyan)">.</span></h1>
     <p class="subhead" data-i18n="subhead">Place your ships, find the enemy fleet, and sink all ten ships before the computer does.</p>
+    <p class="offline-note" id="offline-note" role="status" aria-live="polite">Preparing offline play…</p>
     <section class="career-panel" id="career-panel" aria-label="Naval campaign" data-i18n-aria-label="careerRegion">
       <div class="career-head">
         <h2 data-i18n="careerHeading">⚓ Naval career</h2>
