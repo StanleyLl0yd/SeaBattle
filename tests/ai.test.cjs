@@ -7,8 +7,8 @@ const test = require('node:test');
 const vm = require('node:vm');
 
 const html = readFileSync(join(__dirname, '..', 'index.html'), 'utf8');
-const script = html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
-assert.ok(script, 'Inline browser game must remain self-contained');
+const {script} = require('./source.cjs');
+assert.ok(script, 'Game modules must be available');
 const boundary = script.indexOf('    function updateStatus(');
 assert.ok(boundary > 0);
 
