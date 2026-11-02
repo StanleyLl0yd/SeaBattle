@@ -359,6 +359,108 @@
         "undoReady": "Последний корабль убран. Выбери новое место."
       }
     };
+    const RANK_NAMES = {
+      en: ["Seaman","Senior Seaman","Petty Officer 2nd Class","Petty Officer 1st Class",
+        "Chief Petty Officer","Chief Shipboard Petty Officer","Warrant Officer","Senior Warrant Officer",
+        "Junior Lieutenant","Lieutenant","Senior Lieutenant","Captain-Lieutenant",
+        "Captain 3rd Rank","Captain 2nd Rank","Captain 1st Rank","Rear Admiral",
+        "Vice Admiral","Admiral","Admiral of the Fleet"],
+      ru: ["Матрос","Старший матрос","Старшина 2-й статьи","Старшина 1-й статьи",
+        "Главный старшина","Главный корабельный старшина","Мичман","Старший мичман",
+        "Младший лейтенант","Лейтенант","Старший лейтенант","Капитан-лейтенант",
+        "Капитан 3-го ранга","Капитан 2-го ранга","Капитан 1-го ранга","Контр-адмирал",
+        "Вице-адмирал","Адмирал","Адмирал флота"]
+    };
+    const PROMOTION_WINS = [1,2,3,5,7,9,11,13,15,17,20,23,26,29,32,36,40,45];
+    const CAREER_KEY = "seabattle.career.v1";
+    const ACHIEVEMENTS = ["achievementFirst","achievementStreak","achievementPrecision"];
+    function freshCareer() { return { wins:0, losses:0, streak:0, bestStreak:0, achievements:[] }; }
+    function validScore(number) { return Number.isSafeInteger(number) && number >= 0 && number <= 1000000; }
+    function rankForWins(wins) {
+      let rank = 1;
+      while (rank < 19 && wins >= PROMOTION_WINS[rank - 1]) rank++;
+      return rank;
+    }
+    function loadCareer() {
+      try {
+        if (typeof localStorage === "undefined") return freshCareer();
+        const stored = JSON.parse(localStorage.getItem(CAREER_KEY));
+        if (!stored || ![stored.wins,stored.losses,stored.streak,stored.bestStreak].every(validScore) ||
+            stored.streak > stored.wins || stored.bestStreak < stored.streak ||
+            !Array.isArray(stored.achievements)) return freshCareer();
+        return { wins:stored.wins, losses:stored.losses, streak:stored.streak,
+          bestStreak:stored.bestStreak,
+          achievements:[...new Set(stored.achievements.filter(a => ACHIEVEMENTS.includes(a)))].slice(0,3) };
+      } catch { return freshCareer(); }
+    }
+    function saveCareer() {
+      try { if (typeof localStorage !== "undefined") localStorage.setItem(CAREER_KEY, JSON.stringify(career)); }
+      catch { /* Storage may be disabled or full; current-tab progress still works. */ }
+    }
+    function grantAchievement(key) {
+      if (!career.achievements.includes(key)) {
+        career.achievements.push(key);
+        saveCareer();
+      }
+    }
+    function recordCareerResult(winner, misses) {
+      const before = rankForWins(career.wins);
+      if (winner === "player") {
+        career.wins++;
+        career.streak++;
+        career.bestStreak = Math.max(career.bestStreak, career.streak);
+        if (career.streak >= 3) grantAchievement("achievementStreak");
+        if (misses <= 10) grantAchievement("achievementPrecision");
+      } else {
+        career.losses++;
+        career.streak = 0;
+      }
+      saveCareer();
+      return rankForWins(career.wins) > before ? rankForWins(career.wins) : 0;
+    }
+    function selectedLevel() {
+      return ui.mode.value === "quick" ? Math.max(1, Math.min(19, Number(ui.quickLevel.value) || 1)) : rankForWins(career.wins);
+    }
+    function fillRankOptions() {
+      const selected = ui.quickLevel.value || "1";
+      ui.quickLevel.innerHTML = RANK_NAMES[language].map((name, i) =>
+        '<option value="' + (i + 1) + '">' + (i + 1) + '. ' + name + '</option>').join("");
+      ui.quickLevel.value = selected;
+    }
+    function renderCareer() {
+      const rank = rankForWins(career.wins);
+      const current = game.phase === "setup" ? selectedLevel() : game.level;
+      ui.mode.disabled = game.phase !== "setup";
+      ui.quickLevel.disabled = game.phase !== "setup" || ui.mode.value !== "quick";
+      ui.quickBox.hidden = ui.mode.value !== "quick";
+      ui.careerReset.disabled = game.phase === "playing";
+      ui.careerRank.textContent = t("careerRank") + " " + rank + " / 19 · " + RANK_NAMES[language][rank - 1];
+      if (rank < 19) {
+        const previous = rank === 1 ? 0 : PROMOTION_WINS[rank - 2];
+        const required = PROMOTION_WINS[rank - 1] - previous;
+        const progress = career.wins - previous;
+        ui.careerProgress.max = required;
+        ui.careerProgress.value = progress;
+        ui.careerProgressText.textContent = t("careerProgress") + ": " + progress + " / " + required;
+      } else {
+        ui.careerProgress.max = 1;
+        ui.careerProgress.value = 1;
+        ui.careerProgressText.textContent = t("careerMax");
+      }
+      ui.careerStats.textContent = t("careerVictories") + ": " + career.wins + " · " +
+        t("careerDefeats") + ": " + career.losses + " · " + t("careerStreak") + ": " + career.streak +
+        " · " + t("rankLevel") + ": " + current + "/19 · " +
+        t(ui.mode.value === "quick" ? "quickModeNotice" : "careerModeNotice");
+      ui.careerAchievements.textContent = "";
+      ui.careerAchievements.innerHTML = career.achievements.length
+        ? career.achievements.map(a => "<span>" + t(a) + "</span>").join("")
+        : "<span>" + t("achievementNone") + "</span>";
+      ui.promotion.hidden = !game.promotion;
+      ui.promotion.textContent = game.promotion ? t("promotion") + " " + RANK_NAMES[language][game.promotion - 1] : "";
+      ui.rankList.innerHTML = RANK_NAMES[language].map((name, i) =>
+        "<li>" + name + (i + 1 <= rank ? " ✓" : " · " + PROMOTION_WINS[i - 1] + " " + t("careerVictories").toLowerCase()) + "</li>").join("");
+    }
+
     const LETTERS = { en: ["A","B","C","D","E","F","G","H","I","J"], ru: ["А","Б","В","Г","Д","Е","Ж","З","И","К"] };
     const browserLocale = typeof navigator === "undefined" ? "" : (navigator.languages?.[0] || navigator.language || "");
     let language = /^ru(?:[-_]|$)/i.test(browserLocale) ? "ru" : "en";
@@ -371,9 +473,14 @@
     const ui = {
       player: $("player-board"), enemy: $("enemy-board"), status: $("status-text"), dot: $("status-dot"),
       setup: $("setup"), hint: $("setup-hint"), progress: $("setup-progress"),
-      auto: $("auto"), manual: $("manual"), rotate: $("rotate"), undo: $("undo"), start: $("start"), again: $("new-game"), language: $("language")
+      auto: $("auto"), manual: $("manual"), rotate: $("rotate"), undo: $("undo"), start: $("start"), again: $("new-game"), language: $("language"),
+      mode: $("game-mode"), quickLevel: $("quick-level"), quickBox: $("quick-controls"),
+      careerRank: $("career-rank"), careerProgress: $("career-progress"), careerProgressText: $("career-progress-text"),
+      careerStats: $("career-stats"), careerAchievements: $("career-achievements"),
+      careerReset: $("career-reset"), rankList: $("rank-list"), promotion: $("promotion")
     };
     let epoch = 0;
+    let career = loadCareer();
     let game;
 
     function createBoard() {
@@ -589,12 +696,14 @@
         }));
       });
       ui.language.value = language;
+      fillRankOptions();
       if (game) render();
     }
     function setUpGame() {
       epoch++;
       game = { player: randomFleet(), enemy: randomFleet(), manual: false, horizontal: true, hover: -1,
-        phase: "setup", turn: "player", message: { key: "ready", args: {} } };
+        phase: "setup", turn: "player", mode: ui.mode.value, level: selectedLevel(), promotion:0,
+        message: { key: "ready", args: {} } };
       render();
     }
     function paintPreview() {
@@ -643,24 +752,35 @@
       ui.rotate.disabled = !game.manual || game.phase !== "setup" || game.player.ships.length === FLEET.length;
       ui.undo.disabled = !game.manual || game.phase !== "setup" || !game.player.ships.length;
       ui.start.disabled = game.phase !== "setup" || game.player.ships.length !== FLEET.length;
+      renderCareer();
       paintPreview();
     }
     function startBattle() {
       if (game.phase !== "setup" || game.player.ships.length !== 10) return;
       game.phase = "playing";
       game.turn = "player";
+      game.level = selectedLevel();
+      game.mode = ui.mode.value;
       updateStatus("turn");
       render();
     }
     function finish(winner) {
+      if (game.phase !== "playing") return;
       game.phase = "finished";
       game.turn = winner;
-      updateStatus(winner === "player" ? "win" : "lose");
+      if (game.mode === "campaign") {
+        const misses = shotCount(game.enemy) - hitCount(game.enemy);
+        game.promotion = recordCareerResult(winner, misses);
+      }
+      updateStatus(winner === "player" ? (game.mode === "campaign" ? "campaignWin" : "quickWin") :
+        (game.mode === "campaign" ? "careerLoss" : "lose"));
     }
     function playerFire(i) {
       if (game.phase !== "playing" || game.turn !== "player") return;
       const outcome = fireAt(game.enemy, i);
       if (outcome.kind === "already") return;
+      if (game.mode === "campaign" && shotCount(game.enemy) === 1 && outcome.kind !== "miss")
+        grantAchievement("achievementFirst");
       if (remaining(game.enemy) === 0) finish("player");
       else if (outcome.kind === "miss") {
         game.turn = "computer";
@@ -673,7 +793,7 @@
     }
     function computerFire(current) {
       if (epoch !== current || game.phase !== "playing" || game.turn !== "computer") return;
-      const i = aiChooseShot(game.player);
+      const i = aiChooseShot(game.player, game.level);
       if (i === null) return;
       const outcome = fireAt(game.player, i);
       if (remaining(game.player) === 0) finish("computer");
@@ -708,6 +828,24 @@
       if (cell) playerFire(Number(cell.dataset.i));
     });
     ui.again.addEventListener("click", setUpGame);
+    ui.mode.addEventListener("change", () => {
+      if (game.phase !== "setup") return;
+      game.mode = ui.mode.value;
+      game.level = selectedLevel();
+      render();
+    });
+    ui.quickLevel.addEventListener("change", () => {
+      if (game.phase !== "setup") return;
+      game.level = selectedLevel();
+      render();
+    });
+    ui.careerReset.addEventListener("click", () => {
+      if (game.phase === "playing") return;
+      if (typeof confirm !== "function" || !confirm(t("resetConfirm"))) return;
+      career = freshCareer();
+      saveCareer();
+      setUpGame();
+    });
     ui.auto.addEventListener("click", () => {
       if (game.phase !== "setup") return;
       game.player = randomFleet();
@@ -749,6 +887,8 @@
       }
     });
     ui.language.addEventListener("change", () => setLanguage(ui.language.value));
+    ui.mode.value = "campaign";
+    ui.quickLevel.value = "1";
     setLanguage(language);
     setUpGame();
   </script>
