@@ -40,6 +40,8 @@
     .career-info { display:grid; gap:7px; margin-top:11px; color:#b1cbd9; font-size:.85rem; }
     .career-info strong { color:var(--cyan); }
     .career-info progress { width:100%; height:13px; accent-color:var(--cyan); }
+    .career-special { border:1px solid #395e70; background:#0f293b; border-radius:10px; padding:12px; line-height:1.7; }
+    .career-special strong { color:#f3bd72; }
     .career-achievements { display:flex; flex-wrap:wrap; gap:6px; margin-top:5px; }
     .career-achievements span { background:#21485b; border:1px solid #49768e; border-radius:24px; color:#d5eaf4; padding:4px 10px; }
     .career-controls select:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
@@ -114,10 +116,17 @@
       <div class="career-head">
         <h2 data-i18n="careerHeading">⚓ Naval career</h2>
         <div class="career-controls">
+          <label for="navy-select" data-i18n="navyLabel">Navy</label>
+          <select id="navy-select" data-i18n-aria-label="navyLabel" aria-label="Navy">
+            <option value="ru" data-i18n="navyRussia">Russian Navy</option>
+            <option value="us" data-i18n="navyUS">US Navy</option>
+          </select>
           <label for="game-mode" data-i18n="modeLabel">Mode</label>
           <select id="game-mode" aria-label="Mode" data-i18n-aria-label="modeLabel">
             <option value="campaign" data-i18n="modeCampaign">Campaign</option>
             <option value="quick" data-i18n="modeQuick">Quick battle</option>
+            <option value="warrant" data-i18n="modeWarrant">Warrant Officer trials</option>
+            <option value="fleet" data-i18n="modeFleet">Fleet Admiral challenge</option>
           </select>
           <span id="quick-controls" hidden>
             <label for="quick-level" data-i18n="difficultyLabel">Difficulty</label>
@@ -131,6 +140,7 @@
         <span id="career-progress-text"></span>
         <progress id="career-progress" value="0" max="1" aria-label="Wins toward promotion" data-i18n-aria-label="careerProgress"></progress>
         <span id="career-stats"></span>
+        <div id="career-special" class="career-special" hidden></div>
         <div id="career-achievements" class="career-achievements"></div>
         <div id="promotion" class="promotion" role="status" aria-live="polite" hidden></div>
       </div>
@@ -190,6 +200,35 @@
     const FLEET = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
     const I18N = {
       "en": {
+        "navyLabel": "Navy",
+        "navyRussia": "Russian Navy",
+        "navyUS": "US Navy",
+        "modeWarrant": "Warrant Officer trials",
+        "modeFleet": "Fleet Admiral challenge",
+        "warrantLock": "Warrant Officer trials open at level 7 (Chief Petty Officer).",
+        "fleetLock": "Fleet Admiral challenge opens after 45 US Navy campaign wins (Admiral).",
+        "warrantHeading": "Warrant Officer specialist track",
+        "warrantStatus": "Specialist victories",
+        "warrantNext": "Next specialist rank",
+        "warrantFinished": "All five Warrant Officer grades earned",
+        "warrantWins": "Specialist wins",
+        "warrantLosses": "Specialist losses",
+        "warrantCandidate": "Warrant Officer candidate",
+        "fleetHeading": "Five-star historical Fleet Admiral honor",
+        "fleetStatus": "Consecutive victories at difficulty 19",
+        "fleetAwarded": "Fleet Admiral honor earned! This wartime grade is no longer awarded.",
+        "fleetNote": "Historical five-star distinction; not an active Navy pay grade.",
+        "warrantWin": "Specialist victory! Your technical-service track advances.",
+        "warrantLoss": "Specialist trial lost. Your earned grades remain safe.",
+        "fleetWin": "Admiral's challenge won! Continue your streak.",
+        "fleetLoss": "Challenge lost. The five-win streak starts again; previous honors stay yours.",
+        "specialPromotion": "⚓ Specialist promotion:",
+        "legendPromotion": "⭐ Fleet Admiral honor unlocked!",
+        "quickLocaleNote": "Language and navy selection are independent.",
+        "navyResetScope": "Only the selected navy's career will be reset.",
+        "selectNavy": "Choose a navy to see its own career and ranks",
+        "warrantModeNotice": "Specialist victories do not affect main rank",
+        "fleetModeNotice": "Five consecutive victories against the strongest AI",
         "careerRegion": "Naval career progress",
         "careerHeading": "⚓ Naval career",
         "modeLabel": "Mode",
@@ -275,6 +314,35 @@
         "undoReady": "Last ship removed. Select a new position."
       },
       "ru": {
+        "navyLabel": "Флот",
+        "navyRussia": "ВМФ России",
+        "navyUS": "ВМС США",
+        "modeWarrant": "Испытания уорент-офицеров",
+        "modeFleet": "Испытание адмирала флота",
+        "warrantLock": "Испытания уорент-офицеров доступны с 7-го уровня (Chief Petty Officer).",
+        "fleetLock": "Испытание адмирала флота открывается после 45 побед в кампании ВМС США (Admiral).",
+        "warrantHeading": "Специальная ветка уорент-офицеров",
+        "warrantStatus": "Побед в испытаниях",
+        "warrantNext": "Следующее специальное звание",
+        "warrantFinished": "Все пять званий уорент-офицеров получены",
+        "warrantWins": "Победы специалиста",
+        "warrantLosses": "Поражения специалиста",
+        "warrantCandidate": "Кандидат в уорент-офицеры",
+        "fleetHeading": "Историческое пятизвёздное отличие Fleet Admiral",
+        "fleetStatus": "Побед подряд на 19-й сложности",
+        "fleetAwarded": "Историческое отличие адмирала флота получено! Сегодня такое звание не присваивается.",
+        "fleetNote": "Историческое пятизвёздное звание военного времени, не действующая ступень оплаты.",
+        "warrantWin": "Победа в испытании! Карьера специалиста продвигается.",
+        "warrantLoss": "Испытание проиграно. Полученные специальные звания сохраняются.",
+        "fleetWin": "Победа в адмиральском испытании! Продолжай серию.",
+        "fleetLoss": "Испытание проиграно. Серия из пяти побед начинается заново, награды сохраняются.",
+        "specialPromotion": "⚓ Новое специальное звание:",
+        "legendPromotion": "⭐ Открыто историческое отличие Fleet Admiral!",
+        "quickLocaleNote": "Язык интерфейса и флот выбираются независимо.",
+        "navyResetScope": "Сбрасывается карьера только выбранного флота.",
+        "selectNavy": "Выбери флот для просмотра его карьеры и званий",
+        "warrantModeNotice": "Победы специалиста не меняют основное звание",
+        "fleetModeNotice": "Пять побед подряд против самого сильного ИИ",
         "careerRegion": "Прогресс морской карьеры",
         "careerHeading": "⚓ Морская карьера",
         "modeLabel": "Режим",
@@ -475,7 +543,8 @@
       player: $("player-board"), enemy: $("enemy-board"), status: $("status-text"), dot: $("status-dot"),
       setup: $("setup"), hint: $("setup-hint"), progress: $("setup-progress"),
       auto: $("auto"), manual: $("manual"), rotate: $("rotate"), undo: $("undo"), start: $("start"), again: $("new-game"), language: $("language"),
-      mode: $("game-mode"), quickLevel: $("quick-level"), quickBox: $("quick-controls"),
+      navy: $("navy-select"), mode: $("game-mode"), quickLevel: $("quick-level"), quickBox: $("quick-controls"),
+      warrantOption: null, fleetOption: null, careerSpecial: $("career-special"),
       careerRank: $("career-rank"), careerProgress: $("career-progress"), careerProgressText: $("career-progress-text"),
       careerStats: $("career-stats"), careerAchievements: $("career-achievements"),
       careerReset: $("career-reset"), rankList: $("rank-list"), promotion: $("promotion")
