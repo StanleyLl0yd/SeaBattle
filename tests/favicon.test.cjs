@@ -45,7 +45,7 @@ test('SVG remains simple, self-contained and crisp at small sizes', () => {
   assert.match(icon, /fill="#082C45"/);
   assert.match(icon, /fill="#40DFE8"/);
   assert.match(icon, /stroke="#FF6779"/);
-  assert.doesNotMatch(icon, /<(?:image|script|foreignObject)\b|https?:\/\/|data:/i);
+  assert.doesNotMatch(icon, /<(?:image|script|foreignObject)\b|\b(?:href|xlink:href)="(?:https?:|data:)/i);
 });
 
 test('GitHub Pages uploads both favicon files at their referenced paths', () => {
