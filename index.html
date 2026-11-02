@@ -682,7 +682,7 @@
       const liveCells = lengths.reduce((sum, length) => sum + length, 0);
       const edgeRate = (edgeHits + 2) / (edgeShots + 10);
       const innerRate = (innerHits + 2) / (innerShots + 10);
-      const adaptation = level >= 13
+      const adaptation = level >= 9
         ? Math.max(-0.09, Math.min(0.09, (edgeRate - innerRate) * 0.3)) : 0;
       let best = -Infinity;
       const scores = new Float64Array(SIZE * SIZE);
