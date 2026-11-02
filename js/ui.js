@@ -77,6 +77,11 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
           " · " + t("tacticalMisses") + ": " + report.misses +
           " · " + t("tacticalPromising") + ": " + report.promising +
           " · " + t("tacticalAlternatives") + ": " + report.alternatives;
+        const examples = game.trace.map((step,i)=>({...step,number:i+1}))
+          .filter(step=>step.bestCell !== null && step.bestCell !== undefined && step.max>step.selected)
+          .slice(0,3);
+        if (examples.length) ui.tacticalDetails.textContent += "\n" + t("tacticalExamples") + ": " +
+          examples.map(step=>"#"+step.number+" "+nameAt(step.chosen)+" → "+nameAt(step.bestCell)).join(" · ");
       }
       ui.status.textContent = t(game.message.key, game.message.args);
       ui.dot.className = "statusdot" + (game.phase === "finished" ? " ended" : game.turn === "computer" ? " waiting" : "");
