@@ -31,7 +31,7 @@ function createBoard() {
       board.ships.push({ id, size: cells.length, cells: [...cells], hits: 0, sunk: false });
       for (const i of cells) board.cells[i] = id;
     }
-    function randomFleet() {
+    function randomFleet(random = Math.random) {
       for (let attempt = 0; attempt < 100; attempt++) {
         const board = createBoard();
         let failed = false;
@@ -43,7 +43,7 @@ function createBoard() {
             if (pick.valid) available.push(pick.cells);
           }
           if (!available.length) { failed = true; break; }
-          placeShip(board, available[Math.floor(Math.random() * available.length)]);
+          placeShip(board, available[Math.floor(random() * available.length)]);
         }
         if (!failed) return board;
       }
