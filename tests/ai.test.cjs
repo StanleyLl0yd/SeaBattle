@@ -55,10 +55,11 @@ test('AI handles sunk ships and blocked cells without duplicate or illegal shots
   ai.placeShip(board, [55, 56, 57]);
   assert.equal(ai.fireAt(board, 0).kind, 'sunk');
   assert.equal(ai.fireAt(board, 55).kind, 'hit');
+  assert.equal(ai.fireAt(board, 56).kind, 'hit');
   for (let i = 0; i < 24; i++) {
     const index = ai.aiChooseShot(board);
     assert.ok(Number.isInteger(index) && board.shots[index] === null);
-    assert.ok(index === 54 || index === 56, 'Finish the damaged ship before hunting');
+    assert.ok(index === 54 || index === 57, 'Finish the aligned damaged ship before hunting');
   }
 });
 
