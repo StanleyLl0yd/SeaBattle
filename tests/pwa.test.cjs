@@ -97,11 +97,10 @@ test('offline-ready status waits for successful scoped service-worker activation
   assert.deepEqual(calls,[{path:'./sw.js',scope:'./'}]);
   assert.deepEqual(states,[],'must not claim offline readiness at registration time');
   completeRegistration({});
-  await Promise.resolve();
+  await new Promise(resolve=>setImmediate(resolve));
   assert.deepEqual(states,[],'must wait for active service worker');
   activateWorker({});
-  await Promise.resolve();
-  await Promise.resolve();
+  await new Promise(resolve=>setImmediate(resolve));
   assert.deepEqual(states,['offlineReady']);
 });
 
@@ -116,8 +115,7 @@ test('offline-ready status reports failed registration and unsupported browsers'
     setOfflineStatus:key=>states.push(key)
   });
   events.get('load')();
-  await Promise.resolve();
-  await Promise.resolve();
+  await new Promise(resolve=>setImmediate(resolve));
   assert.deepEqual(states,['offlineUnavailable']);
   const unsupported=[];
   runInNewContext(registration,{

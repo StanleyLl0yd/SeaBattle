@@ -135,7 +135,7 @@ GitHub Actions verifies engine and localization tests on pull requests. The prot
 
 | | |
 | :-- | :-- |
-| **Current version** | `0.7.1` |
+| **Current version** | `0.7.2` |
 | **Play online** | [SeaBattle on GitHub Pages](https://stanleyll0yd.github.io/SeaBattle/) |
 | **Source code** | [StanleyLl0yd/SeaBattle](https://github.com/StanleyLl0yd/SeaBattle) |
 | **Release history** | [CHANGELOG.md](CHANGELOG.md) |
