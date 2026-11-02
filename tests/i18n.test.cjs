@@ -83,6 +83,7 @@ test('English first, exact Russian browser locale, and safe fallbacks', () => {
     assert.equal(b.columns[0].children[0].textContent, expected === 'ru' ? 'А' : 'A');
     assert.equal(b.columns[1].children[9].textContent, expected === 'ru' ? 'К' : 'J');
     assert.equal(b.textNodes.find(x => x.dataset.i18n === 'heading').textContent, expected === 'ru' ? 'Морской бой' : 'Sea Battle');
+    assert.equal(b.textNodes.find(x => x.dataset.i18n === 'eyebrow').textContent, expected === 'ru' ? 'Играй в браузере' : 'Play in your browser');
   }
 });
 
