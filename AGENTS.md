@@ -18,6 +18,7 @@ These instructions apply to all automated contributors and repository maintenanc
 ## README language and visual identity (mandatory)
 
 - Keep **two independent, complete README documents**: root `README.md` in English (GitHub's default repository landing page) and `README.ru.md` in Russian. Do not combine both languages into one long README or replace either document with a stub.
+- The English README language link must display **🇺🇸 English**, and the Russian link **🇷🇺 Русский**, at both the top and bottom of both documents; these are flag icons, not literal `EN` or `RU` text prefixes.
 - Both README files must use the **same maritime visual system** as the actual game: shared `assets/readme-banner.svg`, dark navy `#081522` / `#102338`, cyan `#58d9e8`, ship blue `#49768e`, coral `#ff777e` and warm accent `#f3bd72`. This banner is README artwork, **not** a canonical app icon.
 - Maintain the established matching layout: centered common banner, centered clickable `English | Русский` links in both documents at **top and bottom**, centered play/CI/changelog links, divider, five numbered maritime-themed sections (`01`–`05`), matching fleet tables, project links, and compact centered footer. Adapt visible prose naturally to each language while preserving corresponding structure and facts.
 - GitHub README Markdown does not support custom page CSS or browser-locale scripts. The language switch is **a pair of standard relative Markdown/HTML links** to the two files, not JavaScript, and must work within GitHub's file viewer.
