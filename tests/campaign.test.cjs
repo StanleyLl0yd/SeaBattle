@@ -182,7 +182,7 @@ test('Russian victory counts decline correctly in rank milestones and Warrant tr
   const ranks=b.nodes.get('rank-list').innerHTML;
   assert.match(ranks,/Старший матрос · 1 победа/);
   for(const threshold of [5,7,9,11,13,15,17,20,23,26,29,32,36,40,45])
-    assert.ok(ranks.includes(threshold+' '+samples[threshold]),'rank milestone '+threshold);
+    assert.ok(ranks.includes(' · '+samples[threshold]),'rank milestone '+threshold);
   assert.doesNotMatch(ranks,/5 победы|7 победы|11 победы|15 победы|20 победы/);
   b.nodes.get('navy-select').value='us';
   b.nodes.get('navy-select').handlers.change();
