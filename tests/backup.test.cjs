@@ -55,7 +55,10 @@ test('complete local aggregates round-trip without hidden data or legacy writes'
   first.eval('saveDailyScore("2026-11-02",30);saveDailyScore("2026-11-02",25)');
   const backup=first.eval('createProgressBackup()');
   const parsed=JSON.parse(backup);
-  assert.deepEqual(Object.keys(parsed).sort(),['careers','daily','navy','stats','version']);
+  assert.deepEqual(Object.keys(parsed).sort(),['careers','daily','first','journal','navy','stats','version']);
+  assert.equal(parsed.version,2);
+  assert.deepEqual(parsed.first,{});
+  assert.deepEqual(parsed.journal.matches,[]);
   assert.equal(parsed.careers.ru.wins,3);
   assert.equal(parsed.careers.us.wins,7);
   assert.equal(parsed.daily['2026-11-02'],25);
@@ -78,7 +81,7 @@ test('invalid, oversized and extraneous input is rejected before any write',()=>
   const normal=JSON.parse(b.eval('createProgressBackup()'));
   const examples=[
     '{','x'.repeat(32769),'null','[]',
-    JSON.stringify({...normal,version:2}),
+    JSON.stringify({...normal,version:3}),
     JSON.stringify({...normal,private:'fleet'}),
     JSON.stringify({...normal,navy:'xx'}),
     JSON.stringify({...normal,daily:{'2026-02-30':25}}),
@@ -146,4 +149,35 @@ test('schema key checking cannot confuse delimiters or accept inherited fields',
   const valid=JSON.parse(b.eval('createProgressBackup()'));
   valid.daily={'2026-02-30':22};
   assert.equal(b.eval('parseProgressBackup('+JSON.stringify(JSON.stringify(valid))+')'),null);
+});
+
+test('backup v2 round-trips official Daily and journal, while legacy v1 remains importable',()=>{
+  const first=boot();
+  first.eval('beginDailyFirst("2026-11-03");completeDailyFirst("2026-11-03",32)');
+  first.eval('recordJournal("player","quick","ru",19,35,20)');
+  first.eval('completeSeries({level:19,played:3,wins:2,shots:90})');
+  const text=first.eval('createProgressBackup()'),json=JSON.parse(text);
+  assert.equal(json.version,2);
+  assert.equal(json.first["2026-11-03"],32);
+  assert.equal(json.journal.matches.length,1);
+  assert.equal(json.journal.seriesBest["19"].wins,2);
+  const other=boot();
+  assert.equal(other.eval('restoreProgressBackup('+JSON.stringify(text)+')'),'backupImported');
+  assert.equal(other.eval('dailyFirstScore("2026-11-03")'),32);
+  assert.equal(other.eval('journal.matches.length'),1);
+  assert.equal(other.eval('journal.seriesBest["19"].wins'),2);
+  for(const invalid of [
+    {...json,first:{"2026-02-30":24}},
+    {...json,journal:{...json.journal,matches:[{...json.journal.matches[0],cells:[12]}]}},
+    {...json,journal:{...json.journal,seriesBest:{"19":{wins:4,shots:70}}}}
+  ]){
+    const before=new Map(other.saved);
+    assert.equal(other.eval('restoreProgressBackup('+JSON.stringify(JSON.stringify(invalid))+')'),'backupInvalid');
+    assert.deepEqual(other.saved,before);
+  }
+  const legacy=JSON.parse(text);
+  delete legacy.first;delete legacy.journal;legacy.version=1;
+  assert.equal(other.eval('restoreProgressBackup('+JSON.stringify(JSON.stringify(legacy))+')'),'backupImported');
+  assert.equal(other.eval('journal.matches.length'),0);
+  assert.equal(other.eval('dailyFirstScore("2026-11-03")'),undefined);
 });
