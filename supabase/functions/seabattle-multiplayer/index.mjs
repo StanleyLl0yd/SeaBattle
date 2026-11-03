@@ -93,8 +93,10 @@ export function createHandler(store,now=()=>Date.now()){
       if(typeof request.token!=="string"||request.token.length!==48)throw bad("NOT_AUTHORIZED",403);
       const role=roleFor(room,await digest(request.token));
       if(!role)throw bad("NOT_AUTHORIZED",403);
-      await store.touch(code,role,seen);
-      room[role+"_seen"]=seen;
+      if(at-Date.parse(room[role+"_seen"]||0)>=5000){
+        await store.touch(code,role,seen);
+        room[role+"_seen"]=seen;
+      }
       if(action==="state")return response(memberView(room,role,at),200,origin);
       const other=role==="host"?"guest":"host";
       let update;
@@ -179,7 +181,7 @@ export class PostgrestStore{
     return rows[0]||null;
   }
   async touch(code,role,seen){
-    await this.query("PATCH","?code=eq."+encodeURIComponent(code),
+    await this.query("PATCH","?code=eq."+encodeURIComponent(code)+"&select=code",
       {[role+"_seen"]:seen});
   }
   async cleanup(now){
