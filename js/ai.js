@@ -155,6 +155,10 @@ function aiJointShot(shots, open, lengths, legal, active, level) {
     function aiChooseShot(board, level = 12) {
       level = Math.max(1, Math.min(19, Number.isInteger(level) ? level : 12));
       if (level <= 2) return aiNoviceShot(board.shots, level);
+      // Fade beginner-style search across every rank while keeping rank 19 optimal.
+      if (level < 19 && Math.random() <
+          0.95*Math.exp(-0.13*(level-3))*((19-level)/16))
+        return aiNoviceShot(board.shots,level);
       const shots = board.shots;
       const open = [];
       let forbidden = 0n, active = 0n, edgeHits = 0, innerHits = 0;
@@ -266,7 +270,7 @@ function aiJointShot(shots, open, lengths, legal, active, level) {
         scores[i] = score;
         if (score > best) best = score;
       }
-      const exploration = 0.9*((19-level)/16)**2;
+      const exploration = 0.78*Math.exp(-0.3*(level-3))*((19-level)/16);
       // Every straight ship of length N covers each diagonal residue mod N.
       // Search one covering residue while multi-cell ships survive; restore
       // the full board for single-cell endgames or revealed targets.
