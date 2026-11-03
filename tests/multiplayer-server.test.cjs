@@ -10,7 +10,7 @@ function awaitImport(){
 }
 class Store{
   constructor(){this.rooms=new Map();}
-  async cleanup(now){for(const [key,r] of this.rooms)if(r.expires_at<now)this.rooms.delete(key);}
+  async cleanup(now){for(const [key,r] of this.rooms)if(r.expires_at<=now)this.rooms.delete(key);}
   async insert(row){if(this.rooms.has(row.code))return null;this.rooms.set(row.code,structuredClone(row));return structuredClone(row);}
   async get(code){return structuredClone(this.rooms.get(code)||null);}
   async cas(code,version,patch){

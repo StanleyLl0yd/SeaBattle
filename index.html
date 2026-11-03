@@ -31,7 +31,7 @@
     .subhead { color:#adcadb; max-width:630px; line-height:1.6; font-size:1rem; margin:14px 0 10px; }
     .offline-note { color:var(--muted); font-size:.8rem; line-height:1.5; margin:0 0 20px; }
     [hidden] { display:none !important; }
-    body.online-mode #new-game { display:none; }
+    body.online-mode #new-game,body.online-mode .subhead,body.online-mode .offline-note,body.online-mode .footer { display:none; }
     .online-lobby,.online-game { background:#102338; border:1px solid #315468; border-radius:17px; padding:18px; margin:16px 0 22px; }
     .online-actions { display:flex; gap:9px; align-items:center; flex-wrap:wrap; margin:12px 0; }
     .online-actions input { background:#081522; color:var(--ink); border:1px solid #527286; border-radius:8px; padding:10px; min-height:43px; min-width:0; }
@@ -42,6 +42,7 @@
     .online-error { min-height:1.5em; color:var(--accent); margin:10px 0; }
     .online-game .board-card { padding:17px; }
     .online-game .card-head { margin-bottom:14px; }
+    @media(max-width:720px) { .online-game .statusbar { height:104px; } }
     @media(max-width:390px) { .online-game .statusbar { height:124px; } }
     .statusbar { display:flex; align-items:center; gap:13px; background:#10283a; border:1px solid #315468; border-radius:15px; padding:14px 18px; margin-bottom:24px; height:78px; }
     .statusdot { flex:none; width:11px; height:11px; border-radius:50%; background:var(--cyan); box-shadow:0 0 0 5px #58d9e819; }

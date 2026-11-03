@@ -2,7 +2,7 @@
 const ONLINE_SESSION_KEY="seabattle.online.session.v1";
 const ONLINE_TEXT={
  en:{
- open:"Play with a friend",back:"Back to solo",heading:"Play with a friend",
+ open:"Play with a friend",back:"Back to solo",heading:"Play with a friend",brand:"Sea Battle · Two players",
  intro:"Invite one friend. Both players must stay online; no accounts required.",
  name:"Your name (optional)",create:"Create room",roomCode:"Invitation code",join:"Join",
  copy:"Copy invite link",copied:"Link copied",copyFallback:"Select and copy the link",
@@ -25,7 +25,7 @@ const ONLINE_TEXT={
  INVALID_REQUEST:"Invalid request.",ROOM_UNAVAILABLE:"Unable to create room."
  },
  ru:{
- open:"Играть с другом",back:"К одиночной игре",heading:"Играть с другом",
+ open:"Играть с другом",back:"К одиночной игре",heading:"Играть с другом",brand:"Морской бой · Два игрока",
  intro:"Пригласите друга. Оба игрока должны быть онлайн. Без регистрации.",
  name:"Ваше имя (необязательно)",create:"Создать комнату",roomCode:"Код приглашения",join:"Войти",
  copy:"Скопировать приглашение",copied:"Ссылка скопирована",copyFallback:"Выделите и скопируйте ссылку",
@@ -110,6 +110,8 @@ function renderMultiplayerLocale(){
   document.querySelectorAll("[data-online-i18n]").forEach(n=>{n.textContent=onlineT(n.dataset.onlineI18n);});
   document.querySelectorAll("[data-online-placeholder]").forEach(n=>{n.placeholder=onlineT(n.dataset.onlinePlaceholder);});
   onlineId("online-open").textContent=onlineT(onlineActive?"back":"open");
+  const brand=document.querySelector('[data-i18n="brand"]');
+  if(brand&&onlineActive)brand.textContent=onlineT("brand");
   if(onlineActive)onlineRender(true);
 }
 function onlineRender(force=false){

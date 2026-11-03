@@ -168,7 +168,7 @@ export class PostgrestStore{
       {[role+"_seen"]:seen});
   }
   async cleanup(now){
-    await this.query("DELETE","?expires_at=lt."+encodeURIComponent(now));
+    await this.query("DELETE","?expires_at=lte."+encodeURIComponent(now));
   }
 }
 if(typeof Deno!=="undefined"){
