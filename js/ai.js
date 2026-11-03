@@ -29,6 +29,129 @@ const AI_BITS = Array.from({ length: SIZE * SIZE }, (_, i) => 1n << BigInt(i));
         return randomFrom([...new Set(adjacent)]);
       return randomFrom(open);
     }
+
+// Build entire remaining fleets compatible with observed hits and misses.
+// Exhaust small endgames; otherwise sample bounded, randomized completions.
+function aiJointPosterior(shots, lengths, placements, active, level) {
+  const exact = lengths.length <= 2;
+  const deadline = Date.now() + (level >= 18 ? 25 : level >= 16 ? 19 : 13);
+  const nodeLimit = exact ? 65000 : level >= 18 ? 13000 : level >= 16 ? 9000 : 6000;
+  const sampleLimit = exact ? 45000 : level >= 18 ? 144 : level >= 16 ? 96 : 48;
+  const heat = new Float64Array(SIZE * SIZE);
+  const follow = new Float64Array(SIZE * SIZE);
+  const hits = [];
+  for (let i = 0; i < shots.length; i++) if (shots[i] === "hit") hits.push(i);
+  const picked = [];
+  let nodes = 0, solutions = 0, stopped = false;
+
+  function search(left, blocked, covered) {
+    if (++nodes > nodeLimit || (nodes & 31) === 0 && Date.now() >= deadline) {
+      stopped = true;
+      return false;
+    }
+    if (left.length === 0) {
+      if (covered !== active) return false;
+      solutions++;
+      for (const ship of picked) {
+        let revealed = 0;
+        for (const cell of ship.cells) if (shots[cell] === "hit") revealed++;
+        for (const cell of ship.cells) if (shots[cell] === null) {
+          heat[cell]++;
+          if (revealed) follow[cell] += revealed;
+        }
+      }
+      return true;
+    }
+    const uncovered = active & ~covered;
+    let options = [], fewest = Infinity;
+    if (uncovered !== 0n) {
+      // Cover the most constrained revealed hit first; never return a fleet
+      // that leaves an observed hit unassigned to a compatible live ship.
+      for (const hit of hits) {
+        if ((uncovered & AI_BITS[hit]) === 0n) continue;
+        const choices = [];
+        for (const size of new Set(left)) {
+          const slot = left.indexOf(size);
+          for (const ship of placements[size]) {
+            if ((ship.mask & AI_BITS[hit]) !== 0n && (ship.mask & blocked) === 0n)
+              choices.push([slot,ship]);
+          }
+        }
+        if (choices.length < fewest) { fewest = choices.length; options = choices; }
+        if (!fewest) return false;
+      }
+    } else {
+      const size = left[0];
+      for (const ship of placements[size])
+        if ((ship.mask & blocked) === 0n) options.push([0,ship]);
+    }
+    if (!options.length) return false;
+    const start = exact ? 0 : Math.floor(Math.random() * options.length);
+    const step = exact || Math.random() < 0.5 ? 1 : -1;
+    const cap = exact ? options.length : Math.min(options.length, 42);
+    let completed = false;
+    for (let n = 0; n < cap; n++) {
+      if (stopped || solutions >= sampleLimit || Date.now() >= deadline) {
+        stopped = true;
+        break;
+      }
+      const choice = options[(start + step * n + options.length * 2) % options.length];
+      const [slot,ship] = choice;
+      picked.push(ship);
+      const found = search(left.filter((_,i) => i !== slot),blocked | ship.halo,
+        covered | (ship.mask & active));
+      picked.pop();
+      if (found) {
+        completed = true;
+        if (!exact) return true;
+      }
+    }
+    return completed;
+  }
+
+  const ordered = lengths.slice().sort((a,b) => b-a);
+  if (exact) search(ordered,0n,0n);
+  else while (!stopped && solutions < sampleLimit && Date.now() < deadline)
+    search(ordered,0n,0n);
+  if (exact && stopped) return null;
+  return solutions ? {heat,follow,solutions,exact:exact && !stopped} : null;
+}
+
+function aiJointShot(shots, open, lengths, legal, active, level) {
+  const posterior = aiJointPosterior(shots,lengths,legal,active,level);
+  if (!posterior) return null;
+  const frontier = active === 0n ? [] : open.filter(i =>
+    neighbors(i,false).some(j => shots[j] === "hit"));
+  const options = frontier.length ? frontier : open;
+  const local = new Float64Array(SIZE * SIZE);
+  let total = 0;
+  if (!posterior.exact && active === 0n) {
+    for (const size of lengths) for (const ship of legal[size])
+      for (const cell of ship.cells) if (shots[cell] === null) {
+        local[cell]++;
+        total++;
+      }
+  }
+  const liveCells = lengths.reduce((sum,n) => sum+n,0);
+  const share = posterior.exact ? 1 : level >= 18 ? 0.68 : level >= 16 ? 0.54 : 0.4;
+  let best = -Infinity;
+  const score = new Float64Array(SIZE * SIZE);
+  for (const cell of options) {
+    const occupancy = posterior.heat[cell] / posterior.solutions;
+    const probability = active !== 0n || posterior.exact ? occupancy :
+      share * occupancy + (1-share) * (total ? local[cell]*liveCells/total : 0);
+    // A hit keeps the turn: modestly prefer shots that expose an extension
+    // of an already damaged ship, without treating the score as calibrated.
+    const follow = active ? posterior.follow[cell] / posterior.solutions : 0;
+    score[cell] = probability + Math.min(0.2,0.06*follow) +
+      (active ? 0 : 0.045*probability*(1-probability));
+    if (score[cell] > best) best = score[cell];
+  }
+  if (!(best > 0)) return null;
+  const tolerance = posterior.exact ? 0.000001 : level >= 18 ? 0.003 : 0.008;
+  return randomFrom(options.filter(cell => score[cell] >= best-tolerance));
+}
+
     function aiChooseShot(board, level = 12) {
       level = Math.max(1, Math.min(19, Number.isInteger(level) ? level : 12));
       if (level <= 2) return aiNoviceShot(board.shots, level);
@@ -54,6 +177,11 @@ const AI_BITS = Array.from({ length: SIZE * SIZE }, (_, i) => 1n << BigInt(i));
       for (const length of new Set(lengths)) {
         legal[length] = AI_PLACEMENTS[length].filter(p =>
           (p.mask & forbidden) === 0n && (p.halo & active) === (p.mask & active));
+      }
+
+      if (level >= 13 && active !== 0n && lengths.length <= 2) {
+        const joint = aiJointShot(shots,open,lengths,legal,active,level);
+        if (joint !== null) return joint;
       }
 
       // Finish revealed ships first. Non-touching ships cannot share a hit's halo.
@@ -144,6 +272,15 @@ const AI_BITS = Array.from({ length: SIZE * SIZE }, (_, i) => 1n << BigInt(i));
       const exploration = level <= 8 ? [0,0,0,0.78,0.6,0.45,0.32,0.20,0.12][level] :
         level <= 12 ? 0.08 - (level - 9) * 0.015 :
         level <= 16 ? 0.026 - (level - 13) * 0.006 : Math.max(0, 0.008 - (level - 17) * 0.004);
-      if (!active && Math.random() < exploration) return randomFrom(open);
-      return randomFrom(open.filter(i => scores[i] >= best - (level >= 16 ? 0.002 : 0.004)));
+      // Every straight ship of length N covers each diagonal residue mod N.
+      // Search one covering residue while multi-cell ships survive; restore
+      // the full board for single-cell endgames or revealed targets.
+      const minLong = lengths.filter(size => size > 1).reduce((a,b) => Math.min(a,b),Infinity);
+      const stride = level >= 17 && active === 0n ? minLong : Infinity;
+      const covering = Number.isFinite(stride) ?
+        open.filter(i => (Math.floor(i / SIZE) + i % SIZE) % stride === 0) : open;
+      const hunt = covering.length ? covering : open;
+      if (!active && Math.random() < exploration) return randomFrom(hunt);
+      const bestHunt = Math.max(...hunt.map(i => scores[i]));
+      return randomFrom(hunt.filter(i => scores[i] >= bestHunt - (level >= 16 ? 0.002 : 0.004)));
     }

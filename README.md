@@ -45,6 +45,8 @@ Ahoy, Captain! **⚓ Sea Battle** is a classic single-player Battleship game aga
 
 **⚓ Fairer difficulty (0.6.0).** AI search now ramps up between the rank bands instead of abruptly unlocking full-fleet sampling at level 9. Early ranks use progressively better placement search; advanced ranks blend whole-fleet sampling with a fast baseline and respond to observed edge-heavy defenses. Sampling is time-bounded and does not inspect hidden player ships. Different ranks are not mathematically guaranteed to improve on every possible fleet; unusual placements can still give a clever captain an advantage.
 
+**⚓ Stronger fair AI (1.1.0).** At higher ranks (13–19), when finishing exposed hits among the last two remaining ships, the opponent builds bounded samples of *complete* non-touching surviving fleets that cover **every** revealed hit and avoid all observed misses. Near the end of a game it enumerates legal full-fleet configurations where practical; targeted follow-up shots account for damaged ships and the extra turn earned by a hit. Sampling is approximate and time-limited, never reads hidden ship positions, and falls back safely if evidence is too restrictive. At ranks 17–19 the ordinary hunt also prioritizes a diagonal covering pattern based on the shortest surviving multi-cell ship. Ranks 1–12 retain their established behavior.
+
 **Quick battle** unlocks any of the 19 difficulty settings right away, without affecting campaign progress. Campaign victories, defeats, streaks and honors are saved on this device using browser `localStorage`; your unfinished battle is not saved. You can reset the career with a confirmation. The first-hit, three-win-streak and accurate-victory honors are optional little naval decorations — no in-app purchases, accounts or leaderboards.
 
 <details><summary>🇺🇸 US Navy: all 19 main ranks and their unlocks</summary>
@@ -143,7 +145,7 @@ GitHub Actions verifies engine and localization tests on pull requests. The prot
 
 | | |
 | :-- | :-- |
-| **Current version** | `1.0.0` |
+| **Current version** | `1.1.0` |
 | **Play online** | [SeaBattle on GitHub Pages](https://stanleyll0yd.github.io/SeaBattle/) |
 | **Source code** | [StanleyLl0yd/SeaBattle](https://github.com/StanleyLl0yd/SeaBattle) |
 | **Release history** | [CHANGELOG.md](CHANGELOG.md) |
