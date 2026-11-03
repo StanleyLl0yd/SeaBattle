@@ -156,8 +156,8 @@ function aiJointShot(shots, open, lengths, legal, active, level) {
       level = Math.max(1, Math.min(19, Number.isInteger(level) ? level : 12));
       if (level <= 2) return aiNoviceShot(board.shots, level);
       // Fade beginner-style search across every rank while keeping rank 19 optimal.
-      if (level < 19 && Math.random() <
-          0.95*Math.exp(-0.13*(level-3))*((19-level)/16))
+      if (level < 19 && (level < 10 || !board.shots.includes("hit")) &&
+          Math.random() < 0.95*((19-level)/16)**1.1)
         return aiNoviceShot(board.shots,level);
       const shots = board.shots;
       const open = [];
