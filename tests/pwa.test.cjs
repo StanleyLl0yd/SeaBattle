@@ -125,17 +125,18 @@ test('offline-ready status reports failed registration and unsupported browsers'
   assert.deepEqual(unsupported,['offlineUnsupported']);
 });
 
-test('v1.2.0 GitHub Release is gated on tested main and deployed Pages',()=>{
+test('v1.2.1 GitHub Release is gated on tested main and deployed Pages',()=>{
   assert.match(workflow,/^  release:\s*$/m);
   const release=workflow.slice(workflow.indexOf('\n  release:\n'));
   assert.match(release,/if: github\.event_name == 'push' && github\.ref == 'refs\/heads\/main'/);
   assert.match(release,/needs: \[test, deploy\]/);
   assert.match(release,/permissions:\s*\n\s+contents: write/);
-  assert.match(release,/gh release view v1\.2\.0/);
-  assert.match(release,/gh api "repos\/\$GITHUB_REPOSITORY\/git\/ref\/tags\/v1\.2\.0"/);
-  assert.match(release,/gh release create v1\.2\.0[^\n]+--target "\$GITHUB_SHA"/);
+  assert.match(release,/gh release view v1\.2\.1/);
+  assert.match(release,/gh api "repos\/\$GITHUB_REPOSITORY\/git\/ref\/tags\/v1\.2\.1"/);
+  assert.match(release,/gh release create v1\.2\.1[^\n]+--target "\$GITHUB_SHA"/);
+  assert.match(release,/--title "SeaBattle 1\.2\.1"/);
   assert.match(release,/grep -Eq [^\n]+"version"/);
   assert.match(workflow,/^permissions:\s*\n\s+contents: read/m);
   assert.doesNotMatch(workflow,/pull_request_target/);
-  assert.equal(JSON.parse(read('package.json')).version,'1.2.0');
+  assert.equal(JSON.parse(read('package.json')).version,'1.2.1');
 });
