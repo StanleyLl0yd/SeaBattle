@@ -77,3 +77,13 @@ private invitation play, not an identity-verification service.
 
 No database schema changes have been deployed from this draft. Existing
 v1.2.1 remains the supported production release.
+
+## Free-tier resource guard
+
+A database trigger atomically caps creation at **120 rooms per rolling hour** and
+**500 concurrent unexpired rooms**, irrespective of API caller. The Edge API
+returns HTTP 429 / ROOM_RATE_LIMIT when the cap is reached. This is a bounded
+project-level backstop rather than robust per-user abuse prevention; a deliberate
+attacker can still exhaust the shared creation quota. The server endpoint needs
+an edge/WAF-level rate limiter or authenticated access if exposed broadly.
+No IP addresses or persistent visitor identifiers are added by this safeguard.

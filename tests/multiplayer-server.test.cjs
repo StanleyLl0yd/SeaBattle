@@ -143,3 +143,12 @@ test('large requests are rejected without processing room creation',async()=>{
   assert.equal(response.status,413);
   assert.equal(store.rooms.size,0);
 });
+
+test('room capacity policy is mapped to HTTP 429 instead of an internal error',async()=>{
+  const store=new Store();
+  store.insert=async()=>{throw Object.assign(new Error('ROOM_RATE_LIMIT'),{code:'ROOM_RATE_LIMIT',status:429});};
+  const handler=await createHandler(store);
+  const result=await request(handler,'create');
+  assert.equal(result.status,429);
+  assert.equal(result.body.error,'ROOM_RATE_LIMIT');
+});

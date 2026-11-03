@@ -163,7 +163,12 @@ export class PostgrestStore{
     if(method==="POST"||method==="PATCH")headers.prefer="return=representation";
     const result=await fetch(this.url+suffix,{method,headers,
       body:body===null?undefined:JSON.stringify(body),cache:"no-store"});
-    if(!result.ok)throw Error("Database request failed ("+result.status+")");
+    if(!result.ok){
+      const detail=await result.json().catch(()=>({}));
+      if(detail.code==="P0001"&&detail.message==="ROOM_RATE_LIMIT")
+        throw bad("ROOM_RATE_LIMIT",429);
+      throw Error("Database request failed ("+result.status+")");
+    }
     if(result.status===204)return [];
     return await result.json();
   }
