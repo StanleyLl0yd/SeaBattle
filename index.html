@@ -54,9 +54,9 @@
     .daily-panel details { margin-top:11px; }
     .daily-panel summary { cursor:pointer; font-weight:700; color:var(--cyan); }
     .daily-history-list { padding-left:24px; margin:8px 0; font-size:.84rem; color:#b8d5e2; line-height:1.7; }
-    .result-actions { display:flex; justify-content:flex-end; margin:-12px 0 24px; }
+    .result-actions { display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end; margin:-12px 0 24px; }
     .result-actions[hidden] { display:none; }
-    @media(max-width:720px) { .result-actions .action { width:100%; } }
+    @media(max-width:720px) { .result-actions { flex-direction:column; } .result-actions .action { width:100%; } }
     .career-panel { background:linear-gradient(115deg,#12354a,#102338); border:1px solid #386276; border-radius:17px; padding:18px 20px; margin:0 0 20px; }
     .career-head { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
     .career-head h2 { margin:0 0 5px; font-size:1.04rem; }
