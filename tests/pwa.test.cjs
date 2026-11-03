@@ -144,5 +144,5 @@ test('v1.2.1 GitHub Release is gated on tested main and deployed Pages',()=>{
 test('draft 1.3.0 QA has a distinct service-worker cache from production 1.2.1',()=>{
   assert.match(sw,/CACHE_PREFIX \+ "v1\.3\.0-qa-audit1"/);
   assert.doesNotMatch(sw,/CACHE_PREFIX \+ "v1\.2\.1"/);
-  assert.match(sw,/keys\.filter\(key => key\.startsWith\(CACHE_PREFIX\) && key !== CACHE_NAME\)/);
+  assert.match(sw,/\.filter\(key => key\.startsWith\(CACHE_PREFIX\) && key !== CACHE_NAME\)/);
 });

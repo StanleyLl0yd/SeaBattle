@@ -106,12 +106,10 @@ test('solo grid updates retain keyboard focus on an available cell', () => {
     }
   };
   const document={activeElement:{parentElement:target,dataset:{i:'18'}}};
-  const ctx=vm.createContext({document,game:{phase:'playing',turn:'player'},
-    t:key=>key,nameAt:i=>'A'+(i+1)});
-  vm.runInContext(source.slice(begin,end)+'\nrenderBoard({shots,ships},true,target);',vm.createContext({
-    ...ctx,document,game:{phase:'playing',turn:'player'},t:key=>key,
-    nameAt:i=>'A'+(i+1),shots:marks,ships, target
-  }));
+  vm.runInNewContext(source.slice(begin,end)+'\nrenderBoard({shots,cells},true,target);',{
+    document,game:{phase:'playing',turn:'player'},
+    t:key=>key,nameAt:i=>'A'+(i+1),shots:marks,cells:ships,target
+  });
   assert.match(target.innerHTML,/data-i="18"/);
   assert.equal(checked,'[data-i="18"]:not(:disabled)');
   assert.equal(focused.preventScroll,true);
