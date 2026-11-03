@@ -25,7 +25,7 @@ const AI_BITS = Array.from({ length: SIZE * SIZE }, (_, i) => 1n << BigInt(i));
       for (let i = 0; i < shots.length; i++) if (shots[i] === "hit") {
         for (const n of neighbors(i, false)) if (shots[n] === null) adjacent.push(n);
       }
-      if (adjacent.length && Math.random() < (level === 1 ? 0.65 : 0.9))
+      if (adjacent.length && Math.random() < (level === 1 ? 0.5 : 0.9))
         return randomFrom([...new Set(adjacent)]);
       return randomFrom(open);
     }
