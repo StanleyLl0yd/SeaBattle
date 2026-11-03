@@ -35,8 +35,8 @@
     .statusdot.waiting { background:var(--accent); box-shadow:0 0 0 5px #f3bd7219; }
     .statusdot.ended { background:var(--red); box-shadow:0 0 0 5px #ff777e19; }
     .status-text { font-weight:650; line-height:1.5; }
-    .stats-panel,.daily-panel,.tactical-panel,.trainer-panel { background:#10283a; border:1px solid #315468; border-radius:15px; padding:15px 18px; margin:0 0 20px; line-height:1.6; color:var(--ink); }
-    .daily-panel[hidden],.tactical-panel[hidden],.trainer-panel[hidden],#trainer-advice[hidden] { display:none; }
+    .stats-panel,.daily-panel,.series-panel,.tactical-panel,.trainer-panel { background:#10283a; border:1px solid #315468; border-radius:15px; padding:15px 18px; margin:0 0 20px; line-height:1.6; color:var(--ink); }
+    .daily-panel[hidden],.series-panel[hidden],.tactical-panel[hidden],.trainer-panel[hidden],#trainer-advice[hidden] { display:none; }
     .stats-panel summary { cursor:pointer; font-weight:700; color:var(--cyan); }
      .stats-panel p { margin:8px 0; color:#b8d5e2; }
      .stats-list { padding-left:24px; margin:8px 0; color:#b8d5e2; font-size:.87rem; line-height:1.7; }
@@ -152,6 +152,7 @@
           <select id="game-mode" aria-label="Mode" data-i18n-aria-label="modeLabel">
             <option value="campaign" data-i18n="modeCampaign">Campaign</option>
             <option value="quick" data-i18n="modeQuick">Quick battle</option>
+            <option value="series" data-i18n="modeSeries">Three-battle series</option>
             <option value="daily" data-i18n="modeDaily">Daily challenge</option>
             <option id="mode-warrant" value="warrant" data-i18n="modeWarrant">Warrant Officer trials</option>
             <option id="mode-fleet" value="fleet" data-i18n="modeFleet">Fleet Admiral challenge</option>
@@ -160,6 +161,7 @@
             <label for="quick-level" data-i18n="difficultyLabel">Difficulty</label>
             <select id="quick-level" aria-label="Difficulty" data-i18n-aria-label="difficultyLabel"></select>
           </span>
+          <label class="tempo-switch" for="fast-tempo"><input type="checkbox" id="fast-tempo"><span data-i18n="tempoFast">Fast computer turns</span></label>
           <button type="button" id="career-reset" data-i18n="careerReset">Reset career</button>
         </div>
       </div>
@@ -178,6 +180,7 @@
        <summary data-i18n="statsHeading">📊 Personal statistics</summary>
        <p data-i18n="statsNote">Completed battles on this device since v0.9.1; earlier games are not included.</p>
        <p id="stats-summary"></p>
+       <p id="stats-trend"></p>
        <ul class="stats-list" id="stats-list"></ul>
        <details class="backup-panel">
          <summary data-i18n="backupHeading">Local backup / restore</summary>
@@ -201,6 +204,7 @@
       <details><summary data-i18n="dailyHistoryHeading">Recent 7 UTC days</summary><ol class="daily-history-list" id="daily-history"></ol></details>
       <button class="action primary" type="button" id="daily-share" data-i18n="dailyShare" hidden>Copy result</button>
     </section>
+    <section class="series-panel" id="series-panel" hidden aria-label="Three-battle series" data-i18n-aria-label="seriesRegion"><strong data-i18n="modeSeries">Three-battle series</strong><p id="series-details" role="status" aria-live="polite"></p></section>
     <section class="trainer-panel" id="trainer-panel" hidden aria-label="Tactical trainer" data-i18n-aria-label="trainerRegion">
       <strong data-i18n="trainerHeading">🎯 Tactical trainer · Quick battle</strong>
       <p data-i18n="trainerExplain">Relative placement scores from visible shots, not guaranteed hit probabilities.</p>
@@ -216,6 +220,7 @@
       <small data-i18n="tacticalCaveat">Evaluations use only public evidence and a rough placement model, not hindsight or a guaranteed optimal shot.</small>
     </section>
     <div class="result-actions" id="result-actions" hidden>
+      <button class="action" id="rematch" type="button" data-i18n="rematch">Instant rematch</button>
       <button class="action primary" id="play-again" type="button" data-i18n="playAgain">↻ New battle</button>
     </div>
     <section class="setup" id="setup" aria-label="Ship placement" data-i18n-aria-label="setupRegion">
@@ -269,6 +274,7 @@
   <script defer src="js/engine.js"></script>
   <script defer src="js/ai.js"></script>
   <script defer src="js/daily.js"></script>
+   <script defer src="js/replay.js"></script>
   <script defer src="js/tactics.js"></script>
   <script defer src="js/backup.js"></script>
   <script defer src="js/ui.js"></script>
