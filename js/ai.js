@@ -257,7 +257,7 @@ function aiJointShot(shots, open, lengths, legal, active, level) {
         Math.max(-0.2, Math.min(0.2, (edgeRate - innerRate) * 0.5));
       let best = -Infinity;
       const scores = new Float64Array(SIZE * SIZE);
-      const sampleShare = samples >= 3 ? Math.min(0.88,0.052*(level-3)+0.0002*(level-3)**2) : 0;
+      const sampleShare = samples >= 8 ? Math.min(0.4,0.025*(level-3)) : 0;
       for (const i of open) {
         const p = samples ? heat[i] / samples : 0;
         const base = localSum ? (local[i] * liveCells / localSum) : 0;
