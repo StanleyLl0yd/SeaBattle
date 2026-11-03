@@ -103,3 +103,34 @@ test('foreign origins and invalid requests do not reach the room store',async()=
   assert.equal((await request(handler,'state',{code:'bad',token:'foo'})).status,400);
   assert.equal((await request(handler,'create',{name:'   '})).status,201);
 });
+
+test('simultaneous invitations admit only one guest; concurrent shots serialize by version',async()=>{
+  const store=new Store(),handler=await createHandler(store);
+  const host=(await request(handler,'create')).body;
+  const attempts=await Promise.all([
+    request(handler,'join',{code:host.code,name:'Guest one'}),
+    request(handler,'join',{code:host.code,name:'Guest two'})
+  ]);
+  assert.deepEqual(attempts.map(x=>x.status).sort((a,b)=>a-b),[200,409]);
+  const guest=attempts.find(x=>x.status===200).body;
+  await request(handler,'ready',{code:host.code,token:host.token,fleet:ships});
+  const state=(await request(handler,'ready',{code:host.code,token:guest.token,fleet:ships})).body;
+  const token=state.turn==='host'?host.token:guest.token;
+  const shots=await Promise.all([
+    request(handler,'fire',{code:host.code,token,cell:0}),
+    request(handler,'fire',{code:host.code,token,cell:1})
+  ]);
+  assert.deepEqual(shots.map(x=>x.status).sort((a,b)=>a-b),[200,409]);
+  const result=(await request(handler,'state',{code:host.code,token})).body;
+  assert.equal(result.enemyShots,1,'only one turn mutation may commit');
+});
+test('24-hour absolute expiry rejects old credentials and purges expired rows',async()=>{
+  let now=Date.parse('2026-11-03T12:00:00Z');
+  const store=new Store(),handler=await createHandler(store,()=>now);
+  const host=(await request(handler,'create')).body;
+  now+=86400000;
+  assert.equal((await request(handler,'state',{code:host.code,token:host.token})).status,410);
+  const fresh=await request(handler,'create');
+  assert.equal(fresh.status,201);
+  assert.equal(store.rooms.has(host.code),false);
+});
