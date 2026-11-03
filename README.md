@@ -45,6 +45,10 @@ Ahoy, Captain! **⚓ Sea Battle** is a classic single-player Battleship game aga
 
 **⚓ Fairer difficulty (0.6.0).** AI search now ramps up between the rank bands instead of abruptly unlocking full-fleet sampling at level 9. Early ranks use progressively better placement search; advanced ranks blend whole-fleet sampling with a fast baseline and respond to observed edge-heavy defenses. Sampling is time-bounded and does not inspect hidden player ships. Different ranks are not mathematically guaranteed to improve on every possible fleet; unusual placements can still give a clever captain an advantage.
 
+**⚓ More reasons to return (1.2.0).** Daily Challenge now records the **first started attempt** as the official local result; abandoning it does not reset that attempt. Later runs are practice and may still improve the separate personal best. A **three-battle series** uses one chosen AI level and ranks the best series by victories, then total shots. Series games also contribute to the existing quick-battle statistics, but never to naval promotion. Personal statistics compare the last ten and previous ten completed matches, active days in the last week and the best winning score in the last 30 days. Only bounded summaries, never ships or shot traces, are saved. Instant rematches keep your fleet and generate a fresh enemy; optional fast computer turns reduce waiting. Ordinary opponents use four legal fleet-layout strategies.
+
+**⚓ Smoother difficulty (1.2.0).** All 19 ranks have continuously adjusted sampling, exploration, edge adaptation and diagonal covering probabilities. The final ranks remain strictly limited to public shot evidence and bounded computation; balance is checked against the 1.1.0 AI on matched defensive fleets.
+
 **⚓ Stronger fair AI (1.1.0).** At higher ranks (13–19), when finishing exposed hits among the last two remaining ships, the opponent builds bounded samples of *complete* non-touching surviving fleets that cover **every** revealed hit and avoid all observed misses. Near the end of a game it enumerates legal full-fleet configurations where practical; targeted follow-up shots account for damaged ships and the extra turn earned by a hit. Sampling is approximate and time-limited, never reads hidden ship positions, and falls back safely if evidence is too restrictive. At ranks 17–19 the ordinary hunt also prioritizes a diagonal covering pattern based on the shortest surviving multi-cell ship. Ranks 1–12 retain their established behavior.
 
 **Quick battle** unlocks any of the 19 difficulty settings right away, without affecting campaign progress. Campaign victories, defeats, streaks and honors are saved on this device using browser `localStorage`; your unfinished battle is not saved. You can reset the career with a confirmation. The first-hit, three-win-streak and accurate-victory honors are optional little naval decorations — no in-app purchases, accounts or leaderboards.
@@ -103,7 +107,7 @@ Ahoy, Captain! **⚓ Sea Battle** is a classic single-player Battleship game aga
 
 ### ⚓ Daily sea challenge and tactical review (0.7.1)
 
-Choose **Daily challenge** in the mode selector. Every UTC calendar date has one reproducibly generated opponent fleet shared by all players running the same game release. In this solo puzzle you shoot until all ships are sunk; the computer never takes a turn. Minimize your **total shots** (hits and misses). The browser saves only your best shot count for recent dates, never the hidden fleet or shot coordinates. After completion, **Copy result** shares the date, shot count and personal best without revealing the fleet.
+Choose **Daily challenge** in the mode selector. Every UTC calendar date has one reproducibly generated opponent fleet shared by all players running the same game release. In this solo puzzle you shoot until all ships are sunk; the computer never takes a turn. Minimize your **total shots** (hits and misses). The browser saves your first-attempt score from 1.2.0 onward alongside the separate best result, never hidden fleet cells or shot coordinates. After completion, **Copy result** includes the date and shot count plus whether the run was official or practice, without revealing the fleet.
 
 Every finished battle also includes a **tactical review** showing how many shots were fired while searching versus finishing a damaged ship, plus counts of high-scored choices and potentially more promising alternatives. These are **approximate, public-information-only assessments**, not retrospective proof of the best possible move. A damaged ship's possible continuations respect the remaining ship sizes, visible hits, and the no-touch rule; concrete alternatives appear on a separate line.
 
@@ -145,7 +149,7 @@ GitHub Actions verifies engine and localization tests on pull requests. The prot
 
 | | |
 | :-- | :-- |
-| **Current version** | `1.1.0` |
+| **Current version** | `1.2.0` |
 | **Play online** | [SeaBattle on GitHub Pages](https://stanleyll0yd.github.io/SeaBattle/) |
 | **Source code** | [StanleyLl0yd/SeaBattle](https://github.com/StanleyLl0yd/SeaBattle) |
 | **Release history** | [CHANGELOG.md](CHANGELOG.md) |

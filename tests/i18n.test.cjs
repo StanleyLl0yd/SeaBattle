@@ -204,7 +204,7 @@ test('offline readiness indicator follows live RU/EN language without changing t
 
 test('seven-day Daily history shows safe localized scores without changing the game',()=>{
   const b=boot(['en-US']);
-  b.context.localStorage = {getItem:()=>JSON.stringify({'2026-11-02':27,'2026-11-01':33})};
+  b.context.localStorage = {getItem:key=>key==="seabattle.daily.v1" ? JSON.stringify({'2026-11-02':27,'2026-11-01':33}) : null};
   const fleet=b.eval('game.player');
   b.eval('game.mode="daily"; game.dailyDate="2026-11-02"; render()');
   assert.equal(b.nodes.get('daily-panel').hidden,false);

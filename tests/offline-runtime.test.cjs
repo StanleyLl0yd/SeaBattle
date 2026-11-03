@@ -55,7 +55,7 @@ test('installed shell opens all runtime assets with network disconnected',async(
   };
   await dispatch('install');
   await dispatch('activate');
-  for(const file of ['index.html','js/config.js','js/career.js','js/ui-state.js','js/engine.js','js/ai.js','js/daily.js','js/tactics.js','js/ui.js','manifest.webmanifest','assets/icon-512.png']){
+  for(const file of ['index.html','js/config.js','js/career.js','js/ui-state.js','js/engine.js','js/ai.js','js/daily.js','js/replay.js','js/tactics.js','js/ui.js','manifest.webmanifest','assets/icon-512.png']){
     const response=await dispatch('fetch',{method:'GET',url:toUrl(file),mode:file==='index.html'?'navigate':'same-origin'});
     assert.ok(response?.body?.length>0,'Offline cached file '+file);
   }

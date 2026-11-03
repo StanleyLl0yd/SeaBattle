@@ -25,7 +25,7 @@ const AI_BITS = Array.from({ length: SIZE * SIZE }, (_, i) => 1n << BigInt(i));
       for (let i = 0; i < shots.length; i++) if (shots[i] === "hit") {
         for (const n of neighbors(i, false)) if (shots[n] === null) adjacent.push(n);
       }
-      if (adjacent.length && Math.random() < (level === 1 ? 0.65 : 0.9))
+      if (adjacent.length && Math.random() < (level === 1 ? 0.5 : 0.9))
         return randomFrom([...new Set(adjacent)]);
       return randomFrom(open);
     }
@@ -155,6 +155,10 @@ function aiJointShot(shots, open, lengths, legal, active, level) {
     function aiChooseShot(board, level = 12) {
       level = Math.max(1, Math.min(19, Number.isInteger(level) ? level : 12));
       if (level <= 2) return aiNoviceShot(board.shots, level);
+      // Fade beginner-style search across every rank while keeping rank 19 optimal.
+      if (level < 19 && (level < 10 || !board.shots.includes("hit")) &&
+          Math.random() < 0.95*((19-level)/16)**1.1)
+        return aiNoviceShot(board.shots,level);
       const shots = board.shots;
       const open = [];
       let forbidden = 0n, active = 0n, edgeHits = 0, innerHits = 0;
@@ -203,12 +207,10 @@ function aiJointShot(shots, open, lengths, legal, active, level) {
       // All levels respect public evidence; bounded local probability is the fallback.
       const heat = new Float64Array(SIZE * SIZE);
       let samples = 0;
-      const sampleLimit = level === 3 ? 0 : level <= 9 ? 3 * (level - 3) :
-        level <= 12 ? 18 + (level - 9) * 6 :
-        level <= 15 ? 40 + (level - 13) * 8 : 60 + (level - 16) * 8;
-      const timeBudget = level <= 6 ? 9 : level <= 8 ? 11 :
-        level <= 15 ? 14 : 17 + (level - 16) * 2;
-      const nodeLimit = level <= 12 ? 900 : level <= 15 ? 1100 : 1300;
+      const skill = (level-3)/16;
+      const sampleLimit = Math.round(2.5*(level-3)+0.172*(level-3)**2);
+      const timeBudget = Math.round(9+14*skill);
+      const nodeLimit = Math.round(900+400*skill);
       const deadline = Date.now() + timeBudget;
       const ordered = [...lengths].sort((a, b) => b - a);
       for (let attempt = 0; attempt < sampleLimit && Date.now() < deadline; attempt++) {
@@ -251,36 +253,34 @@ function aiJointShot(shots, open, lengths, legal, active, level) {
       const edgeRate = (edgeHits + 2) / (edgeShots + 10);
       const innerRate = (innerHits + 2) / (innerShots + 10);
       // Introduce positional adaptation gradually, rather than abruptly at rank 9.
-      const adaptationStrength = level <= 3 ? 0 : level <= 9 ? (level - 3) / 10 :
-        Math.min(1, 0.6 + (level - 9) * 0.04);
+      const adaptationStrength = Math.min(1,Math.max(0,(level-3)/13));
       const adaptation = adaptationStrength *
-        Math.max(-0.09, Math.min(0.09, (edgeRate - innerRate) * 0.3));
+        Math.max(-0.2, Math.min(0.2, (edgeRate - innerRate) * 0.5));
       let best = -Infinity;
       const scores = new Float64Array(SIZE * SIZE);
-      const sampleShare = samples >= 3 ? Math.min(0.88, 0.08 * (level - 3)) : 0;
+      const sampleShare = samples >= 3 ? Math.min(0.88,0.052*(level-3)+0.0002*(level-3)**2) : 0;
       for (const i of open) {
         const p = samples ? heat[i] / samples : 0;
         const base = localSum ? (local[i] * liveCells / localSum) : 0;
         const probability = sampleShare * p + (1 - sampleShare) * base;
         const [x, y] = xy(i);
         const edge = x === 0 || x === 9 || y === 0 || y === 9;
-        const information = level >= 16 ? 0.1 * probability * (1 - probability) : 0.06 * probability * (1 - probability);
+        const information = (0.06+0.04*skill)*probability*(1-probability);
         const score = probability + information + (edge ? adaptation : 0);
         scores[i] = score;
         if (score > best) best = score;
       }
-      const exploration = level <= 8 ? [0,0,0,0.78,0.6,0.45,0.32,0.20,0.12][level] :
-        level <= 12 ? 0.08 - (level - 9) * 0.015 :
-        level <= 16 ? 0.026 - (level - 13) * 0.006 : Math.max(0, 0.008 - (level - 17) * 0.004);
+      const exploration = 0.78*Math.exp(-0.3*(level-3))*((19-level)/16);
       // Every straight ship of length N covers each diagonal residue mod N.
       // Search one covering residue while multi-cell ships survive; restore
       // the full board for single-cell endgames or revealed targets.
       const minLong = lengths.filter(size => size > 1).reduce((a,b) => Math.min(a,b),Infinity);
-      const stride = level >= 17 && active === 0n ? minLong : Infinity;
+      const stride = active === 0n ? minLong : Infinity;
       const covering = Number.isFinite(stride) ?
         open.filter(i => (Math.floor(i / SIZE) + i % SIZE) % stride === 0) : open;
-      const hunt = covering.length ? covering : open;
+      const coverWeight = ((level-2)/17)**2;
+      const hunt = covering.length && (coverWeight>=1 || Math.random()<coverWeight) ? covering : open;
       if (!active && Math.random() < exploration) return randomFrom(hunt);
       const bestHunt = Math.max(...hunt.map(i => scores[i]));
-      return randomFrom(hunt.filter(i => scores[i] >= bestHunt - (level >= 16 ? 0.002 : 0.004)));
+      return randomFrom(hunt.filter(i => scores[i] >= bestHunt - (level>=16?0.002:0.004)));
     }

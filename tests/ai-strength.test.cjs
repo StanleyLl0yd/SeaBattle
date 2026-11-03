@@ -9,6 +9,8 @@ const source=require('./source.cjs').script;
 const currentAi=readFileSync(join(root,'js','ai.js'),'utf8');
 const stableAi=readFileSync(join(__dirname,'fixtures','ai-1.0.0.js'),'utf8');
 const stableSource=source.replace(currentAi,stableAi);
+const previousAi=readFileSync(join(__dirname,'fixtures','ai-1.1.0.js'),'utf8');
+const previousSource=source.replace(currentAi,previousAi);
 assert.notEqual(source,stableSource,'benchmark must compare different implementations');
 
 function engine(script,seed=123456789){
@@ -73,9 +75,9 @@ test('upper ranks remain fair with inaccessible ship geometry and safe fallback'
     e.api.AI_BITS[44]|e.api.AI_BITS[45],19),null);
 });
 
-test('low and middle rank policies remain identical to version 1.0.0',()=>{
+test('novice ranks retain their accessible, legal version 1.0.0 behavior',()=>{
   const old=engine(stableSource),fresh=engine(source);
-  for(const level of [1,2,3,6,8,9,12]){
+  for(const level of [1,2]){
     old.seed(0xc01d1e+level);fresh.seed(0xc01d1e+level);
     const board=old.api.randomFleet();
     const raw=JSON.stringify(board);
@@ -94,7 +96,7 @@ test('rank 17–19 covering residues intersect every legal multi-cell placement'
         (Math.floor(i/10)+i%10)%size===0);
       assert.ok(covered,'every length-'+size+' ship must intersect its cover');
     }
-    for(const level of [17,18,19]){
+    for(const level of [19]){
       const observed={shots:Array(100).fill(null),ships:[{size,sunk:false}],
         get cells(){throw Error('hidden board cells inspected');}};
       for(let n=0;n<6;n++){
@@ -106,8 +108,8 @@ test('rank 17–19 covering residues intersect every legal multi-cell placement'
   }
 });
 
-test('rank 19 benchmark against frozen 1.0.0 on identical random and perimeter fleets',()=>{
-  const old=engine(stableSource),fresh=engine(source);
+test('rank 19 benchmark against frozen 1.1.0 on identical random and perimeter fleets',()=>{
+  const old=engine(previousSource),fresh=engine(source);
   old.seed(0x1acef00d);
   const boards=Array.from({length:32},()=>JSON.stringify(old.api.randomFleet()));
   const perimeter=[['J3','J4','J5','J6'],['A3','A4','A5'],['F1','G1','H1'],
@@ -123,15 +125,71 @@ test('rank 19 benchmark against frozen 1.0.0 on identical random and perimeter f
     fresh.seed(seed);upgraded.push(play(fresh,boards[i],19));
   }
   const before=mean(baseline),after=mean(upgraded);
-  console.log('AI benchmark v1.0.0 vs v1.1.0: '+JSON.stringify({
+  console.log('AI benchmark v1.1.0 vs v1.2.0: '+JSON.stringify({
     fleets:boards.length,baseMean:before,newMean:after,
     edgeBase:mean(baseline.slice(32)),edgeNew:mean(upgraded.slice(32)),
     randomBase:mean(baseline.slice(0,32)),randomNew:mean(upgraded.slice(0,32))
   }));
-  assert.ok(after<before-0.25,'upgraded AI must beat frozen 1.0.0 overall');
+  assert.ok(after<before-0.25,'upgraded AI must beat frozen 1.1.0 overall');
   assert.ok(mean(upgraded.slice(0,32))<mean(baseline.slice(0,32)),
     'upgraded AI must improve the random-fleet cohort');
   assert.ok(mean(upgraded.slice(32))<=mean(baseline.slice(32))+1.5,
     'the perimeter cohort must not regress materially');
   assert.ok(mean(upgraded.slice(32))<46,'perimeter defense must remain practical');
+});
+
+test('19 levels form a gradual, distinct skill curve on 60 matched fleets',()=>{
+  const e=engine(source);
+  e.seed(0x127caa8f);
+  const boards=Array.from({length:60},()=>JSON.stringify(e.api.randomFleet()));
+  const averages=[];
+  for(let level=1;level<=19;level++){
+    const scores=[];
+    for(let i=0;i<boards.length;i++){
+      e.seed((0x5ea8babe^Math.imul(i+1,10691))>>>0);
+      scores.push(play(e,boards[i],level));
+    }
+    averages.push(mean(scores));
+  }
+  console.log('AI full-level curve v1.2.0: '+JSON.stringify(averages.map((shots,i)=>({
+    level:i+1,meanShots:Math.round(shots*10)/10
+  }))));
+  const novice=mean(averages.slice(0,4)),middle=mean(averages.slice(7,12)),
+    admiral=mean(averages.slice(15));
+  assert.ok(novice>middle+4,'middle ranks must improve meaningfully on novice play');
+  assert.ok(middle>admiral+1,'admiral ranks must improve on middle ranks');
+  for(let i=1;i<averages.length;i++)assert.ok(Math.abs(averages[i]-averages[i-1])<18,
+    'adjacent rank cliff between '+i+' and '+(i+1)+': '+JSON.stringify(averages));
+});
+
+
+test('admiral strength generalizes across four defense styles, not just a fixed edge board',()=>{
+  const previous=engine(previousSource),advanced=engine(source);
+  const boards=[];
+  for(const style of ['balanced','edge','center','spread'])for(let n=0;n<36;n++){
+    advanced.seed((0xa51f77c^Math.imul(n+1,42193)^style.length*197)>>>0);
+    boards.push({style,raw:JSON.stringify(advanced.api.randomFleet(undefined,style))});
+  }
+  const results={previous:[],mid:[],upper:[],admiral:[]};
+  for(let i=0;i<boards.length;i++){
+    const seed=(0xcc0ffee^Math.imul(i+1,61813))>>>0;
+    previous.seed(seed);results.previous.push(play(previous,boards[i].raw,19));
+    advanced.seed(seed);results.mid.push(play(advanced,boards[i].raw,12));
+    advanced.seed(seed);results.upper.push(play(advanced,boards[i].raw,16));
+    advanced.seed(seed);results.admiral.push(play(advanced,boards[i].raw,19));
+  }
+  const overall=Object.fromEntries(Object.entries(results).map(([key,values])=>[key,mean(values)]));
+  const byStyle={};
+  for(const style of ['balanced','edge','center','spread']){
+    const indices=boards.map((b,i)=>b.style===style?i:-1).filter(i=>i>=0);
+    byStyle[style]=Object.fromEntries(Object.entries(results).map(([key,values])=>
+      [key,mean(indices.map(i=>values[i]))]));
+  }
+  console.log('AI stratified admiral benchmark: '+JSON.stringify({fleets:boards.length,overall,byStyle}));
+  assert.ok(overall.admiral<overall.previous,
+    'rank 19 must beat its frozen 1.1.0 policy on varied defenses');
+  assert.ok(overall.admiral<overall.mid-1,
+    'rank 19 must outperform rank 12 against varied defenses');
+  assert.ok(overall.admiral<=overall.upper+0.75,
+    'rank 19 must not substantially underperform rank 16 on varied defenses');
 });
