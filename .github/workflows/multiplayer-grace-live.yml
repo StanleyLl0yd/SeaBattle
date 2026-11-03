@@ -1,0 +1,31 @@
+name: SeaBattle real-clock 120s multiplayer grace (draft only)
+
+on:
+  push:
+    branches: [feature/online-friend-1.3.0]
+    paths:
+      - scripts/multiplayer-grace-live-smoke.cjs
+      - supabase/functions/seabattle-multiplayer/**
+      - .github/workflows/multiplayer-grace-live.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: seabattle-live-grace-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  grace:
+    if: github.ref == 'refs/heads/feature/online-friend-1.3.0'
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Verify real 120-second disconnect grace
+        run: node scripts/multiplayer-grace-live-smoke.cjs
+        env:
+          SEABATTLE_MULTIPLAYER_API: https://qxmbxqfiotogncnwcdvq.supabase.co/functions/v1/seabattle-multiplayer
