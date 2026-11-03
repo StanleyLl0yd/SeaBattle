@@ -1,6 +1,6 @@
 -- Server-side global capacity backstop for the free plan; no IP or user tracking.
 -- Atomic across concurrent Edge Function instances.
-create or replace function public.seabattle_room_creation_limit()
+create function public.seabattle_room_creation_limit()
 returns trigger
 language plpgsql
 security invoker
@@ -19,7 +19,6 @@ begin
 end;
 $$;
 revoke all on function public.seabattle_room_creation_limit() from public, anon, authenticated;
-drop trigger if exists seabattle_room_creation_limit_trigger on public.seabattle_rooms;
 create trigger seabattle_room_creation_limit_trigger
 before insert on public.seabattle_rooms
 for each row execute function public.seabattle_room_creation_limit();
