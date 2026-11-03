@@ -179,7 +179,8 @@ function aiJointShot(shots, open, lengths, legal, active, level) {
           (p.mask & forbidden) === 0n && (p.halo & active) === (p.mask & active));
       }
 
-      if (level >= 13 && active !== 0n && lengths.length <= 2) {
+      if (level >= 13 && lengths.length <= 2 &&
+          (active !== 0n || Math.random() < (level-12)/7)) {
         const joint = aiJointShot(shots,open,lengths,legal,active,level);
         if (joint !== null) return joint;
       }
@@ -204,8 +205,7 @@ function aiJointShot(shots, open, lengths, legal, active, level) {
       const heat = new Float64Array(SIZE * SIZE);
       let samples = 0;
       const skill = (level-3)/16;
-      const sampleLimit = lengths.every(size=>size===1) ? 0 :
-        Math.round(2.5*(level-3)+0.172*(level-3)**2);
+      const sampleLimit = Math.round(2.5*(level-3)+0.172*(level-3)**2);
       const timeBudget = Math.round(9+14*skill);
       const nodeLimit = Math.round(900+400*skill);
       const deadline = Date.now() + timeBudget;
@@ -255,7 +255,7 @@ function aiJointShot(shots, open, lengths, legal, active, level) {
         Math.max(-0.09, Math.min(0.09, (edgeRate - innerRate) * 0.3));
       let best = -Infinity;
       const scores = new Float64Array(SIZE * SIZE);
-      const sampleShare = samples >= 3 ? Math.min(0.65,0.040625*(level-3)) : 0;
+      const sampleShare = samples >= 3 ? Math.min(0.88,0.052*(level-3)+0.0002*(level-3)**2) : 0;
       for (const i of open) {
         const p = samples ? heat[i] / samples : 0;
         const base = localSum ? (local[i] * liveCells / localSum) : 0;
