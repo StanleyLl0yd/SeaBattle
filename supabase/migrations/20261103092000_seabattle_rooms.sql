@@ -33,5 +33,5 @@ revoke all on table public.seabattle_rooms from public, anon, authenticated;
 grant select,insert,update,delete on table public.seabattle_rooms to service_role;
 -- No anon/authenticated RLS policies: direct PostgREST access must fail closed.
 -- The Edge Function deletes expired rooms on create; also schedule regular
--- DELETE FROM public.seabattle_rooms WHERE expires_at < now() using a trusted
+-- DELETE FROM public.seabattle_rooms WHERE expires_at <= now() using a trusted
 -- scheduled job to bound storage even during inactivity.

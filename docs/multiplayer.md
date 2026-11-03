@@ -4,28 +4,41 @@ The online two-player system is **independent** of offline single-player SeaBatt
 Two players participate synchronously and exchange moves through an authoritative
 server, with no account, asynchronous correspondence, chat or public matchmaking.
 
-## Separate project required
+## Dedicated test backend — DEPLOYED (not publicly released)
 
-Create a **new, dedicated Supabase project** in an organization explicitly selected
-by the owner; obtain cost approval when applicable. Do not deploy into the existing
-FootballForecast production project, even for testing.
+- Supabase organization: **Silver Lightning**, Free plan.
+- SeaBattle project: `qxmbxqfiotogncnwcdvq` in Frankfurt (`eu-central-1`).
+- Supabase quoted creation cost: **$0/month**; this is the second active
+  free project in the organization. No paid upgrade or add-ons requested.
+- `public.seabattle_rooms`: RLS on, no direct anon/authenticated privileges
+  or policies. Elevated credentials remain exclusively in Edge Functions.
+- Migrations applied: room schema, hourly expiration cron, 120-room/hour
+  and 500-unexpired-room atomic creation guard. The cron job is active;
+  periodic execution needs operational observation.
+- `seabattle-multiplayer` Edge Function **v2 ACTIVE**, `verify_jwt=false`;
+  member-specific room-token authorization is enforced in the function.
+- Live API smoke and two independent browser-controller contexts passed
+  against this project in GitHub Actions; results linked in PR #34.
+- **Public player UI remains disabled**: `ONLINE_API` is blank on draft;
+  published 1.2.1 remains offline-capable and unchanged.
 
-1. Apply the initial room-table SQL migration in supabase/migrations in order.
-   It enables RLS, revokes all client roles, and grants room access to service_role.
-2. Apply the second migration for an hourly pg_cron cleanup of expired rooms.
-   Confirm the scheduler exists and has completed at least one run.
-3. Deploy the Edge Function directory supabase/functions/seabattle-multiplayer/
-   using entrypoint index.mjs with verify_jwt=false from supabase/config.toml.
-   The Edge runtime provides SUPABASE_URL and SUPABASE_SECRET_KEYS.default;
-   the legacy SUPABASE_SERVICE_ROLE_KEY is accepted only for compatibility.
-4. **Never commit either secret** or use it in browser requests. The backend alone
-   calls PostgREST with the elevated key. Browser calls require only a room token.
-5. After successful two-device acceptance, set the browser-public ONLINE_API URL
-   in js/multiplayer-config.js to the deployed HTTPS Edge Function URL, using
-   the format https://PROJECTREF.supabase.co/functions/v1/seabattle-multiplayer .
-   Leave the URL blank before backend acceptance, which hides the online button.
-6. Bump the release version, cache key and release automation **only** when
-   all launch checks pass. PR #34 must stay Draft until then.
+The Free tier can pause projects after insufficient activity, and feature
+quotas apply. An outage or a paused free project must not affect solo play.
+Do not enable paid services without explicit approval.
+
+### Reproduce the isolated deployment
+
+1. Create a dedicated Supabase project in the explicitly authorized organization.
+   Never use FootballForecast's database or project credentials.
+2. Apply migration files in `supabase/migrations/` in order.
+3. Verify no anonymous table grants/policies, RLS, cron and capacity trigger.
+4. Deploy `supabase/functions/seabattle-multiplayer/`, entrypoint `index.mjs`,
+   with `verify_jwt=false` as specified in `supabase/config.toml`.
+5. The server reads `SUPABASE_URL` and `SUPABASE_SECRET_KEYS.default` from
+   secure runtime environment. Never commit or send elevated keys to clients.
+6. After final approval, configure the **public URL only** in
+   `js/multiplayer-config.js`. Then bump version/cache/release metadata,
+   verify all suites, and deploy through protected main.
 
 ## Protocol and security
 
@@ -75,8 +88,8 @@ Possession of an unused invitation code allows joining before the intended
 friend; possession of a participant's token allows impersonation. This is
 private invitation play, not an identity-verification service.
 
-No database schema changes have been deployed from this draft. Existing
-v1.2.1 remains the supported production release.
+The dedicated test backend is deployed; the public browser UI is not.
+Existing v1.2.1 remains the supported production release.
 
 ## Free-tier resource guard
 

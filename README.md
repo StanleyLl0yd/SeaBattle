@@ -49,7 +49,7 @@ Ahoy, Captain! **⚓ Sea Battle** is a classic single-player Battleship game aga
 
 **⚓ Stable battle view (1.2.1).** Shot feedback no longer shifts the grids: the quick-battle tactical trainer stays visible during both turns, and long combat messages or open hints scroll within reserved space. No changes to AI, game rules or saved progress.
 
-**⚓ Friend battles (1.3.0 — in development, not yet deployed).** A private invitation room will let two people play live from separate devices, with random or manual fleets, server-validated turns, reconnect grace and mutual rematch. It needs an isolated backend; the existing offline solo game will remain independent. See [multiplayer deployment and security checklist](docs/multiplayer.md).
+**⚓ Friend battles (1.3.0 — in development, not yet publicly released).** A private invitation room will let two people play live from separate devices, with random or manual fleets, server-validated turns, reconnect grace and mutual rematch. It needs an isolated backend; the existing offline solo game will remain independent. See [multiplayer deployment and security checklist](docs/multiplayer.md).
 
 **⚓ Smoother difficulty (1.2.0).** All 19 ranks have continuously adjusted sampling, exploration, edge adaptation and diagonal covering probabilities. The final ranks remain strictly limited to public shot evidence and bounded computation; balance is checked against the 1.1.0 AI on matched defensive fleets.
 
