@@ -154,7 +154,10 @@ function aiJointShot(shots, open, lengths, legal, active, level) {
 
     function aiChooseShot(board, level = 12) {
       level = Math.max(1, Math.min(19, Number.isInteger(level) ? level : 12));
-      if (level <= 2) return aiNoviceShot(board.shots, level);
+      if (level <= 2) {
+        if (level === 2 && Math.random() < 0.4) return aiChooseShot(board, 3);
+        return aiNoviceShot(board.shots, level);
+      }
       const shots = board.shots;
       const open = [];
       let forbidden = 0n, active = 0n, edgeHits = 0, innerHits = 0;
