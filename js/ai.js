@@ -266,7 +266,7 @@ function aiJointShot(shots, open, lengths, legal, active, level) {
         scores[i] = score;
         if (score > best) best = score;
       }
-      const exploration = 0.78*Math.exp(-0.3*(level-3));
+      const exploration = 0.78*Math.exp(-0.3*(level-3))*((19-level)/16);
       // Every straight ship of length N covers each diagonal residue mod N.
       // Search one covering residue while multi-cell ships survive; restore
       // the full board for single-cell endgames or revealed targets.
@@ -274,8 +274,8 @@ function aiJointShot(shots, open, lengths, legal, active, level) {
       const stride = active === 0n ? minLong : Infinity;
       const covering = Number.isFinite(stride) ?
         open.filter(i => (Math.floor(i / SIZE) + i % SIZE) % stride === 0) : open;
-      const coverWeight = (level-2)/17;
-      const hunt = covering.length && Math.random()<coverWeight ? covering : open;
+      const coverWeight = ((level-2)/17)**2;
+      const hunt = covering.length && (coverWeight>=1 || Math.random()<coverWeight) ? covering : open;
       if (!active && Math.random() < exploration) return randomFrom(hunt);
       const bestHunt = Math.max(...hunt.map(i => scores[i]));
       return randomFrom(hunt.filter(i => scores[i] >= bestHunt - (level >= 16 ? 0.002 : 0.004)));
