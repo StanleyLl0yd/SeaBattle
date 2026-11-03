@@ -1,3 +1,15 @@
+## [1.1.0] - 2026-11-03
+
+- Strengthened fair upper-rank AI (13–19) with bounded, evidence-constrained complete-fleet inference during hit finishing with at most two ships remaining: every sampled fleet covers all revealed hits, excludes known misses and obeys non-touching placement rules.
+- Added bounded exact enumeration of small remaining fleets where feasible, improved target-cell scoring for continuing damaged ships, and a safe fallback to the prior local estimator when inference cannot finish. Ranks 17–19 now prioritize a mathematically valid diagonal covering pattern when searching for multi-cell ships.
+- Added reproducible regression and head-to-head benchmarks against frozen 1.0.0 AI on identical random and perimeter-heavy fleets. The 1–12 difficulty policies, ship rules, career progress, privacy, PWA and persistence remain compatible.
+- Updated the PWA cache and protected-main GitHub release automation for 1.1.0. No new runtime dependencies.
+
+- Усилен честный ИИ старших уровней (13–19): ограниченная по времени оценка совместимых целых флотов учитывает все известные попадания и промахи, а также запрет касания кораблей.
+- Добавлен полный перебор небольших оставшихся флотов, когда это практически возможно; улучшен выбор выстрелов при добивании и сохранён безопасный запасной алгоритм. Уровни 17–19 используют математически корректную диагональную сетку покрытия при поиске многопалубных кораблей.
+- Добавлены воспроизводимые регрессионные проверки и сравнение со снимком ИИ 1.0.0 на одинаковых случайных и краевых расстановках. Уровни 1–12, правила, карьеры, приватность, PWA и форматы сохранений не менялись.
+- Обновлены офлайн-кеш и публикация релиза 1.1.0 из защищённого main. Новых зависимостей нет.
+
 ## [1.0.0] - 2026-11-03
 
 - First stable SeaBattle release. Includes all accepted single-player features from 0.9.2: two independent naval careers, daily challenges, tactical reviews/training, local statistics, offline PWA and optional JSON progress backup/restore.
