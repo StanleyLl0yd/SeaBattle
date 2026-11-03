@@ -72,6 +72,8 @@ test('online room invitation only carries a code, and local reconnect stores no 
   assert.equal(link.includes(TOKEN),false);
   assert.equal(link.includes('fleet'),false);
   assert.deepEqual(JSON.parse(b.stored.get('seabattle.online.session.v1')),{code:CODE,token:TOKEN});
+  b.eval('onlinePoll()');
+  await settle();
   assert.equal(b.requests.some(x=>x.body.action==='state'),true);
   b.eval('language="ru";renderMultiplayerLocale()');
   assert.equal(b.nodes.get('online-open').textContent,'К одиночной игре');
@@ -85,8 +87,8 @@ test('client renders only server-reported visible shots and pauses targeting whe
     enemy:Object.assign(Array(100).fill(null),{0:'hit',1:'blocked'})})));
   b.eval('onlineRender(true)');
   let board=b.nodes.get('online-their-grid').innerHTML;
-  assert.match(board,/<button[^>]+class="cell hit fired" data-i="0"[^>]+disabled/);
-  assert.match(board,/<button[^>]+class="cell blocked fired" data-i="1"[^>]+disabled/);
+  assert.match(board,/<button[^>]+class="cell hit fired enemy-cell" data-i="0"[^>]+disabled/);
+  assert.match(board,/<button[^>]+class="cell blocked fired enemy-cell" data-i="1"[^>]+disabled/);
   assert.match(board,/<button[^>]+data-i="2" aria-label="C1"><\/button>/);
   b.eval('onlineView.opponentOnline=false;onlineView.reconnectSeconds=60;onlineRender(true)');
   board=b.nodes.get('online-their-grid').innerHTML;
