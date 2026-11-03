@@ -26,6 +26,10 @@ jobs:
         run: node scripts/multiplayer-live-smoke.cjs
         env:
           SEABATTLE_MULTIPLAYER_API: https://qxmbxqfiotogncnwcdvq.supabase.co/functions/v1/seabattle-multiplayer
+      - name: Verify public isolated QA site and browser CORS
+        run: node scripts/multiplayer-qa-web-smoke.cjs
+        env:
+          SEABATTLE_MULTIPLAYER_API: https://qxmbxqfiotogncnwcdvq.supabase.co/functions/v1/seabattle-multiplayer
       - name: Exercise two browser controllers against live server
         run: node scripts/multiplayer-client-live-smoke.cjs
         env:
