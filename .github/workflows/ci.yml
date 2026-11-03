@@ -25,6 +25,8 @@ jobs:
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '22'
+      - name: Check JavaScript syntax across the repository
+        run: git ls-files -z '*.js' '*.mjs' '*.cjs' | xargs -0 -r -n1 node --check
       - name: Verify game logic
         run: npm test
 

@@ -1,11 +1,11 @@
 "use strict";
 const CACHE_PREFIX = "seabattle-shell-";
-const CACHE_NAME = CACHE_PREFIX + "v1.2.1";
+const CACHE_NAME = CACHE_PREFIX + "v1.3.0-qa-audit1";
 const SHELL = [
   "./", "./index.html", "./manifest.webmanifest", "./favicon.ico",
   "./assets/seabattle-icon.svg", "./assets/icon-192.png", "./assets/icon-512.png",
   "./js/config.js", "./js/career.js", "./js/stats.js", "./js/ui-state.js",
-  "./js/engine.js", "./js/ai.js", "./js/daily.js", "./js/replay.js", "./js/tactics.js", "./js/backup.js", "./js/ui.js"
+  "./js/engine.js", "./js/ai.js", "./js/daily.js", "./js/replay.js", "./js/tactics.js", "./js/backup.js", "./js/ui.js", "./js/multiplayer-config.js", "./js/multiplayer.js"
 ];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));

@@ -1,0 +1,36 @@
+name: SeaBattle multiplayer live smoke (draft only)
+
+on:
+  push:
+    branches: [feature/online-friend-1.3.0]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: seabattle-multiplayer-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  live-smoke:
+    if: github.ref == 'refs/heads/feature/online-friend-1.3.0'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Exercise isolated public SeaBattle Edge endpoint
+        run: node scripts/multiplayer-live-smoke.cjs
+        env:
+          SEABATTLE_MULTIPLAYER_API: https://qxmbxqfiotogncnwcdvq.supabase.co/functions/v1/seabattle-multiplayer
+      - name: Verify public isolated QA site and browser CORS
+        run: node scripts/multiplayer-qa-web-smoke.cjs
+        env:
+          SEABATTLE_MULTIPLAYER_API: https://qxmbxqfiotogncnwcdvq.supabase.co/functions/v1/seabattle-multiplayer
+      - name: Exercise two browser controllers against live server
+        run: node scripts/multiplayer-client-live-smoke.cjs
+        env:
+          SEABATTLE_MULTIPLAYER_API: https://qxmbxqfiotogncnwcdvq.supabase.co/functions/v1/seabattle-multiplayer

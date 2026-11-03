@@ -30,6 +30,20 @@
     h1 { margin:0; font-weight:820; letter-spacing:-.065em; font-size:clamp(2.7rem,5.3vw,4.3rem); line-height:1.06; }
     .subhead { color:#adcadb; max-width:630px; line-height:1.6; font-size:1rem; margin:14px 0 10px; }
     .offline-note { color:var(--muted); font-size:.8rem; line-height:1.5; margin:0 0 20px; }
+    [hidden] { display:none !important; }
+    body.online-mode #new-game,body.online-mode .subhead,body.online-mode .offline-note,body.online-mode .footer { display:none; }
+    .online-lobby,.online-game { background:#102338; border:1px solid #315468; border-radius:17px; padding:18px; margin:16px 0 22px; }
+    .online-actions { display:flex; gap:9px; align-items:center; flex-wrap:wrap; margin:12px 0; }
+    .online-actions input { background:#081522; color:var(--ink); border:1px solid #527286; border-radius:8px; padding:10px; min-height:43px; min-width:0; }
+    .online-actions input[type=text] { flex:1 1 170px; }
+    .online-game .statusbar { height:78px; overflow:hidden; }
+    .online-game .board .cell:not(:disabled) { cursor:crosshair; }
+    .online-game .board .cell:disabled { opacity:1; }
+    .online-error { min-height:1.5em; color:var(--accent); margin:10px 0; }
+    .online-game .board-card { padding:17px; }
+    .online-game .card-head { margin-bottom:14px; }
+    @media(max-width:720px) { .online-game .statusbar { height:104px; } }
+    @media(max-width:390px) { .online-game .statusbar { height:124px; } }
     .statusbar { display:flex; align-items:center; gap:13px; background:#10283a; border:1px solid #315468; border-radius:15px; padding:14px 18px; margin-bottom:24px; height:78px; }
     .statusdot { flex:none; width:11px; height:11px; border-radius:50%; background:var(--cyan); box-shadow:0 0 0 5px #58d9e819; }
     .statusdot.waiting { background:var(--accent); box-shadow:0 0 0 5px #f3bd7219; }
@@ -136,12 +150,56 @@
   <main class="shell">
     <header class="topbar">
       <div class="brand"><div class="brandmark" aria-hidden="true">⚓</div><span data-i18n="brand">Classic board game · Single player</span></div>
-      <div class="top-actions"><label class="language-label" for="language" data-i18n="languageLabel">Language</label><select class="language-select" id="language" aria-label="Language" data-i18n-aria-label="languageLabel"><option value="en" lang="en">EN</option><option value="ru" lang="ru">RU</option></select><button class="quiet-btn" id="new-game" type="button" data-i18n="newGame">↻ New game</button></div>
+      <div class="top-actions"><label class="language-label" for="language" data-i18n="languageLabel">Language</label><select class="language-select" id="language" aria-label="Language" data-i18n-aria-label="languageLabel"><option value="en" lang="en">EN</option><option value="ru" lang="ru">RU</option></select><button class="quiet-btn" id="online-open" type="button" hidden>Play with a friend</button><button class="quiet-btn" id="new-game" type="button" data-i18n="newGame">↻ New game</button></div>
     </header>
     <p class="eyebrow" data-i18n="eyebrow">Play in your browser</p>
     <h1><span data-i18n="heading">Sea Battle</span><span style="color:var(--cyan)">.</span></h1>
     <p class="subhead" data-i18n="subhead">Place your ships, find the enemy fleet, and sink all ten ships before the computer does.</p>
     <p class="offline-note" id="offline-note" role="status" aria-live="polite">Preparing offline play…</p>
+
+    <section id="online-area" hidden aria-label="Multiplayer" data-online-aria="heading">
+      <div class="online-lobby" id="online-lobby">
+        <h2 data-online-i18n="heading">Play with a friend</h2>
+        <p data-online-i18n="intro">Invite one friend. Both players must stay online; no accounts required.</p>
+        <div class="online-actions"><input id="online-name" data-online-aria="name" type="text" maxlength="24" autocomplete="nickname" data-online-placeholder="name" placeholder="Your name (optional)"><button type="button" class="action primary" id="online-create" data-online-i18n="create">Create room</button></div>
+        <div class="online-actions"><input id="online-join-code" data-online-aria="roomCode" type="text" maxlength="12" autocapitalize="characters" data-online-placeholder="roomCode" placeholder="Invitation code"><button type="button" class="action" id="online-join" data-online-i18n="join">Join</button></div>
+        <button type="button" class="action" id="online-resume" data-online-i18n="resume" hidden>Resume current room</button>
+      </div>
+      <div class="online-game" id="online-game" hidden>
+        <div class="online-actions"><strong id="online-room-code">Room</strong><span id="online-presence"></span></div>
+        <div class="online-actions"><input id="online-invitation" data-online-aria="copy" type="text" readonly aria-label="Invitation link"><button type="button" class="action" id="online-copy" data-online-i18n="copy">Copy invite link</button></div>
+        <div class="statusbar" role="status" aria-live="polite"><span class="statusdot"></span><span class="status-text" id="online-status"></span></div>
+        <div id="online-placement">
+          <div class="online-actions">
+            <button type="button" class="action" id="online-random" data-online-i18n="random">Random fleet</button>
+            <button type="button" class="action" id="online-manual" data-online-i18n="manual">Manual placement</button>
+            <button type="button" class="action" id="online-rotate" data-online-i18n="rotate">Rotate</button>
+            <button type="button" class="action" id="online-undo" data-online-i18n="undo">Undo</button>
+            <button type="button" class="action primary" id="online-ready" data-online-i18n="ready">Ready</button>
+          </div>
+        </div>
+        <div class="game-grid">
+          <section class="board-card" aria-label="Your online fleet">
+            <div class="card-head"><div class="board-name" data-online-i18n="myBoard">Your fleet</div><div class="counter"><b id="online-my-count">10 / 10</b></div></div>
+            <div class="board-wrap">
+              <div class="cols" aria-hidden="true"><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span><span>G</span><span>H</span><span>I</span><span>J</span></div>
+              <div class="board-row"><div class="rows" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div><div class="board" id="online-my-grid" role="group" aria-label="Your board" data-online-aria="myBoard"></div></div>
+            </div><div class="under-board"><span data-online-i18n="shots">Shots</span><b id="online-my-shots">0</b></div>
+          </section>
+          <section class="board-card" aria-label="Friend's fleet">
+            <div class="card-head"><div class="board-name" data-online-i18n="enemyBoard">Friend's fleet</div><div class="counter"><b id="online-their-count">10 / 10</b></div></div>
+            <div class="board-wrap">
+              <div class="cols" aria-hidden="true"><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span><span>G</span><span>H</span><span>I</span><span>J</span></div>
+              <div class="board-row"><div class="rows" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div><div class="board" id="online-their-grid" role="group" aria-label="Opponent board" data-online-aria="enemyBoard"></div></div>
+            </div><div class="under-board"><span data-online-i18n="shots">Shots</span><b id="online-their-shots">0</b></div>
+          </section>
+        </div>
+        <div class="online-actions" id="online-after" hidden><button type="button" class="action primary" id="online-rematch" data-online-i18n="rematch">Rematch</button><span id="online-rematch-status"></span></div>
+        <div class="online-actions"><button type="button" class="action primary" id="online-claim" data-online-i18n="claim" hidden>Claim victory</button><button type="button" class="action" id="online-leave" data-online-i18n="leave">Leave room</button></div>
+      </div>
+      <p id="online-error" class="online-error" role="alert"></p>
+    </section>
+    <div id="solo-area">
     <section class="career-panel" id="career-panel" aria-label="Naval campaign" data-i18n-aria-label="careerRegion">
       <div class="career-head">
         <h2 data-i18n="careerHeading">⚓ Naval career</h2>
@@ -268,6 +326,7 @@
       <span class="legend-item"><span class="legend-swatch hit"></span><span data-i18n="hit">Hit</span></span>
       <span class="legend-item"><span class="legend-swatch miss"></span><span data-i18n="miss">Miss</span></span>
     </div>
+    </div>
     <p class="footer"><span data-i18n="footer1">10 × 10 grid · Ships: 1 × 4, 2 × 3, 3 × 2, 4 × 1 · Ships cannot touch, even diagonally.</span><br><span data-i18n="footer2">A hit gives another shot; a miss passes the turn. You shoot first.</span></p>
   </main>
     <script defer src="js/config.js"></script>
@@ -281,5 +340,7 @@
   <script defer src="js/tactics.js"></script>
   <script defer src="js/backup.js"></script>
   <script defer src="js/ui.js"></script>
+  <script defer src="js/multiplayer-config.js"></script>
+  <script defer src="js/multiplayer.js"></script>
 </body>
 </html>
