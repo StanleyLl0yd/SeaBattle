@@ -30,11 +30,12 @@
     h1 { margin:0; font-weight:820; letter-spacing:-.065em; font-size:clamp(2.7rem,5.3vw,4.3rem); line-height:1.06; }
     .subhead { color:#adcadb; max-width:630px; line-height:1.6; font-size:1rem; margin:14px 0 10px; }
     .offline-note { color:var(--muted); font-size:.8rem; line-height:1.5; margin:0 0 20px; }
-    .statusbar { display:flex; align-items:center; gap:13px; background:#10283a; border:1px solid #315468; border-radius:15px; padding:14px 18px; margin-bottom:24px; min-height:60px; }
+    .statusbar { display:flex; align-items:center; gap:13px; background:#10283a; border:1px solid #315468; border-radius:15px; padding:14px 18px; margin-bottom:24px; height:78px; }
     .statusdot { flex:none; width:11px; height:11px; border-radius:50%; background:var(--cyan); box-shadow:0 0 0 5px #58d9e819; }
     .statusdot.waiting { background:var(--accent); box-shadow:0 0 0 5px #f3bd7219; }
     .statusdot.ended { background:var(--red); box-shadow:0 0 0 5px #ff777e19; }
-    .status-text { font-weight:650; line-height:1.5; }
+    .status-text { display:block; min-width:0; font-weight:650; line-height:1.5; max-height:100%; overflow-y:auto; }
+    #trainer-advice:not([hidden]) { height:7em; overflow-y:auto; }
     .stats-panel,.daily-panel,.series-panel,.tactical-panel,.trainer-panel { background:#10283a; border:1px solid #315468; border-radius:15px; padding:15px 18px; margin:0 0 20px; line-height:1.6; color:var(--ink); }
     .daily-panel[hidden],.series-panel[hidden],.tactical-panel[hidden],.trainer-panel[hidden],#trainer-advice[hidden] { display:none; }
     .stats-panel summary { cursor:pointer; font-weight:700; color:var(--cyan); }
@@ -126,6 +127,8 @@
     .footer { margin-top:22px; text-align:center; color:#8ba7b8; line-height:1.7; font-size:.81rem; }
     @media(max-width:720px) { .shell { padding:18px 13px 35px; } .game-grid { grid-template-columns:1fr; gap:15px; } .board-card { padding:17px 17px 19px; } .topbar { margin-bottom:20px; } .controls .push { margin-left:0; } .controls .action.primary { width:100%; } .subhead { font-size:.92rem; } .statusbar { padding:12px 14px; } }
     @media(max-width:390px) { .top-actions { gap:6px; } .language-label { font-size:.68rem; } .language-select { padding:7px 4px; font-size:.78rem; } .brand { font-size:.59rem; letter-spacing:.06em; } .quiet-btn { padding:8px; font-size:.76rem; } .board-card { padding:12px; } .cols { margin-left:25px; } .card-head { margin-bottom:15px; } }
+    @media(max-width:720px) { .statusbar { height:104px; } #trainer-advice:not([hidden]) { height:9em; } }
+    @media(max-width:390px) { .statusbar { height:124px; } #trainer-advice:not([hidden]) { height:11em; } }
     @media(prefers-reduced-motion:reduce) { .cell { transition:none; } }
   </style>
 </head>

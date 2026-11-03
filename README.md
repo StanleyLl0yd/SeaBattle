@@ -47,6 +47,8 @@ Ahoy, Captain! **⚓ Sea Battle** is a classic single-player Battleship game aga
 
 **⚓ More reasons to return (1.2.0).** Daily Challenge now records the **first started attempt** as the official local result; abandoning it does not reset that attempt. Later runs are practice and may still improve the separate personal best. A **three-battle series** uses one chosen AI level and ranks the best series by victories, then total shots. Series games also contribute to the existing quick-battle statistics, but never to naval promotion. Personal statistics compare the last ten and previous ten completed matches, active days in the last week and the best winning score in the last 30 days. Only bounded summaries, never ships or shot traces, are saved. Instant rematches keep your fleet and generate a fresh enemy; optional fast computer turns reduce waiting. Ordinary opponents use four legal fleet-layout strategies.
 
+**⚓ Stable battle view (1.2.1).** Shot feedback no longer shifts the grids: the quick-battle tactical trainer stays visible during both turns, and long combat messages or open hints scroll within reserved space. No changes to AI, game rules or saved progress.
+
 **⚓ Smoother difficulty (1.2.0).** All 19 ranks have continuously adjusted sampling, exploration, edge adaptation and diagonal covering probabilities. The final ranks remain strictly limited to public shot evidence and bounded computation; balance is checked against the 1.1.0 AI on matched defensive fleets.
 
 **⚓ Stronger fair AI (1.1.0).** At higher ranks (13–19), when finishing exposed hits among the last two remaining ships, the opponent builds bounded samples of *complete* non-touching surviving fleets that cover **every** revealed hit and avoid all observed misses. Near the end of a game it enumerates legal full-fleet configurations where practical; targeted follow-up shots account for damaged ships and the extra turn earned by a hit. Sampling is approximate and time-limited, never reads hidden ship positions, and falls back safely if evidence is too restrictive. At ranks 17–19 the ordinary hunt also prioritizes a diagonal covering pattern based on the shortest surviving multi-cell ship. Ranks 1–12 retain their established behavior.
@@ -149,7 +151,7 @@ GitHub Actions verifies engine and localization tests on pull requests. The prot
 
 | | |
 | :-- | :-- |
-| **Current version** | `1.2.0` |
+| **Current version** | `1.2.1` |
 | **Play online** | [SeaBattle on GitHub Pages](https://stanleyll0yd.github.io/SeaBattle/) |
 | **Source code** | [StanleyLl0yd/SeaBattle](https://github.com/StanleyLl0yd/SeaBattle) |
 | **Release history** | [CHANGELOG.md](CHANGELOG.md) |

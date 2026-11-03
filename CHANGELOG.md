@@ -1,3 +1,13 @@
+## [1.2.1] - 2026-11-03
+
+- Prevented game boards from jumping vertically after shots. The quick-battle tactical trainer now remains mounted throughout either player's turn, with its control disabled while the computer fires.
+- Gave live combat status and optional tactical advice stable, scrollable heights across desktop and narrow screens. No changes to game rules, AI, stored progress or dependencies.
+- Updated the offline PWA cache to deliver the fix without replacing an in-progress battle.
+
+- Устранены вертикальные скачки игровых полей после выстрелов. Тактический тренер остаётся на месте во время ходов игрока и компьютера; во время ответа компьютера кнопка подсказки недоступна.
+- Сообщения о ходе боя и открытые подсказки занимают фиксированное пространство с прокруткой длинного текста на обычных и узких экранах. Правила, ИИ, сохранения и зависимости не изменены.
+- Обновлён офлайн-кеш PWA; текущий бой при установке обновления не прерывается.
+
 ## [1.2.0] - 2026-11-03
 
 - Added first-started-attempt official Daily scoring, separate from practice bests; abandoned attempts cannot regain official credit, and legacy Daily records remain intact.

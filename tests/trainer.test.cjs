@@ -55,7 +55,7 @@ test('trainer ranks only public legal unshot candidates and never reads hidden p
   assert.deepEqual(JSON.parse(b.eval('JSON.stringify(tacticalCandidates({shots:Array(100).fill("miss"),ships:[]}))')),{mode:'hunt',top:[]});
 });
 
-test('trainer is opt-in, quick-only, and only available during a human turn',()=>{
+test('trainer stays mounted throughout quick battles but is interactive only on human turns',()=>{
   const b=boot();
   assert.equal(b.nodes.get('trainer-panel').hidden,true);
   b.nodes.get('game-mode').value='quick';
@@ -68,11 +68,14 @@ test('trainer is opt-in, quick-only, and only available during a human turn',()=
   assert.match(b.nodes.get('trainer-suggestions').textContent,/Search candidates/);
   assert.match(b.nodes.get('trainer-comparison').textContent,/first shot/);
   b.eval('game.turn="computer";render()');
-  assert.equal(b.nodes.get('trainer-panel').hidden,true);
+  assert.equal(b.nodes.get('trainer-panel').hidden,false,'no panel collapse during the computer turn');
+  assert.equal(b.nodes.get('trainer-toggle').disabled,true);
+  assert.equal(b.nodes.get('trainer-advice').hidden,false,'open hints stay mounted while the computer fires');
   b.nodes.get('trainer-toggle').click();
   assert.equal(b.eval('game.trainerVisible'),true,'no toggling while computer fires');
   b.eval('game.turn="player";render()');
   assert.equal(b.nodes.get('trainer-panel').hidden,false);
+  assert.equal(b.nodes.get('trainer-toggle').disabled,false);
   b.eval('game.phase="finished";render()');
   assert.equal(b.nodes.get('trainer-panel').hidden,true);
   b.eval('setUpGame()');
@@ -101,4 +104,12 @@ test('previous-shot comparison localizes and does not mutate fleets or storage',
   assert.match(b.nodes.get('trainer-comparison').textContent,/Последний выстрел: сравнение до выстрела: А1/);
   assert.equal(b.eval('JSON.stringify(game.enemy.cells)'),layout);
   assert.equal(JSON.stringify([...saved.entries()]),before,'hints never write to storage');
+});
+
+test('combat status and tactical advice reserve stable heights across shot updates',()=>{
+  assert.match(html,/\.statusbar \{[^}]*height:78px;/);
+  assert.match(html,/\.status-text \{[^}]*max-height:100%; overflow-y:auto;/);
+  assert.match(html,/#trainer-advice:not\(\[hidden\]\) \{[^}]*height:7em; overflow-y:auto;/);
+  assert.match(html,/@media\(max-width:720px\) \{ \.statusbar \{ height:104px; \}/);
+  assert.match(html,/@media\(max-width:390px\) \{ \.statusbar \{ height:124px; \}/);
 });

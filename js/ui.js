@@ -86,9 +86,11 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
     function render() {
       renderBoard(game.player, false, ui.player);
       renderBoard(game.enemy, true, ui.enemy);
-      const trainingTurn = game.mode === "quick" && game.phase === "playing" && game.turn === "player";
-      ui.trainerPanel.hidden = !trainingTurn;
-      if (trainingTurn) {
+      const trainingMatch = game.mode === "quick" && game.phase === "playing";
+      const trainingTurn = trainingMatch && game.turn === "player";
+      ui.trainerPanel.hidden = !trainingMatch;
+      ui.trainerToggle.disabled = !trainingTurn;
+      if (trainingMatch) {
         ui.trainerToggle.textContent = t(game.trainerVisible ? "trainerHide" : "trainerShow");
         ui.trainerAdvice.hidden = !game.trainerVisible;
         if (game.trainerVisible) {
