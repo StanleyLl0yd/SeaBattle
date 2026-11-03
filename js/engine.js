@@ -31,7 +31,7 @@ function createBoard() {
       board.ships.push({ id, size: cells.length, cells: [...cells], hits: 0, sunk: false });
       for (const i of cells) board.cells[i] = id;
     }
-    function randomFleet(random = Math.random) {
+    function randomFleet(random = Math.random, style = "balanced") {
       for (let attempt = 0; attempt < 100; attempt++) {
         const board = createBoard();
         let failed = false;
@@ -43,11 +43,40 @@ function createBoard() {
             if (pick.valid) available.push(pick.cells);
           }
           if (!available.length) { failed = true; break; }
-          placeShip(board, available[Math.floor(random() * available.length)]);
+          let pick;
+          if (style === "balanced") pick=available[Math.floor(random()*available.length)];
+          else {
+            const weight=cells=>{
+              const center=cells.reduce((sum,i)=>sum+i%SIZE,0)/cells.length;
+              const middle=cells.reduce((sum,i)=>sum+Math.floor(i/SIZE),0)/cells.length;
+              if (style==="edge") return 1+3*cells.filter(i=>
+                i%SIZE===0 || i%SIZE===SIZE-1 ||
+                Math.floor(i/SIZE)===0 || Math.floor(i/SIZE)===SIZE-1).length;
+              if (style==="center") return 1+Math.max(0,8-Math.abs(center-4.5)-Math.abs(middle-4.5));
+              if (style==="spread" && board.ships.length) {
+                const distance=Math.min(...board.ships.map(ship=>
+                  Math.min(...ship.cells.map(i=>
+                    (center-i%SIZE)**2+(middle-Math.floor(i/SIZE))**2))));
+                return 1+Math.min(24,distance)*0.3;
+              }
+              return 1;
+            };
+            const weights=available.map(weight);
+            let roll=random()*weights.reduce((a,b)=>a+b,0);
+            pick=available[available.length-1];
+            for (let j=0;j<available.length;j++) if ((roll-=weights[j])<0) {
+              pick=available[j];break;
+            }
+          }
+          placeShip(board,pick);
         }
         if (!failed) return board;
       }
       throw new Error("Не удалось расставить корабли");
+    }
+    function opponentFleet(random=Math.random) {
+      const styles=["balanced","edge","center","spread"];
+      return randomFleet(random,styles[Math.floor(random()*styles.length)]);
     }
     function fireAt(board, i) {
       if (i < 0 || i >= 100 || board.shots[i] !== null) return { kind: "already" };
