@@ -9,7 +9,7 @@ const manifest=JSON.parse(read('manifest.webmanifest'));
 const sw=read('sw.js');
 const html=read('index.html');
 const workflow=read('.github/workflows/ci.yml');
-const scripts=require('./source.cjs').paths;
+const {paths:scripts,onlinePaths}=require('./source.cjs');
 
 test('manifest stays within the Pages project subpath and provides installable icons',()=>{
   assert.equal(manifest.start_url,'./');
@@ -61,7 +61,7 @@ test('offline cache covers all first-party runtime modules and manifest entries'
   assert.match(sw,/new URL\(self\.registration\.scope\)\.pathname/);
   assert.match(sw,/request\.mode === "navigate"/);
   assert.doesNotMatch(sw,/importScripts|https?:\/\/|indexedDB|localStorage|XMLHttpRequest/);
-  for(const src of scripts)assert.ok(sw.includes('./'+src),src);
+  for(const src of [...scripts,...onlinePaths])assert.ok(sw.includes('./'+src),src);
   for(const name of ['manifest.webmanifest','index.html','favicon.ico','assets/seabattle-icon.svg','assets/icon-192.png','assets/icon-512.png'])
     assert.ok(sw.includes('./'+name),name);
   assert.match(read('js/ui.js'),/serviceWorker\.register\("\.\/sw\.js", \{scope:"\.\/"\}\)/);
@@ -72,7 +72,7 @@ test('Pages publishes all offline shell files with strict test gate',()=>{
   assert.match(workflow,/cp -R js dist\/js/);
   assert.match(workflow,/cp manifest\.webmanifest sw\.js dist\//);
   assert.match(workflow,/cp assets\/icon-192\.png assets\/icon-512\.png dist\/assets\//);
-  for(const path of scripts)assert.ok(existsSync(join(root,path)));
+  for(const path of [...scripts,...onlinePaths])assert.ok(existsSync(join(root,path)));
 });
 
 test('offline-ready status waits for successful scoped service-worker activation',async()=>{
