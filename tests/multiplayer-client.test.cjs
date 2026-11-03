@@ -117,3 +117,13 @@ test('out-of-order polling cannot roll back a newer authoritative server version
   assert.equal(b.eval('onlineView.version'),4);
   assert.equal(b.eval('onlineView.phase'),'playing');
 });
+
+test('the opponent board keeps its enemy-cell styling after a completed game',()=>{
+  const api='https://seabattleexample.supabase.co/functions/v1/seabattle-multiplayer';
+  const b=boot(api);
+  const enemy=Array(100).fill(null);enemy[0]='sunk';
+  b.eval('onlineSession='+JSON.stringify({code:CODE,token:TOKEN})+';onlineActive=true;onlineFleet=randomFleet();');
+  b.eval('onlineView='+JSON.stringify(view({phase:'finished',winner:'host',enemy}))+';onlineRender(true)');
+  assert.match(b.nodes.get('online-their-grid').innerHTML,/class="cell sunk fired enemy-cell"/);
+  assert.match(b.nodes.get('online-my-grid').innerHTML,/class="cell(?: own-cell)"/);
+});

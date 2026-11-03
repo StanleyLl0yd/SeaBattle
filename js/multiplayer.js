@@ -96,7 +96,7 @@ function onlineGrid(id,marks,ships,shootable,placeable){
     const classes=["cell"];
     if(mark)classes.push(mark,"fired");
     else if(visible.has(i))classes.push("ship");
-    if(shootable)classes.push("enemy-cell");
+    classes.push(id==="online-their-grid"?"enemy-cell":"own-cell");
     const enabled=(shootable&&!mark||placeable)&&!onlineBusy;
     const coordinate=LETTERS[language][i%10]+(Math.floor(i/10)+1);
     html+='<button type="button" class="'+classes.join(" ")+'" data-i="'+i+
