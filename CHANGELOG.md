@@ -1,3 +1,17 @@
+## [1.2.0] - 2026-11-03
+
+- Added first-started-attempt official Daily scoring, separate from practice bests; abandoned attempts cannot regain official credit, and legacy Daily records remain intact.
+- Added three-battle series with best results by wins then shots, instant rematches reusing the player's layout, optional fast computer turns and four legal enemy fleet-placement styles.
+- Added last-ten versus previous-ten comparison, active days and 30-day personal best, saving only a bounded aggregate match journal without hidden ship locations or shot traces.
+- Rebalanced all 19 AI ranks with smooth sampling, exploration, positional adaptation and diagonal covering; kept fair public-information targeting and bounded computation. Added reproducible comparison to the 1.1.0 opponent.
+- Preserved both careers and earlier local statistics. Backups now include the new progress while accepting old-format exports. No server, third-party runtime dependencies or gameplay rule changes.
+
+- Добавлен официальный зачёт первой начатой попытки Daily отдельно от тренировочного рекорда; прерванная попытка не даёт повторного права на зачёт, старые записи сохранены.
+- Добавлена серия из трёх боёв с лучшим результатом по победам и выстрелам, мгновенные реванши, быстрый темп и четыре допустимые стратегии расстановки компьютера.
+- Добавлены сравнение последних 10 боёв с предыдущими 10, игровые дни и рекорд победы за 30 дней. Локально хранятся только ограниченные итоги без скрытых расстановок и истории выстрелов.
+- Плавно пересмотрены все 19 уровней ИИ и добавлены воспроизводимые сравнения с 1.1.0. Компьютер использует только открытые данные и ограниченные вычисления.
+- Прежние карьеры и статистика сохранены. Резервная копия включает новые данные и принимает старые форматы. Без сервера, новых зависимостей и изменения правил боя.
+
 ## [1.1.0] - 2026-11-03
 
 - Strengthened fair upper-rank AI (13–19) with bounded, evidence-constrained complete-fleet inference during hit finishing with at most two ships remaining: every sampled fleet covers all revealed hits, excludes known misses and obeys non-touching placement rules.
