@@ -9,7 +9,7 @@ const fleet=[[0,1,2,3],[20,21,22],[40,41,42],[60,61],[64,65],[80,81],[6],[8],[26
 test('authoritative validator enforces exact fleet, straight placement, and no touching',async()=>{
   const {validFleet}=await rules;
   assert.equal(validFleet(fleet),true);
-  assert.equal(validFleet([...fleet.slice(0,9),[29]]),false);
+  assert.equal(validFleet([...fleet.slice(0,9),[65]]),false);
   assert.equal(validFleet([...fleet.slice(0,9),[27]]),false);
   assert.equal(validFleet([...fleet.slice(0,9),[99]]),true);
   assert.equal(validFleet([...fleet.slice(0,9),[100]]),false);

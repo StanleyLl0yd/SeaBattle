@@ -93,6 +93,8 @@ export function createHandler(store,now=()=>Date.now()){
       }else if(action==="fire"){
         if(room.phase!=="playing")throw bad("INVALID_PHASE",409);
         if(room.turn!==role)throw bad("NOT_YOUR_TURN",409);
+        const opponentTime=room[other+"_seen"]?Date.parse(room[other+"_seen"]):0;
+        if(at-opponentTime>15000)throw bad("OPPONENT_OFFLINE",409);
         let outcome;
         try{outcome=fire(room[other+"_fleet"],room[role+"_shots"],request.cell);}
         catch(error){throw bad(error.message==="INVALID_CELL"?"INVALID_CELL":"CELL_UNAVAILABLE",409);}
