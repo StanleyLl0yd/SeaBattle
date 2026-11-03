@@ -161,3 +161,35 @@ test('19 levels form a gradual, distinct skill curve on 60 matched fleets',()=>{
   for(let i=1;i<averages.length;i++)assert.ok(Math.abs(averages[i]-averages[i-1])<18,
     'adjacent rank cliff between '+i+' and '+(i+1)+': '+JSON.stringify(averages));
 });
+
+
+test('admiral strength generalizes across four defense styles, not just a fixed edge board',()=>{
+  const previous=engine(previousSource),advanced=engine(source);
+  const boards=[];
+  for(const style of ['balanced','edge','center','spread'])for(let n=0;n<36;n++){
+    advanced.seed((0xa51f77c^Math.imul(n+1,42193)^style.length*197)>>>0);
+    boards.push({style,raw:JSON.stringify(advanced.api.randomFleet(undefined,style))});
+  }
+  const results={previous:[],mid:[],upper:[],admiral:[]};
+  for(let i=0;i<boards.length;i++){
+    const seed=(0xcc0ffee^Math.imul(i+1,61813))>>>0;
+    previous.seed(seed);results.previous.push(play(previous,boards[i].raw,19));
+    advanced.seed(seed);results.mid.push(play(advanced,boards[i].raw,12));
+    advanced.seed(seed);results.upper.push(play(advanced,boards[i].raw,16));
+    advanced.seed(seed);results.admiral.push(play(advanced,boards[i].raw,19));
+  }
+  const overall=Object.fromEntries(Object.entries(results).map(([key,values])=>[key,mean(values)]));
+  const byStyle={};
+  for(const style of ['balanced','edge','center','spread']){
+    const indices=boards.map((b,i)=>b.style===style?i:-1).filter(i=>i>=0);
+    byStyle[style]=Object.fromEntries(Object.entries(results).map(([key,values])=>
+      [key,mean(indices.map(i=>values[i]))]));
+  }
+  console.log('AI stratified admiral benchmark: '+JSON.stringify({fleets:boards.length,overall,byStyle}));
+  assert.ok(overall.admiral<overall.previous,
+    'rank 19 must beat its frozen 1.1.0 policy on varied defenses');
+  assert.ok(overall.admiral<overall.mid-1,
+    'rank 19 must outperform rank 12 against varied defenses');
+  assert.ok(overall.admiral<=overall.upper+0.75,
+    'rank 19 must not substantially underperform rank 16 on varied defenses');
+});
