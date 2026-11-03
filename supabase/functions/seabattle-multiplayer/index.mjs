@@ -35,6 +35,7 @@ const nickname=value=>typeof value==="string"&&value.trim().length>0&&value.trim
 const roleFor=(room,hash)=>hash===room.host_token_hash?"host":
   hash===room.guest_token_hash&&room.guest_token_hash?"guest":null;
 const cors=origin=>!origin||origin==="https://stanleyll0yd.github.io"||
+  origin==="https://seabattle-multiplayer-qa.vercel.app"||
   /^http:\/\/(localhost|127\.0\.0\.1)(:\d{2,5})?$/.test(origin);
 const response=(value,status=200,origin=null)=>new Response(JSON.stringify(value),{
   status,headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store",

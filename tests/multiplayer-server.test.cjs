@@ -152,3 +152,31 @@ test('room capacity policy is mapped to HTTP 429 instead of an internal error',a
   assert.equal(result.status,429);
   assert.equal(result.body.error,'ROOM_RATE_LIMIT');
 });
+
+test('isolated Vercel QA origin is explicitly allowed without enabling wildcard CORS',async()=>{
+  const store=new Store(),handler=await createHandler(store);
+  const qa='https://seabattle-multiplayer-qa.vercel.app';
+  const preflight=await handler(new Request('https://edge.example.test',{
+    method:'OPTIONS',headers:{origin:qa,'access-control-request-method':'POST'}
+  }));
+  assert.equal(preflight.status,200);
+  assert.equal(preflight.headers.get('access-control-allow-origin'),qa);
+  const created=await handler(new Request('https://edge.example.test',{
+    method:'POST',headers:{origin:qa,'content-type':'application/json'},
+    body:'{"action":"create"}'
+  }));
+  assert.equal(created.status,201);
+  assert.equal(created.headers.get('access-control-allow-origin'),qa);
+  for(const origin of [
+    'https://unknown.vercel.app',
+    'https://seabattle-multiplayer-qa.vercel.app.evil.test',
+    'http://seabattle-multiplayer-qa.vercel.app'
+  ]){
+    const denied=await handler(new Request('https://edge.example.test',{
+      method:'POST',headers:{origin,'content-type':'application/json'},
+      body:'{"action":"create"}'
+    }));
+    assert.equal(denied.status,403);
+  }
+  assert.equal(store.rooms.size,1);
+});

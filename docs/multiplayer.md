@@ -89,7 +89,13 @@ Possession of an unused invitation code allows joining before the intended
 friend; possession of a participant's token allows impersonation. This is
 private invitation play, not an identity-verification service.
 
-The dedicated test backend is deployed; the public browser UI is not.
+The dedicated test backend is deployed. A **separate QA-only static frontend**
+at `https://seabattle-multiplayer-qa.vercel.app/` is configured for two-device
+acceptance from draft PR #34 (Vercel Hobby, no paid plan). Only that exact QA
+origin and the official Pages origin are permitted by the Edge Function.
+This additional origin is temporary: remove it when QA is finished unless there
+is an explicit need to retain the test site. CORS is not authentication, and
+the test site's public link should not be advertised outside testers.
 Existing v1.2.1 remains the supported production release.
 
 ## Free-tier resource guard
@@ -101,3 +107,14 @@ project-level backstop rather than robust per-user abuse prevention; a deliberat
 attacker can still exhaust the shared creation quota. The server endpoint needs
 an edge/WAF-level rate limiter or authenticated access if exposed broadly.
 No IP addresses or persistent visitor identifiers are added by this safeguard.
+
+### Operational quota note
+
+Supabase Free provides **500,000 Edge Function invocations per month per
+organization**, shared across projects in the same organization. The
+current 1.5-second visible polling generates roughly 4,800 billable calls per
+hour for one continuously active two-player room, excluding explicit actions.
+This is suitable for a limited QA but **not proven safe for public launch**.
+Before release, validate and reduce steady-state call volume, establish
+monitoring, and confirm provider-level abuse protection; application CORS and
+room-creation quotas do not block non-browser request floods.
