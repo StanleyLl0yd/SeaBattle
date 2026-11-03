@@ -109,6 +109,7 @@ function renderMultiplayerLocale(){
   if(typeof document==="undefined"||!onlineId("online-open"))return;
   document.querySelectorAll("[data-online-i18n]").forEach(n=>{n.textContent=onlineT(n.dataset.onlineI18n);});
   document.querySelectorAll("[data-online-placeholder]").forEach(n=>{n.placeholder=onlineT(n.dataset.onlinePlaceholder);});
+  document.querySelectorAll("[data-online-aria]").forEach(n=>{n.setAttribute("aria-label",onlineT(n.dataset.onlineAria));});
   onlineId("online-open").textContent=onlineT(onlineActive?"back":"open");
   const brand=document.querySelector('[data-i18n="brand"]');
   if(brand&&onlineActive)brand.textContent=onlineT("brand");

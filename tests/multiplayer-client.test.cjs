@@ -95,3 +95,15 @@ test('client renders only server-reported visible shots and pauses targeting whe
   assert.match(board,/<button[^>]+data-i="2"[^>]+disabled/);
   assert.match(b.nodes.get('online-status').textContent,/paused/);
 });
+
+test('unexpected remote cell states cannot inject HTML attributes',()=>{
+  const api='https://seabattleexample.supabase.co/functions/v1/seabattle-multiplayer';
+  const b=boot(api);
+  const enemy=Array(100).fill(null);
+  enemy[0]='hit" onmouseover="alert(1)';
+  b.eval('onlineSession='+JSON.stringify({code:CODE,token:TOKEN})+';onlineActive=true;onlineFleet=randomFleet();');
+  b.eval('onlineView='+JSON.stringify(view({phase:'playing',turn:'host',opponentOnline:true,enemy}))+';onlineRender(true)');
+  const html=b.nodes.get('online-their-grid').innerHTML;
+  assert.doesNotMatch(html,/onmouseover|alert\(/);
+  assert.match(html,/<button[^>]+data-i="0"[^>]*><\/button>/);
+});

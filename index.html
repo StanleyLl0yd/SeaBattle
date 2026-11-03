@@ -157,17 +157,17 @@
     <p class="subhead" data-i18n="subhead">Place your ships, find the enemy fleet, and sink all ten ships before the computer does.</p>
     <p class="offline-note" id="offline-note" role="status" aria-live="polite">Preparing offline play…</p>
 
-    <section id="online-area" hidden aria-label="Multiplayer">
+    <section id="online-area" hidden aria-label="Multiplayer" data-online-aria="heading">
       <div class="online-lobby" id="online-lobby">
         <h2 data-online-i18n="heading">Play with a friend</h2>
         <p data-online-i18n="intro">Invite one friend. Both players must stay online; no accounts required.</p>
-        <div class="online-actions"><input id="online-name" type="text" maxlength="24" autocomplete="nickname" data-online-placeholder="name" placeholder="Your name (optional)"><button type="button" class="action primary" id="online-create" data-online-i18n="create">Create room</button></div>
-        <div class="online-actions"><input id="online-join-code" type="text" maxlength="12" autocapitalize="characters" data-online-placeholder="roomCode" placeholder="Invitation code"><button type="button" class="action" id="online-join" data-online-i18n="join">Join</button></div>
+        <div class="online-actions"><input id="online-name" data-online-aria="name" type="text" maxlength="24" autocomplete="nickname" data-online-placeholder="name" placeholder="Your name (optional)"><button type="button" class="action primary" id="online-create" data-online-i18n="create">Create room</button></div>
+        <div class="online-actions"><input id="online-join-code" data-online-aria="roomCode" type="text" maxlength="12" autocapitalize="characters" data-online-placeholder="roomCode" placeholder="Invitation code"><button type="button" class="action" id="online-join" data-online-i18n="join">Join</button></div>
         <button type="button" class="action" id="online-resume" data-online-i18n="resume" hidden>Resume current room</button>
       </div>
       <div class="online-game" id="online-game" hidden>
         <div class="online-actions"><strong id="online-room-code">Room</strong><span id="online-presence"></span></div>
-        <div class="online-actions"><input id="online-invitation" type="text" readonly aria-label="Invitation link"><button type="button" class="action" id="online-copy" data-online-i18n="copy">Copy invite link</button></div>
+        <div class="online-actions"><input id="online-invitation" data-online-aria="copy" type="text" readonly aria-label="Invitation link"><button type="button" class="action" id="online-copy" data-online-i18n="copy">Copy invite link</button></div>
         <div class="statusbar" role="status" aria-live="polite"><span class="statusdot"></span><span class="status-text" id="online-status"></span></div>
         <div id="online-placement">
           <div class="online-actions">
@@ -183,14 +183,14 @@
             <div class="card-head"><div class="board-name" data-online-i18n="myBoard">Your fleet</div><div class="counter"><b id="online-my-count">10 / 10</b></div></div>
             <div class="board-wrap">
               <div class="cols" aria-hidden="true"><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span><span>G</span><span>H</span><span>I</span><span>J</span></div>
-              <div class="board-row"><div class="rows" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div><div class="board" id="online-my-grid" role="group" aria-label="Your board"></div></div>
+              <div class="board-row"><div class="rows" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div><div class="board" id="online-my-grid" role="group" aria-label="Your board" data-online-aria="myBoard"></div></div>
             </div><div class="under-board"><span data-online-i18n="shots">Shots</span><b id="online-my-shots">0</b></div>
           </section>
           <section class="board-card" aria-label="Friend's fleet">
             <div class="card-head"><div class="board-name" data-online-i18n="enemyBoard">Friend's fleet</div><div class="counter"><b id="online-their-count">10 / 10</b></div></div>
             <div class="board-wrap">
               <div class="cols" aria-hidden="true"><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span><span>G</span><span>H</span><span>I</span><span>J</span></div>
-              <div class="board-row"><div class="rows" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div><div class="board" id="online-their-grid" role="group" aria-label="Opponent board"></div></div>
+              <div class="board-row"><div class="rows" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div><div class="board" id="online-their-grid" role="group" aria-label="Opponent board" data-online-aria="enemyBoard"></div></div>
             </div><div class="under-board"><span data-online-i18n="shots">Shots</span><b id="online-their-shots">0</b></div>
           </section>
         </div>
