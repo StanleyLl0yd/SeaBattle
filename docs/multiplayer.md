@@ -19,8 +19,9 @@ server, with no account, asynchronous correspondence, chat or public matchmaking
   member-specific room-token authorization is enforced in the function.
 - Live API smoke and two independent browser-controller contexts passed
   against this project in GitHub Actions; results linked in PR #34.
-- **Public player UI remains disabled**: `ONLINE_API` is blank on draft;
-  published 1.2.1 remains offline-capable and unchanged.
+- **Draft branch is now configured for local/manual QA** with the public Edge
+  endpoint. Production 1.2.1 still serves the unchanged solo-only UI; no
+  multiplayer release has been published.
 
 The Free tier can pause projects after insufficient activity, and feature
 quotas apply. An outage or a paused free project must not affect solo play.
@@ -36,8 +37,8 @@ Do not enable paid services without explicit approval.
    with `verify_jwt=false` as specified in `supabase/config.toml`.
 5. The server reads `SUPABASE_URL` and `SUPABASE_SECRET_KEYS.default` from
    secure runtime environment. Never commit or send elevated keys to clients.
-6. After final approval, configure the **public URL only** in
-   `js/multiplayer-config.js`. Then bump version/cache/release metadata,
+6. The **public URL only** is present in the draft `js/multiplayer-config.js`
+   for local QA. After final approval, bump version/cache/release metadata,
    verify all suites, and deploy through protected main.
 
 ## Protocol and security

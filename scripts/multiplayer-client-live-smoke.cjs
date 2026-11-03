@@ -43,7 +43,7 @@ function browser(saved=new Map()){
     LETTERS:{en:['A','B','C','D','E','F','G','H','I','J'],
       ru:['А','Б','В','Г','Д','Е','Ж','З','И','К']}
   });
-  vm.runInContext(config.replace('const ONLINE_API = "";','const ONLINE_API = '+JSON.stringify(api)+';')+'\n'+source,ctx);
+  vm.runInContext(config.replace(/const ONLINE_API = "[^"]*";/,'const ONLINE_API = '+JSON.stringify(api)+';')+'\n'+source,ctx);
   const evaluate=js=>vm.runInContext(js,ctx);
   evaluate('onlinePoll=()=>{}');
   evaluate('onlineSwitch(true)');

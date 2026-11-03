@@ -46,7 +46,7 @@ function boot(url='',respond=()=>view()){
     LETTERS:{en:['A','B','C','D','E','F','G','H','I','J'],ru:['А','Б','В','Г','Д','Е','Ж','З','И','К']},
     FLEET:[4,3,3,2,2,2,1,1,1,1],language:'en'
   });
-  vm.runInContext(cfg.replace('const ONLINE_API = "";','const ONLINE_API = '+JSON.stringify(url)+';')+'\n'+code,context);
+  vm.runInContext(cfg.replace(/const ONLINE_API = "[^"]*";/,'const ONLINE_API = '+JSON.stringify(url)+';')+'\n'+code,context);
   return {nodes,stored,requests,state,eval:s=>vm.runInContext(s,context)};
 }
 const settle=async()=>{await new Promise(resolve=>setImmediate(resolve));await new Promise(resolve=>setImmediate(resolve));};
@@ -55,7 +55,7 @@ test('multiplayer remains hidden and makes no external calls without dedicated e
   assert.equal(b.nodes.get('online-open').hidden,true);
   assert.equal(b.requests.length,0);
   assert.equal(b.stored.size,0);
-  assert.match(cfg,/ONLINE_API = ""/);
+  assert.match(cfg,/ONLINE_API = "https:\/\/[a-z0-9-]+\.supabase\.co\/functions\/v1\/seabattle-multiplayer"/);
   assert.doesNotMatch(cfg,/sb_secret_|service_role|eyJ/);
 });
 test('online room invitation only carries a code, and local reconnect stores no fleets',async()=>{
