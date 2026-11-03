@@ -22,6 +22,7 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
       ui.navy.value = navy;
       fillRankOptions();
       if (game) render();
+      if (typeof renderMultiplayerLocale === "function") renderMultiplayerLocale();
     }
     function setUpGame(preserveSeries=false) {
       if (!preserveSeries || ui.mode.value!=="series") seriesRun=null;
