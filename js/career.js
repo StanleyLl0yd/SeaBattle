@@ -124,7 +124,7 @@ function freshCareer(nation = "ru") {
     }
     function availableMode(mode) {
       if (mode === "daily") return "daily";
-      if (mode === "quick") return "quick";
+      if (mode === "quick" || mode === "series") return mode;
       if (navy === "us" && mode === "warrant" && rankForWins(career.wins) >= 7) return "warrant";
       if (navy === "us" && mode === "fleet" && rankForWins(career.wins) === 19) return "fleet";
       return "campaign";
@@ -132,7 +132,7 @@ function freshCareer(nation = "ru") {
     function selectedLevel() {
       const mode = availableMode(ui.mode.value);
       if (mode === "daily") return 12;
-      if (mode === "quick") return Math.max(1, Math.min(19, Number(ui.quickLevel.value) || 1));
+      if (mode === "quick" || mode === "series") return Math.max(1, Math.min(19, Number(ui.quickLevel.value) || 1));
       if (mode === "fleet") return 19;
       if (mode === "warrant") return [9,11,13,15,17,19][warrantRankForWins(career.warrantWins)];
       return rankForWins(career.wins);
@@ -158,8 +158,8 @@ function freshCareer(nation = "ru") {
       const current = setup ? selectedLevel() : game.level;
       ui.navy.disabled = !setup;
       ui.mode.disabled = !setup;
-      ui.quickLevel.disabled = !setup || ui.mode.value !== "quick";
-      ui.quickBox.hidden = ui.mode.value !== "quick";
+      ui.quickLevel.disabled = !setup || !["quick","series"].includes(ui.mode.value);
+      ui.quickBox.hidden = !["quick","series"].includes(ui.mode.value);
       ui.warrantOption.disabled = navy !== "us" || rank < 7;
       ui.fleetOption.disabled = navy !== "us" || rank < 19;
       ui.careerReset.disabled = game.phase === "playing";
@@ -180,6 +180,7 @@ function freshCareer(nation = "ru") {
       }
       const notice=ui.mode.value==="daily" ? "dailyModeNotice" :
         ui.mode.value==="quick" ? "quickModeNotice" :
+        ui.mode.value==="series" ? "seriesModeNotice" :
         ui.mode.value==="warrant" ? "warrantModeNotice" :
         ui.mode.value==="fleet" ? "fleetModeNotice" : "careerModeNotice";
       ui.careerStats.textContent = t("careerVictories") + ": " + career.wins + " · " +
