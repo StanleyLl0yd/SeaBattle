@@ -27,7 +27,7 @@ function boot(url='',respond=()=>view()){
   for(const m of html.matchAll(/\bid="([^"]+)"/g))nodes.set(m[1],node());
   const document={
     body:{classList:{toggle(name,flag){if(flag)state.classes.add(name);else state.classes.delete(name);}}},
-    getElementById:id=>nodes.get(id),querySelectorAll:()=>[],activeElement:null,hidden:false
+    getElementById:id=>nodes.get(id),querySelector:()=>null,querySelectorAll:()=>[],activeElement:null,hidden:false
   };
   const location={href:'https://stanleyll0yd.github.io/SeaBattle/'};
   const fetch=async(path,request)=>{
