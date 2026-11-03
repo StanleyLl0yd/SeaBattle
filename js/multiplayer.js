@@ -171,6 +171,12 @@ function onlineAccept(view){
 function onlineStop(){
   onlineEpoch++;clearTimeout(onlineTimer);onlineTimer=0;
 }
+function onlinePollDelay(){
+  const phase=onlineView?.phase;
+  const interval=phase==="playing"?1500:
+    phase==="finished"?(onlineView?.myRematch?3000:10000):3000;
+  return document.hidden?Math.max(interval,5000):interval;
+}
 function onlinePoll(){
   onlineStop();
   const epoch=onlineEpoch;
@@ -190,7 +196,7 @@ function onlinePoll(){
       }
     }
     if(epoch===onlineEpoch&&onlineSession&&onlineActive)
-      onlineTimer=setTimeout(tick,document.hidden?5000:1500);
+      onlineTimer=setTimeout(tick,onlinePollDelay());
   }
   void tick();
 }

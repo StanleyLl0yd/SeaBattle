@@ -127,3 +127,21 @@ test('the opponent board keeps its enemy-cell styling after a completed game',()
   assert.match(b.nodes.get('online-their-grid').innerHTML,/class="cell sunk fired enemy-cell"/);
   assert.match(b.nodes.get('online-my-grid').innerHTML,/class="cell(?: own-cell)"/);
 });
+
+test('online polling backs off outside active turns without slowing live battles',()=>{
+  const b=boot('https://seabattleexample.supabase.co/functions/v1/seabattle-multiplayer');
+  b.eval('onlineView='+JSON.stringify(view({phase:'playing'})));
+  assert.equal(b.eval('onlinePollDelay()'),1500);
+  b.eval('onlineView.phase="placement"');
+  assert.equal(b.eval('onlinePollDelay()'),3000);
+  b.eval('onlineView.phase="waiting"');
+  assert.equal(b.eval('onlinePollDelay()'),3000);
+  b.eval('onlineView.phase="finished";onlineView.myRematch=false');
+  assert.equal(b.eval('onlinePollDelay()'),10000);
+  b.eval('onlineView.myRematch=true');
+  assert.equal(b.eval('onlinePollDelay()'),3000);
+  b.eval('document.hidden=true;onlineView.phase="playing"');
+  assert.equal(b.eval('onlinePollDelay()'),5000);
+  b.eval('onlineView.phase="finished";onlineView.myRematch=false');
+  assert.equal(b.eval('onlinePollDelay()'),10000);
+});

@@ -59,8 +59,10 @@ the server. JSON views are redacted per participant; opposing unsunk ship
 positions are never returned. Updates use optimistic version compare to reject
 racing writes, including concurrent shots and simultaneous joins.
 
-The UI polls every **1.5 seconds** while visible and every 5 seconds in the
-background. This is near-real-time, not a WebSocket transport; load and cost
+The UI polls every **1.5 seconds during active, visible battles**. Idle
+waiting and placement poll every 3 seconds; after a finished game polling drops
+to 10 seconds (3 seconds while awaiting an agreed rematch). Hidden tabs have a
+minimum 5-second interval. This is near-real-time, not a WebSocket transport; load and cost
 testing is required before general availability. A participant is treated
 offline after 12 seconds without a heartbeat; new shots are blocked after
 15 seconds. The remaining participant can claim victory after a 120-second
