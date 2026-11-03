@@ -160,6 +160,7 @@ function onlineRender(force=false){
 }
 function onlineAccept(view){
   if(!onlineSession)return;
+  if(onlineView&&onlineView.code===view.code&&view.version<onlineView.version)return;
   if(onlineView&&onlineView.round!==view.round){
     onlineFleet=randomFleet();onlineManual=false;
   }

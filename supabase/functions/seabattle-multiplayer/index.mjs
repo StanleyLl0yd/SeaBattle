@@ -2,6 +2,22 @@ import {validFleet,fire,memberView} from "./rules.mjs";
 
 const ALPHABET="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const MAX_BODY=4096;
+async function readLimited(req){
+  if(!req.body)throw bad("INVALID_REQUEST");
+  const reader=req.body.getReader(),chunks=[];
+  let length=0;
+  while(true){
+    const {done,value}=await reader.read();
+    if(done)break;
+    length+=value.byteLength;
+    if(length>MAX_BODY){await reader.cancel();throw bad("INVALID_REQUEST",413);}
+    chunks.push(value);
+  }
+  const raw=new Uint8Array(length);
+  let position=0;
+  for(const chunk of chunks){raw.set(chunk,position);position+=chunk.byteLength;}
+  return new TextDecoder().decode(raw);
+}
 const DAY=86400000;
 const GRACE=120000;
 const bad=(code,status=400)=>Object.assign(new Error(code),{code,status});
@@ -36,8 +52,7 @@ export function createHandler(store,now=()=>Date.now()){
     try {
       const size=Number(req.headers.get("content-length")||0);
       if(size>MAX_BODY)throw bad("INVALID_REQUEST",413);
-      const text=await req.text();
-      if(text.length>MAX_BODY)throw bad("INVALID_REQUEST",413);
+      const text=await readLimited(req);
       let request;
       try{request=JSON.parse(text);}catch{throw bad("INVALID_REQUEST");}
       if(!request||typeof request!=="object"||Array.isArray(request))throw bad("INVALID_REQUEST");

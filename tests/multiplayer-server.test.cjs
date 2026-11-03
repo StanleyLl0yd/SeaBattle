@@ -134,3 +134,12 @@ test('24-hour absolute expiry rejects old credentials and purges expired rows',a
   assert.equal(fresh.status,201);
   assert.equal(store.rooms.has(host.code),false);
 });
+
+test('large requests are rejected without processing room creation',async()=>{
+  const store=new Store(),handler=await createHandler(store);
+  const response=await handler(new Request('https://edge.example.test',{method:'POST',
+    headers:{origin:'https://stanleyll0yd.github.io'},
+    body:JSON.stringify({action:'create',padding:'x'.repeat(9000)})}));
+  assert.equal(response.status,413);
+  assert.equal(store.rooms.size,0);
+});

@@ -107,3 +107,13 @@ test('unexpected remote cell states cannot inject HTML attributes',()=>{
   assert.doesNotMatch(html,/onmouseover|alert\(/);
   assert.match(html,/<button[^>]+data-i="0"[^>]*><\/button>/);
 });
+
+test('out-of-order polling cannot roll back a newer authoritative server version',()=>{
+  const api='https://seabattleexample.supabase.co/functions/v1/seabattle-multiplayer';
+  const b=boot(api);
+  b.eval('onlineSession='+JSON.stringify({code:CODE,token:TOKEN})+';onlineActive=true;onlineFleet=randomFleet();');
+  b.eval('onlineAccept('+JSON.stringify(view({version:4,phase:'playing',turn:'host',opponentOnline:true}))+')');
+  b.eval('onlineAccept('+JSON.stringify(view({version:3,phase:'placement'}))+')');
+  assert.equal(b.eval('onlineView.version'),4);
+  assert.equal(b.eval('onlineView.phase'),'playing');
+});
