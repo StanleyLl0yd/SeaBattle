@@ -92,7 +92,7 @@ function onlineGrid(id,marks,ships,shootable,placeable){
     document.activeElement.dataset.i:null;
   let html="";
   for(let i=0;i<100;i++){
-    const mark=marks[i];
+    const mark=["miss","hit","sunk","blocked"].includes(marks[i])?marks[i]:null;
     const classes=["cell"];
     if(mark)classes.push(mark,"fired");
     else if(visible.has(i))classes.push("ship");
