@@ -23,14 +23,15 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
       fillRankOptions();
       if (game) render();
     }
-    function setUpGame() {
+    function setUpGame(preserveSeries=false) {
+      if (!preserveSeries || ui.mode.value!=="series") seriesRun=null;
       epoch++;
       ui.mode.value = availableMode(ui.mode.value);
       const day = utcChallengeDate();
-      game = { player: randomFleet(), enemy: ui.mode.value === "daily" ? dailyFleet(day) : randomFleet(),
+      game = { player: randomFleet(), enemy: ui.mode.value === "daily" ? dailyFleet(day) : opponentFleet(),
         manual: false, horizontal: true, hover: -1,
         phase: "setup", turn: "player", navy, mode: ui.mode.value, level: selectedLevel(), promotion:0, specialPromotion:0,
-        dailyDate: day, dailyResult: null, trace: [], trainerVisible:false,
+        dailyDate: day, dailyResult: null, dailyOfficial:false, trace: [], trainerVisible:false,
         message: { key: "ready", args: {} } };
       render();
     }
@@ -69,6 +70,12 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
         " · "+t("statsLosses")+": "+(row.games-row.wins)+
         " · "+t("statsAccuracy")+": "+(row.shots ? Math.round(100*row.hits/row.shots)+"%" : "—");
       ui.statsSummary.textContent=details(total);
+      const trend=recentPerformance();
+      if (trend) ui.statsTrend.textContent =
+        t("statsRecent")+": "+trend.current.wins+"/"+trend.current.games+
+        " · "+t("statsPrevious")+": "+trend.previous.wins+"/"+trend.previous.games+
+        " · "+t("statsActiveDays")+": "+trend.days7+"/7"+
+        " · "+t("statsMonthBest")+": "+(trend.monthBest===null?"—":trend.monthBest);
       ui.statsList.replaceChildren(...rows.map(row=>{
         const item=document.createElement("li");
         item.textContent=t("statsMode"+row.mode.charAt(0).toUpperCase()+row.mode.slice(1))+
@@ -100,15 +107,35 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
       // Explicit display is required because the CSS class has its own display rules.
       ui.setup.style.display = game.phase === "setup" ? "" : "none";
       ui.resultActions.hidden = game.phase !== "finished";
+      const series=game.mode==="series" ? seriesRun : null;
+      ui.seriesPanel.hidden = game.mode!=="series";
+      if (series) {
+        const prior=journal.seriesBest[String(series.level)];
+        ui.seriesDetails.textContent=t("seriesRound")+": "+series.played+"/3"+
+          " · "+t("statsWins")+": "+series.wins+
+          " · "+t("shots")+": "+series.shots+
+          (series.played===3?" · "+t("seriesComplete"):"")+
+          (prior?" · "+t("seriesBest")+": "+prior.wins+"/3 · "+prior.shots:"");
+      } else ui.seriesDetails.textContent=t("seriesReady");
+      ui.playAgain.textContent=t(series && series.played<3 && game.phase==="finished" ?
+        "seriesNext" : "playAgain");
+      ui.rematch.hidden = game.phase!=="finished" || game.mode==="series";
       ui.dailyPanel.hidden = game.mode !== "daily";
       ui.dailyShare.hidden = game.mode !== "daily" || game.phase !== "finished" || game.turn !== "player";
       if (game.mode === "daily") {
         const best = dailyBest(game.dailyDate);
-        ui.dailyDetails.textContent = t("dailyWhen") + ": " + game.dailyDate + " · " +
-          t("dailyBest") + ": " + (best === null ? t("dailyUnplayed") : best) + ". " + t("dailyRules");
+        const official=dailyFirstScore(game.dailyDate);
+        ui.dailyDetails.textContent = t("dailyWhen")+": "+game.dailyDate+" · "+
+          t("dailyOfficial")+": "+(Number.isInteger(official)?official:
+            official===null?t("dailyAbandoned"):best!==null?t("dailyLegacy"):t("dailyUnplayed"))+
+          " · "+t("dailyBest")+": "+(best===null?t("dailyUnplayed"):best)+". "+
+          t("dailyRules");
         ui.dailyHistory.replaceChildren(...recentDailyScores(game.dailyDate).map(({date,shots}) => {
           const item = document.createElement("li");
-          item.textContent = date + " — " + (shots === null ? t("dailyUnplayed") : t("dailyHistoryShots") + ": " + shots);
+          const first=dailyFirstScore(date);
+          item.textContent = date + " — " + (first===undefined ?
+            (shots===null?t("dailyUnplayed"):t("dailyHistoryShots")+": "+shots) :
+            first===null?t("dailyAbandoned"):t("dailyOfficial")+": "+first);
           return item;
         }));
       }
@@ -158,6 +185,9 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
       game.level = selectedLevel();
       game.mode = ui.mode.value;
       game.navy = navy;
+      if (game.mode==="daily") game.dailyOfficial=beginDailyFirst(game.dailyDate);
+      if (game.mode==="series" && !seriesRun)
+        seriesRun={level:game.level,played:0,wins:0,shots:0};
       updateStatus(game.mode === "daily" ? "dailyRules" : "turn");
       render();
     }
@@ -171,12 +201,22 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
       } else if (game.mode === "daily") {
         if (winner === "player") {
           const shots = shotCount(game.enemy);
-          game.dailyResult = { date:game.dailyDate, shots, best:saveDailyScore(game.dailyDate, shots) };
+          const official=game.dailyOfficial && completeDailyFirst(game.dailyDate,shots);
+          game.dailyResult={date:game.dailyDate,shots,
+            best:saveDailyScore(game.dailyDate,shots),official};
         }
       } else if (game.mode === "warrant" || game.mode === "fleet") {
         game.specialPromotion = recordSpecialResult(winner);
       }
-      recordPersonalResult(winner,game.mode,game.navy,shotCount(game.enemy),hitCount(game.enemy));
+      const playerShots=shotCount(game.enemy),playerHits=hitCount(game.enemy);
+      recordPersonalResult(winner,game.mode==="series"?"quick":game.mode,game.navy,playerShots,playerHits);
+      recordJournal(winner,game.mode,game.navy,game.level,playerShots,playerHits);
+      if (game.mode==="series" && seriesRun && seriesRun.played<3) {
+        seriesRun.played++;
+        seriesRun.wins+=winner==="player"?1:0;
+        seriesRun.shots+=playerShots;
+        if (seriesRun.played===3) completeSeries(seriesRun);
+      }
       const keys = game.mode === "daily" ? ["dailyWin","careerLoss"] :
         game.mode === "campaign" ? ["campaignWin","careerLoss"] :
         game.mode === "warrant" ? ["warrantWin","warrantLoss"] :
@@ -200,7 +240,7 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
           game.turn = "computer";
           updateStatus("playerMiss", { at: i });
           const current = epoch;
-          setTimeout(() => computerFire(current), 650);
+          setTimeout(() => computerFire(current), fastTempo?85:650);
         }
       } else if (outcome.kind === "sunk") updateStatus("playerSunk", { at: i, size: outcome.size });
       else updateStatus("playerHit", { at: i });
@@ -218,7 +258,7 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
       } else if (outcome.kind === "sunk") updateStatus("computerSunk", { at: i, size: outcome.size });
       else updateStatus("computerHit", { at: i });
       render();
-      if (game.phase === "playing" && game.turn === "computer") setTimeout(() => computerFire(current), 620);
+      if (game.phase === "playing" && game.turn === "computer") setTimeout(() => computerFire(current), fastTempo?85:620);
     }
     ui.player.addEventListener("click", event => {
       const cell = event.target.closest(".cell");
@@ -242,7 +282,7 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
       const cell = event.target.closest(".cell");
       if (cell) playerFire(Number(cell.dataset.i));
     });
-    ui.again.addEventListener("click", setUpGame);
+    ui.again.addEventListener("click", () => setUpGame());
     ui.trainerToggle.addEventListener("click", () => {
       if (game.mode !== "quick" || game.phase !== "playing" || game.turn !== "player") return;
       game.trainerVisible = !game.trainerVisible;
@@ -252,7 +292,8 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
       if (game.mode !== "daily" || game.phase !== "finished" ||
           game.turn !== "player" || !game.dailyResult) return;
       const {date,shots,best} = game.dailyResult;
-      const text = dailyShareText(date,shots,best,language);
+      const text = dailyShareText(date,shots,best,language) +
+        (game.dailyResult.official?"\n"+t("dailyOfficial"):"\n"+t("dailyPractice"));
       try {
         if (!navigator.clipboard?.writeText) throw new Error("Clipboard not available");
         await navigator.clipboard.writeText(text);
@@ -279,9 +320,27 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
       if (result === "backupImported") ui.backupText.value = "";
       showBackupStatus(result);
     });
+    function instantRematch(continueSeries=false) {
+      if (game.phase!=="finished") return;
+      const fleet=game.player.ships.map(ship=>ship.cells.slice());
+      const priorMode=game.mode,priorLevel=game.level;
+      ui.mode.value=priorMode;
+      if (priorMode==="quick" || priorMode==="series")
+        ui.quickLevel.value=String(priorLevel);
+      setUpGame(continueSeries);
+      game.player=createBoard();
+      for (const cells of fleet) placeShip(game.player,cells);
+      game.manual=false;
+      startBattle();
+    }
     ui.playAgain.addEventListener("click", () => {
-      if (game.phase === "finished") setUpGame();
+      if (game.phase!=="finished") return;
+      if (game.mode==="series" && seriesRun && seriesRun.played<3)
+        instantRematch(true);
+      else setUpGame();
     });
+    ui.rematch.addEventListener("click", () => instantRematch());
+    ui.tempo.addEventListener("change", () => setFastTempo(ui.tempo.checked));
     ui.navy.addEventListener("change", () => {
       if (game.phase !== "setup") { ui.navy.value = navy; return; }
       const choice = ui.navy.value;
@@ -304,15 +363,17 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
       game.mode = ui.mode.value;
       game.level = selectedLevel();
       game.dailyDate = utcChallengeDate();
-      game.enemy = game.mode === "daily" ? dailyFleet(game.dailyDate) : randomFleet();
+      game.enemy = game.mode === "daily" ? dailyFleet(game.dailyDate) : opponentFleet();
       game.trace = [];
       game.dailyResult = null;
       game.trainerVisible = false;
+      seriesRun=null;
       render();
     });
     ui.quickLevel.addEventListener("change", () => {
       if (game.phase !== "setup") return;
       game.level = selectedLevel();
+      seriesRun=null;
       render();
     });
     ui.careerReset.addEventListener("click", () => {
@@ -370,6 +431,7 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
     ui.navy.value = navy;
     ui.mode.value = "campaign";
     ui.quickLevel.value = "1";
+    ui.tempo.checked=fastTempo;
     setLanguage(language);
     setUpGame();
 
