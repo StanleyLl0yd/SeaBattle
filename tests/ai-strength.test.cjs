@@ -138,15 +138,15 @@ test('rank 19 benchmark against frozen 1.1.0 on identical random and perimeter f
   assert.ok(mean(upgraded.slice(32))<46,'perimeter defense must remain practical');
 });
 
-test('19 levels form a gradual, distinct skill curve on identical fleets',()=>{
+test('19 levels form a gradual, distinct skill curve on 60 matched fleets',()=>{
   const e=engine(source);
   e.seed(0x127caa8f);
-  const boards=Array.from({length:18},()=>JSON.stringify(e.api.randomFleet()));
+  const boards=Array.from({length:60},()=>JSON.stringify(e.api.randomFleet()));
   const averages=[];
   for(let level=1;level<=19;level++){
     const scores=[];
     for(let i=0;i<boards.length;i++){
-      e.seed((0x5ea8babe^Math.imul(level,9176)^Math.imul(i+1,10691))>>>0);
+      e.seed((0x5ea8babe^Math.imul(i+1,10691))>>>0);
       scores.push(play(e,boards[i],level));
     }
     averages.push(mean(scores));
