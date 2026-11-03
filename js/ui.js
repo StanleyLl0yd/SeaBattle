@@ -127,7 +127,8 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
         const official=dailyFirstScore(game.dailyDate);
         ui.dailyDetails.textContent = t("dailyWhen")+": "+game.dailyDate+" · "+
           t("dailyOfficial")+": "+(Number.isInteger(official)?official:
-            official===null?t("dailyAbandoned"):best!==null?t("dailyLegacy"):t("dailyUnplayed"))+
+            official===null?t(game.phase==="playing" && game.dailyOfficial ?
+              "dailyInProgress" : "dailyAbandoned"):best!==null?t("dailyLegacy"):t("dailyUnplayed"))+
           " · "+t("dailyBest")+": "+(best===null?t("dailyUnplayed"):best)+". "+
           t("dailyRules");
         ui.dailyHistory.replaceChildren(...recentDailyScores(game.dailyDate).map(({date,shots}) => {
@@ -185,7 +186,14 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
       game.level = selectedLevel();
       game.mode = ui.mode.value;
       game.navy = navy;
-      if (game.mode==="daily") game.dailyOfficial=beginDailyFirst(game.dailyDate);
+      if (game.mode==="daily") {
+        const today=utcChallengeDate();
+        if (game.dailyDate!==today) {
+          game.dailyDate=today;
+          game.enemy=dailyFleet(today);
+        }
+        game.dailyOfficial=beginDailyFirst(today);
+      }
       if (game.mode==="series" && !seriesRun)
         seriesRun={level:game.level,played:0,wins:0,shots:0};
       updateStatus(game.mode === "daily" ? "dailyRules" : "turn");
