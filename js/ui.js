@@ -47,6 +47,7 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
     function renderBoard(board, hidden, target) {
       const reveal = !hidden || game.phase === "finished";
       const canShoot = hidden && game.phase === "playing" && game.turn === "player";
+      const focused = document.activeElement?.parentElement === target ? document.activeElement.dataset.i : null;
       target.classList.toggle("playing", canShoot);
       let html = "";
       for (let i = 0; i < 100; i++) {
@@ -59,6 +60,7 @@ function updateStatus(key, args = {}) { game.message = { key, args }; }
         html += `<button type="button" class="${classes.join(" ")}" data-i="${i}" aria-label="${nameAt(i)}: ${description}" ${hidden && (!canShoot || shot !== null) ? "disabled" : ""}></button>`;
       }
       target.innerHTML = html;
+      if (focused !== null) target.querySelector('[data-i="' + focused + '"]:not(:disabled)')?.focus({preventScroll:true});
     }
     function renderPersonalStats() {
       const rows=STATS_MODES.map(mode=>({mode,...personalStats[mode]}));

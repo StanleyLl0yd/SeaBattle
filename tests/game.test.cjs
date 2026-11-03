@@ -90,3 +90,29 @@ test('computer completes 100 games without invalid or duplicate shots', () => {
     assert.equal(hitCount(b), 20);
   }
 });
+
+test('solo grid updates retain keyboard focus on an available cell', () => {
+  const source=require('node:fs').readFileSync(require('node:path').join(__dirname,'..','js','ui.js'),'utf8');
+  const begin=source.indexOf('function renderBoard('),end=source.indexOf('function renderPersonalStats(',begin);
+  assert.ok(begin>0&&end>begin);
+  const marks=Array(100).fill(null),ships=Array(100).fill(-1);
+  let checked=null,focused=null;
+  const target={
+    innerHTML:'',
+    classList:{toggle(){}},
+    querySelector(selector){
+      checked=selector;
+      return {focus(options){focused=options;}};
+    }
+  };
+  const document={activeElement:{parentElement:target,dataset:{i:'18'}}};
+  const ctx=vm.createContext({document,game:{phase:'playing',turn:'player'},
+    t:key=>key,nameAt:i=>'A'+(i+1)});
+  vm.runInContext(source.slice(begin,end)+'\nrenderBoard({shots,ships},true,target);',vm.createContext({
+    ...ctx,document,game:{phase:'playing',turn:'player'},t:key=>key,
+    nameAt:i=>'A'+(i+1),shots:marks,ships, target
+  }));
+  assert.match(target.innerHTML,/data-i="18"/);
+  assert.equal(checked,'[data-i="18"]:not(:disabled)');
+  assert.equal(focused.preventScroll,true);
+});
