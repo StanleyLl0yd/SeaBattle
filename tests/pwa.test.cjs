@@ -134,6 +134,7 @@ test('v1.2.1 GitHub Release is gated on tested main and deployed Pages',()=>{
   assert.match(release,/gh release view v1\.2\.1/);
   assert.match(release,/gh api "repos\/\$GITHUB_REPOSITORY\/git\/ref\/tags\/v1\.2\.1"/);
   assert.match(release,/gh release create v1\.2\.1[^\n]+--target "\$GITHUB_SHA"/);
+  assert.match(release,/--title "SeaBattle 1\.2\.1"/);
   assert.match(release,/grep -Eq [^\n]+"version"/);
   assert.match(workflow,/^permissions:\s*\n\s+contents: read/m);
   assert.doesNotMatch(workflow,/pull_request_target/);

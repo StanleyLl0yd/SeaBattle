@@ -94,4 +94,4 @@ jobs:
           fi
           awk '/^## \[1\.2\.1\]/ {reading=1} /^## \[1\.2\.0\]/ {reading=0} reading' CHANGELOG.md > "$RUNNER_TEMP/release-notes.md"
           test -s "$RUNNER_TEMP/release-notes.md"
-          gh release create v1.2.1 --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "SeaBattle 1.2.0" --notes-file "$RUNNER_TEMP/release-notes.md" --latest
+          gh release create v1.2.1 --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "SeaBattle 1.2.1" --notes-file "$RUNNER_TEMP/release-notes.md" --latest
