@@ -196,7 +196,7 @@ function aiJointShot(shots, open, lengths, legal, active, level) {
           }
         }
         const best = Math.max(...open.map(i => target[i]));
-        if (best > 0) return randomFrom(open.filter(i => target[i] >= best * 0.995));
+        if (best > 0) return randomFrom(open.filter(i => target[i] >= best * (level>=18?1:0.995)));
       }
 
       // Gradually enable bounded full-fleet sampling as ranks increase.
@@ -254,15 +254,14 @@ function aiJointShot(shots, open, lengths, legal, active, level) {
         Math.max(-0.09, Math.min(0.09, (edgeRate - innerRate) * 0.3));
       let best = -Infinity;
       const scores = new Float64Array(SIZE * SIZE);
-      const sampleShare = samples >= 3 && edgeHits+innerHits>0 ?
-        Math.min(0.88,0.052*(level-3)+0.0002*(level-3)**2) : 0;
+      const sampleShare = samples >= 3 ? Math.min(0.88,0.052*(level-3)+0.0002*(level-3)**2) : 0;
       for (const i of open) {
         const p = samples ? heat[i] / samples : 0;
         const base = localSum ? (local[i] * liveCells / localSum) : 0;
         const probability = sampleShare * p + (1 - sampleShare) * base;
         const [x, y] = xy(i);
         const edge = x === 0 || x === 9 || y === 0 || y === 9;
-        const information = (0.06+0.04*skill)*probability*(1-probability);
+        const information = (0.06-0.035*skill)*probability*(1-probability);
         const score = probability + information + (edge ? adaptation : 0);
         scores[i] = score;
         if (score > best) best = score;
@@ -279,5 +278,5 @@ function aiJointShot(shots, open, lengths, legal, active, level) {
       const hunt = covering.length && (coverWeight>=1 || Math.random()<coverWeight) ? covering : open;
       if (!active && Math.random() < exploration) return randomFrom(hunt);
       const bestHunt = Math.max(...hunt.map(i => scores[i]));
-      return randomFrom(hunt.filter(i => scores[i] >= bestHunt - (level >= 16 ? 0.002 : 0.004)));
+      return randomFrom(hunt.filter(i => scores[i] >= bestHunt - (level>=18?0:level>=16?0.002:0.004)));
     }
