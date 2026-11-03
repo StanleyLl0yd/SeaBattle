@@ -163,3 +163,35 @@ test('all opponent fleet styles remain legal and daily puzzle remains determinis
   assert.equal(b.eval('JSON.stringify(dailyFleet("2026-11-03").ships.map(s=>s.cells))'),
     b.eval('JSON.stringify(dailyFleet("2026-11-03").ships.map(s=>s.cells))'));
 });
+
+
+test('Daily UTC rollover is resolved at battle start, not idle setup time',()=>{
+  const b=boot();
+  b.nodes.get('game-mode').value='daily';
+  b.nodes.get('game-mode').handlers.change();
+  const today=b.eval('utcChallengeDate()');
+  b.eval('game.dailyDate="2000-01-01";game.enemy=dailyFleet("2000-01-01")');
+  b.eval('startBattle()');
+  assert.equal(b.eval('game.dailyDate'),today);
+  assert.equal(b.eval('game.dailyOfficial'),true);
+  assert.equal(b.eval('dailyFirstScore("2000-01-01")'),undefined);
+  assert.equal(b.eval('dailyFirstScore('+JSON.stringify(today)+')'),null);
+  assert.equal(b.eval('JSON.stringify(game.enemy.ships.map(ship=>ship.cells))'),
+    b.eval('JSON.stringify(dailyFleet(game.dailyDate).ships.map(ship=>ship.cells))'));
+  assert.match(b.nodes.get('daily-details').textContent,/Official attempt in progress/);
+});
+
+test('edge and center enemy styles have distinct deterministic placement tendencies',()=>{
+  const b=boot();
+  const pairs=b.json('Array.from({length:64},(_,i)=>{'+
+    'const seed=0x5185+i*127;'+
+    'const edge=randomFleet(seededRandom(seed),"edge");'+
+    'const center=randomFleet(seededRandom(seed),"center");'+
+    'const border=board=>board.cells.reduce((count,id,j)=>'+
+      'count+(id>=0&&(j<10||j>=90||j%10===0||j%10===9)?1:0),0);'+
+    'return [border(edge),border(center)];'+
+    '})');
+  const [edges,centers]=pairs.reduce((s,p)=>[s[0]+p[0],s[1]+p[1]],[0,0]);
+  assert.ok(edges>centers,
+    'weighted edge placement should occupy more border cells: '+edges+' vs '+centers);
+});
